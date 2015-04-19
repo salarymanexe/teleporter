@@ -1,5 +1,8 @@
 package net.dyeo.teleporter;
 
+/*
+ * Reference contains the mod version and mod id for forge purposes
+ */
 public final class Reference {
 
 	public static final String MODID = "teleporter";

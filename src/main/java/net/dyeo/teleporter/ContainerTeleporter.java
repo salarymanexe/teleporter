@@ -6,10 +6,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-/**
- * User: brandon3055
- * Date: 06/01/2015
- *
+/*
  * The container is used to link the client side gui to the server side inventory and it is where
  * you add the slots to your gui. It can also be used to sync server side data with the client but
  * that will be covered in a later tutorial

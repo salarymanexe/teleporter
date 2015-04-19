@@ -3,6 +3,10 @@ package net.dyeo.teleporter;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 
+/*
+ * TeleporterNode contains the members that must be saved to the world. 
+ * It also contains methods to save and write and read the data to NBT.
+ */
 public class TeleporterNode 
 {	
 	public BlockPos pos;

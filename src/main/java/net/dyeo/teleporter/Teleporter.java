@@ -21,7 +21,10 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
- 
+
+/*
+ * General Mod
+ */
 @Mod(modid = Reference.MODID, version = Reference.VERSION)
 public class Teleporter
 {

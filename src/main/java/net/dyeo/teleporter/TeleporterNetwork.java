@@ -19,6 +19,10 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 
+/*
+ * TeleporterNetwork is the singleton responsible for saving the teleporter data onto the world file, and is 
+ * responsible for retrieving destination and source nodes during teleportation.
+ */
 public class TeleporterNetwork extends WorldSavedData
 {
 	

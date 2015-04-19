@@ -27,11 +27,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-
-/**
- * User: brandon3055
- * Date: 06/01/2015
- *
+/*
  * BlockInventoryBasic is a simple inventory capable of storing 9 item stacks. The block itself doesn't do much more
  * then any regular block except create a tile entity when placed, open a gui when right clicked and drop tne
  * inventory's contents when harvested. The actual storage is handled by the tile entity.

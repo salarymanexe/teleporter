@@ -10,12 +10,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.awt.*;
 
-/**
- * User: brandon3055
- * Date: 06/01/2015
- *
- * GuiInventoryBasic is a simple gui that does nothing but draw a background image and a line of text on the screen
- * everything else is handled by the vanilla container code
+/*
+ * GuiInventoryBasic is a simple gui that does nothing but draw a background image and a line of text on the screen.
+ * Everything else is handled by the vanilla container code.
  */
 @SideOnly(Side.CLIENT)
 public class GuiTeleporter extends GuiContainer {

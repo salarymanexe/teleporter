@@ -6,10 +6,7 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 
 import java.util.HashMap;
 
-/**
- * User: brandon3055
- * Date: 06/01/2015
- *
+/*
  * This class is used to create the client and server gui elements when a player opens a gui. There can only be one gui handler registered per mod,
  *   so each GUI is given a unique GuiID which is used to create the correct element.
  * The GuiHandlerRegistry is registered with Forge using
