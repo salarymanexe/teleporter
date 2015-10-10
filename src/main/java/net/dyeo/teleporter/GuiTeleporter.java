@@ -18,7 +18,7 @@ import java.awt.*;
 public class GuiTeleporter extends GuiContainer {
 
 	// This is the resource location for the background image for the GUI
-	private static final ResourceLocation texture = new ResourceLocation("teleporter", "textures/gui/teleporterBg.png");
+	private static final ResourceLocation texture = new ResourceLocation(Reference.MODID.toLowerCase() , "textures/gui/teleporterBlock.png");
 	private TileEntityTeleporter tileEntityTeleporter;
 
 	public GuiTeleporter(InventoryPlayer invPlayer, TileEntityTeleporter tile) {

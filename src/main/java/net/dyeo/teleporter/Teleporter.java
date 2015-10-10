@@ -13,6 +13,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.sound.SoundLoadEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -36,33 +38,74 @@ public class Teleporter
 	@EventHandler
 	public void preinit(FMLPreInitializationEvent event)
 	{
+		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
+		config.setCategoryRequiresMcRestart(config.CATEGORY_GENERAL, true);
+
+		config.load();
+		
+		config.addCustomCategoryComment(config.CATEGORY_GENERAL, "Vanilla-Inspired Teleporters Version " + Minecraft.getMinecraft().getVersion() + "-" + Reference.VERSION + " Configuration");
+		
+		//Property useCustomTexturesP = config.get(config.CATEGORY_GENERAL, "useCustomTextures", false);
+		//useCustomTexturesP.comment = "If true, allows the use of custom texture names, rather than the default minecraft textures.\nDefault is false";
+		
+		Property useDiamondsP = config.get(config.CATEGORY_GENERAL, "useDiamonds", true);
+		useDiamondsP.comment = "If false, removes diamonds from the crafting recipe and replaces them with quartz blocks.\nDefault is true";
+		Property numTeleportersP = config.get(config.CATEGORY_GENERAL, "numTeleporters", 1);
+		numTeleportersP.comment = "Specifies the number of teleporters created with a single recipe.\nDefault is 1";
+		
+		//Reference.useCustomTextures = useCustomTexturesP.getBoolean(false);
+		Reference.useDiamonds = useDiamondsP.getBoolean(true);
+		Reference.numTeleporters = numTeleportersP.getInt(1);
+		
+		config.save();
+		
 		//FMLCommonHandler.instance().bus().register(events);
 		//MinecraftForge.EVENT_BUS.register(events);
 		instance = this;
-		
-		teleporterBlock = new BlockTeleporter().setUnlocalizedName("teleporter_teleporterBlock");
-		GameRegistry.registerBlock(teleporterBlock, "teleporterBlock");
-		
-		GameRegistry.registerTileEntity(TileEntityTeleporter.class, "teleporterBlock");
-		
-		NetworkRegistry.INSTANCE.registerGuiHandler(Teleporter.instance, GuiHandlerRegistry.getInstance());
-		GuiHandlerRegistry.getInstance().registerGuiHandler(new GuiHandlerTeleporter(), GuiHandlerTeleporter.getGuiID());
 	}
 	
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{	
+		teleporterBlock = new BlockTeleporter().setUnlocalizedName(Reference.MODID.toLowerCase() + "_teleporterBlock");
+		GameRegistry.registerBlock(teleporterBlock, "teleporterBlock");
 		
-		GameRegistry.addRecipe(new ItemStack(teleporterBlock), new Object[]{
-			"AAA",
-     		"DCD",
-     		"EBE",
-     		'A', Blocks.glass,
-     		'B', Items.ender_pearl,
-     		'C', Blocks.redstone_block,
-     		'D', Blocks.quartz_block,
-     		'E', Items.diamond
-		});
+		if(Reference.useCustomTextures == true)
+		{
+		}
+		
+		GameRegistry.registerTileEntity(TileEntityTeleporter.class, "teleporterBlock");
+		
+		NetworkRegistry.INSTANCE.registerGuiHandler(Teleporter.instance, GuiHandlerRegistry.getInstance());
+		GuiHandlerRegistry.getInstance().registerGuiHandler(new GuiHandlerTeleporter(), GuiHandlerTeleporter.getGuiID());
+		
+		if(Reference.useDiamonds == true)
+		{
+			GameRegistry.addRecipe(new ItemStack(teleporterBlock,Reference.numTeleporters), 
+				new Object[]{
+				"AAA",
+     			"DCD",
+     			"EBE",
+     			'A', Blocks.glass,
+     			'B', Items.ender_pearl,
+     			'C', Blocks.redstone_block,
+     			'D', Blocks.quartz_block,
+     			'E', Items.diamond
+			});
+		}
+		else
+		{
+			GameRegistry.addRecipe(new ItemStack(teleporterBlock,Reference.numTeleporters), 
+				new Object[]{
+				"AAA",
+	     		"DCD",
+	     		"DBD",
+	     		'A', Blocks.glass,
+	     		'B', Items.ender_pearl,
+	     		'C', Blocks.redstone_block,
+	     		'D', Blocks.quartz_block
+			});
+		}
 		
 		//
 		
@@ -72,8 +115,8 @@ public class Teleporter
 		
 		if(event.getSide() == Side.CLIENT)
 	    {
-			Item itemBlockInventoryBasic = GameRegistry.findItem("teleporter", "teleporterBlock");
-			ModelResourceLocation itemModelResourceLocation = new ModelResourceLocation("teleporter:teleporterBlock", "inventory");
+			Item itemBlockInventoryBasic = GameRegistry.findItem(Reference.MODID.toLowerCase(), "teleporterBlock");
+			ModelResourceLocation itemModelResourceLocation = new ModelResourceLocation(Reference.MODID.toLowerCase() + ":teleporterBlock", "inventory");
 			final int DEFAULT_ITEM_SUBTYPE = 0;
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(itemBlockInventoryBasic, DEFAULT_ITEM_SUBTYPE, itemModelResourceLocation);
     		

@@ -84,8 +84,8 @@ public class ContainerTeleporter extends Container {
 	//    player inventory.  When you you shift-click a hotbar or player inventory item, it moves it to the first available
 	//    position in the TileEntity inventory)
 	// At the very least you must override this and return null or the game will crash when the player shift clicks a slot
-	// returns null if the source slot is empty, or if none of the the source slot items could be moved
-	//   otherwise, returns a copy of the source stack
+	//    returns null if the source slot is empty, or if none of the source slot items could be moved
+	//    otherwise, returns a copy of the source stack
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int sourceSlotIndex)
 	{
@@ -93,7 +93,7 @@ public class ContainerTeleporter extends Container {
 		if (sourceSlot == null || !sourceSlot.getHasStack()) return null;
 		ItemStack sourceStack = sourceSlot.getStack();
 		ItemStack copyOfSourceStack = sourceStack.copy();
-
+		
 		// Check if the slot clicked is one of the vanilla container slots
 		if (sourceSlotIndex >= VANILLA_FIRST_SLOT_INDEX && sourceSlotIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
 			// This is a vanilla container slot so merge the stack into the tile inventory

@@ -23,6 +23,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -182,7 +183,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 	// will add a key for this container to the lang file so we can name it in the GUI
 	@Override
 	public String getName() {
-		return "tile.teleporter_teleporterBlock.name";
+		return "tile." + Reference.MODID.toLowerCase() + "_teleporterBlock.name";
 	}
 
 	@Override
@@ -275,10 +276,15 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 		
 		if(teleEnt != null)
 		{
-			TileEntityTeleporter teleTileEnt = (TileEntityTeleporter) teleEnt;
-			if (teleTileEnt != null)
+			TileEntityTeleporter teleTileEnt;
+			if(teleEnt instanceof TileEntityTeleporter) 
 			{
-				return teleTileEnt;
+				teleTileEnt = (TileEntityTeleporter) teleEnt;
+				
+				if (teleTileEnt != null)
+				{
+					return teleTileEnt;
+				}
 			}
 		}
 		
@@ -289,21 +295,23 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 	{
 		//System.out.println("[Teleporter] Teleported " + entityIn.getName() + " to ");
 		
+		Vec3 bounds = BlockTeleporter.getBounds();
+		
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, false);
 		TeleporterNode source = netWrapper.getNode(pos, worldObj.provider.getDimensionId(), false);
 		TeleporterNode destination = netWrapper.getNextNode(entityIn, worldObj, itemStacks[0], source);
 		
 		if(destination != null && entityIn != null)
 		{
-			entityIn.setPositionAndUpdate(destination.pos.getX() + 0.5, destination.pos.getY()+1, destination.pos.getZ() + 0.5);
+			entityIn.setPositionAndUpdate(destination.pos.getX() + (bounds.xCoord*0.5f), destination.pos.getY() + (float)bounds.yCoord, destination.pos.getZ() + (bounds.zCoord*0.5f));
 			
-			worldObj.playSoundEffect(source.pos.getX(), source.pos.getY(), source.pos.getZ(), "teleporter:portalEnter", 0.9f, 1.0f);
-			worldObj.playSoundEffect(destination.pos.getX(), destination.pos.getY(), destination.pos.getZ(), "teleporter:portalExit", 0.9f, 1.0f);
+			worldObj.playSoundEffect(source.pos.getX(), source.pos.getY(), source.pos.getZ(), Reference.MODID.toLowerCase() + ":portalEnter", 0.9f, 1.0f);
+			worldObj.playSoundEffect(destination.pos.getX(), destination.pos.getY(), destination.pos.getZ(), Reference.MODID.toLowerCase() + ":portalExit", 0.9f, 1.0f);
 					
 		}
 		else
 		{
-			worldObj.playSoundEffect(source.pos.getX(), source.pos.getY(), source.pos.getZ(), "teleporter:portalError", 0.9f, 1.0f);
+			worldObj.playSoundEffect(source.pos.getX(), source.pos.getY(), source.pos.getZ(), Reference.MODID.toLowerCase() + ":portalError", 0.9f, 1.0f);
 		}
 		
 		return destination;

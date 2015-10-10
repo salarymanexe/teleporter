@@ -12,12 +12,15 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
+import net.minecraft.world.WorldServer;
 
 /*
  * TeleporterNetwork is the singleton responsible for saving the teleporter data onto the world file, and is 
@@ -32,7 +35,7 @@ public class TeleporterNetwork extends WorldSavedData
 	
 	//
 	
-	private static final String IDENTIFIER = "teleporter";
+	private static final String IDENTIFIER = Reference.MODID.toLowerCase();
 
 	public TeleporterNetwork() 
 	{
@@ -116,97 +119,128 @@ public class TeleporterNetwork extends WorldSavedData
 		int index = network.indexOf(source);
 		for(int i = index+1; i < network.size()+index; ++i)
 		{
-			TeleporterNode node =  network.get(i % network.size());
-			TileEntityTeleporter nodeEnt = TileEntityTeleporter.getTileEntityAt(world, node.pos);
 			
 			boolean isUnique = false;
 			boolean matches = false;
 			boolean diffDimension = false;
 			
-			if(stack != null) if(stack.getItem() == Items.written_book || stack.getItem() == Items.filled_map)
-			{
-				isUnique = true;
-			}
-			
-			// check if dimensions are different
-			if(node == source)
-			{
-				matches = false;
-			}
-			if(source.dimension != node.dimension)
-			{
-				matches = false;
-				diffDimension = true;
-			}
-			// check if keys are completely different
-			else if(stack == null && nodeEnt.itemStacks[0] != null)
-			{
-				matches = false;
-			}
-			else if(stack != null && nodeEnt.itemStacks[0] == null)
-			{
-				matches = false;
-			}
-			// check if keys are both empty
-			else if(stack == null && nodeEnt.itemStacks[0] == null)
-			{
-				matches = true;			
-			}
-			// check if keys are the same 
-			else if(stack.getItem().getUnlocalizedName().equals(nodeEnt.itemStacks[0].getItem().getUnlocalizedName()))	
-			{
-				matches = true;
-			}
-			
-			if (isUnique == true && matches == true) 
-			{
-				if (stack.getItem() == Items.written_book && nodeEnt.itemStacks[0].getItem() == Items.written_book) 
+			TeleporterNode node =  network.get(i % network.size());
+
+	        WorldServer worldDst = MinecraftServer.getServer().worldServerForDimension(node.dimension);
+	        
+	        if(worldDst != null)
+	        {
+		        
+				TileEntityTeleporter nodeEnt = TileEntityTeleporter.getTileEntityAt(worldDst, node.pos);
+							
+				// check if teleporter is trying to teleport to itself
+				if(node == source)
 				{
-					String author = stack.getTagCompound().getString("author");
-					author += ":" + stack.getTagCompound().getString("title");
-					
-					String nodeAuthor = nodeEnt.itemStacks[0].getTagCompound().getString("author");
-					nodeAuthor += ":" + nodeEnt.itemStacks[0].getTagCompound().getString("title");
-					if (author.equals(nodeAuthor)) 
-					{
-						matches = true;
-					} 
-					else 
-					{
-						matches = false;
-					}
-				} 
-				else if (stack.getItem() == Items.filled_map && nodeEnt.itemStacks[0].getItem() == Items.filled_map) 
+					matches = false;
+				}
+				
+				// check if dimensions are different
+				if(source.dimension != node.dimension)
 				{
-					if (stack.getItemDamage() == nodeEnt.itemStacks[0].getItemDamage()) 
+					matches = false;
+					diffDimension = true;
+				}
+				// check if keys are completely different
+				if(stack == null && nodeEnt.itemStacks[0] != null)
+				{
+					matches = false;
+				}
+				else if(stack != null && nodeEnt.itemStacks[0] == null)
+				{
+					matches = false;
+				}
+				// check if keys are both empty
+				else if(stack == null && nodeEnt.itemStacks[0] == null)
+				{
+					matches = true;			
+				}
+				// check if keys are the same 
+				else if(stack.getItem().getUnlocalizedName().equals(nodeEnt.itemStacks[0].getItem().getUnlocalizedName()))	
+				{
+					matches = true;
+				}
+				
+				if (matches == true) 
+				{
+					if(stack != null && nodeEnt.itemStacks[0] != null)
 					{
-						matches = true;
-					} 
-					else 
-					{
-						matches = false;
+						if (stack.getItem() == Items.written_book && nodeEnt.itemStacks[0].getItem() == Items.written_book) 
+						{
+							String author = stack.getTagCompound().getString("author");
+							author += ":" + stack.getTagCompound().getString("title");
+							
+							String nodeAuthor = nodeEnt.itemStacks[0].getTagCompound().getString("author");
+							nodeAuthor += ":" + nodeEnt.itemStacks[0].getTagCompound().getString("title");
+							if (author.equals(nodeAuthor)) 
+							{
+								matches = true;
+							} 	
+							else 
+							{
+								matches = false;
+							}
+						} 
+						else if (stack.getItem() == Items.filled_map && nodeEnt.itemStacks[0].getItem() == Items.filled_map) 
+						{
+							if (stack.getItemDamage() == nodeEnt.itemStacks[0].getItemDamage()) 
+							{
+								matches = true;
+							} 
+							else 
+							{
+								matches = false;
+							}
+						}
+						else
+						{
+							String name = "", nodeName = "";
+							if (stack.hasTagCompound()) 
+							{ 
+								NBTTagCompound display = (NBTTagCompound)stack.getTagCompound().getTag("display");
+								name = display.getString("Name");
+							}
+							if (nodeEnt.itemStacks[0].hasTagCompound()) 
+							{ 
+								NBTTagCompound display = (NBTTagCompound)nodeEnt.itemStacks[0].getTagCompound().getTag("display");
+								nodeName = display.getString("Name");
+							}
+							if (name.equals(nodeName)) 
+							{
+								matches = true;
+							} 
+							else 
+							{
+								matches = false;
+							}
+						}
 					}
 				}
-			}
-			
-			boolean obstructed = isObstructed(world,node);
-			
-			if(matches == true && obstructed == false && diffDimension == false && nodeEnt.isPowered == false)
-			{
-				return node;
-			}
-			else if(playerEnt == true && matches == true && obstructed == true && diffDimension == false)
-			{
-				EntityPlayer entp = (EntityPlayer)entityIn;
-				entp.addChatMessage(new ChatComponentTranslation("Teleporter is blocked; skipping..."));
-			}
-			else if(playerEnt == true && matches == true && obstructed == false && diffDimension == false && nodeEnt.isPowered == true)
-			{
-				EntityPlayer entp = (EntityPlayer)entityIn;
-				entp.addChatMessage(new ChatComponentTranslation("Teleporter is disabled; skipping..."));
+				
+				boolean obstructed = isObstructed(world,node);
+				
+				if(matches == true && obstructed == false && diffDimension == false && nodeEnt.isPowered == false)
+				{
+					return node;
+				}
+				else if(matches == true && obstructed == true && diffDimension == false)
+				{
+					EntityPlayer entp = (EntityPlayer)entityIn;
+					if(playerEnt == true) entp.addChatMessage(new ChatComponentTranslation("Teleporter is blocked; skipping..."));
+				}
+				else if(matches == true && obstructed == false && diffDimension == false && nodeEnt.isPowered == true)
+				{
+					EntityPlayer entp = (EntityPlayer)entityIn;
+					if(playerEnt == true) entp.addChatMessage(new ChatComponentTranslation("Teleporter is disabled; skipping..."));
+				}
 			}
 		}
 
+		
 		if(playerEnt == true)
 		{
 			EntityPlayer entp = (EntityPlayer)entityIn;

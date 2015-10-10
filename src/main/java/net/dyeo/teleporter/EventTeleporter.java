@@ -2,6 +2,7 @@ package net.dyeo.teleporter;
 
 import ibxm.Player;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
@@ -15,10 +16,10 @@ public class EventTeleporter
 	@SubscribeEvent
 	public void onEntityConstructing(EntityConstructing event)
 	{
-		if (event.entity instanceof EntityPlayer && TeleporterPlayer.get((EntityPlayer) event.entity) == null)
+		if (event.entity instanceof EntityPlayer && TeleporterEntity.get((EntityPlayer) event.entity) == null)
 		{
-			// This is how extended properties are registered using our convenient method from earlier
-			TeleporterPlayer.register((EntityPlayer) event.entity);
+			// register the event handler
+			TeleporterEntity.register((EntityPlayer) event.entity);
 		}
 	}
 	
@@ -27,14 +28,14 @@ public class EventTeleporter
 	{
 		Entity entityIn = event.entity;
 		
-		if(entityIn instanceof EntityPlayer)
+		if(entityIn != null)
 		{
 		
-		TeleporterPlayer tplayer = TeleporterPlayer.get((EntityPlayer) entityIn);
+		TeleporterEntity tentity = TeleporterEntity.get(entityIn);
 		
-			if(tplayer != null)
+			if(tentity != null)
 			{
-				tplayer.checkLocation();
+				tentity.checkLocation();
 			}
 		}
 	}

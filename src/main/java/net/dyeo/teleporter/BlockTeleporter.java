@@ -10,6 +10,7 @@ import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -22,6 +23,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
+import net.minecraft.util.Vec3i;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -34,7 +37,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public class BlockTeleporter extends BlockContainer
 {
-		
+	
 	public BlockTeleporter()
 	{
 		super(Material.rock);
@@ -42,6 +45,12 @@ public class BlockTeleporter extends BlockContainer
 		this.setResistance(30);
 		this.setHardness(3.0f);
 		this.setLightLevel(0.5f);
+		this.setBlockBounds(0.0f, 0.0f, 0.0f, (float)getBounds().xCoord, (float)getBounds().yCoord, (float)getBounds().zCoord);
+	}
+	
+	public static Vec3 getBounds()
+	{
+		return new Vec3(1.0f, 0.9375f, 1.0f);
 	}
 
 	// Called when the block is placed or loaded client side to get the tile entity for the block
@@ -55,38 +64,36 @@ public class BlockTeleporter extends BlockContainer
 	// In this block it is used to open the blocks gui when right clicked by a player
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumFacing side, float hitX, float hitY, float hitZ) {
-		// Uses the gui handler registered to your mod to open the gui for the given gui id
-		// open on the server side only  (not sure why you shouldn't open client side too... vanilla doesn't, so we better not either)
-		if (worldIn.isRemote) return true;
-
-		if(!playerIn.isSneaking()) playerIn.openGui(Teleporter.instance, GuiHandlerTeleporter.getGuiID(), worldIn, pos.getX(), pos.getY(), pos.getZ());
+		// Uses the gui handler registered to open the gui for the given gui id
+		// open on the server side only
+		if (!worldIn.isRemote && !playerIn.isSneaking()) 
+		{
+			playerIn.openGui(Teleporter.instance, GuiHandlerTeleporter.getGuiID(), worldIn, pos.getX(), pos.getY(), pos.getZ());
+		}
+		
 		return true;
 	}
 	
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, Entity entityIn)
 	{
-		TeleporterPlayer tplayer = null;
-		if(entityIn instanceof EntityPlayer)
-		{
-			tplayer = TeleporterPlayer.get((EntityPlayer) entityIn);
-		}
+		TeleporterEntity tentity = null;
+		tentity = TeleporterEntity.get(entityIn);
 		
 		if(!worldIn.isRemote)
 		{
 			TileEntityTeleporter teleporter = TileEntityTeleporter.getTileEntityAt(worldIn, pos);
 		
-			if(teleporter != null && tplayer != null)
+			if(teleporter != null && tentity != null)
 			{				
-				if (!tplayer.teleported)
+				if (tentity.onTeleporter && !tentity.teleported)
 				{
 					
-					tplayer.teleported = true;
-					tplayer.justTeleported = true;
+					tentity.teleported = true;
 					TeleporterNode dest = teleporter.teleport(entityIn);
 					if(dest != null)
 					{
-							System.out.println("Teleported " + entityIn.getName() + " to " + dest.pos.getX() + "," + dest.pos.getY()  + "," +  dest.pos.getZ() );
+						System.out.println("Teleported " + entityIn.getName() + " to " + dest.pos.getX() + "," + dest.pos.getY()  + "," +  dest.pos.getZ() );
 					}
 				}
 			}
@@ -98,7 +105,7 @@ public class BlockTeleporter extends BlockContainer
 			
 			Random rand = new Random();
 			
-			if (!tplayer.teleported)
+			if (!tentity.teleported)
 			{
 				double mx = rand.nextGaussian() * 0.2d;
 				double my = rand.nextGaussian() * 0.2d;
@@ -130,6 +137,7 @@ public class BlockTeleporter extends BlockContainer
 			if(oldPowered == false)
 			{
 				// tell player who powered block that teleporter is exit-only
+				// ISSUE: can't determine player that powered block, tells closest player within 16 block radius
 				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16);
 				if(player != null)
 				{
@@ -203,7 +211,7 @@ public class BlockTeleporter extends BlockContainer
 
 	//---------------------------------------------------------
 
-	// the block will render in the SOLID layer.  See http://greyminecraftcoder.blogspot.co.at/2014/12/block-rendering-18.html for more information.
+	// the block will render in the CUTOUT layer. (allows transparency of glass and such)
 	@SideOnly(Side.CLIENT)
 	public EnumWorldBlockLayer getBlockLayer()
 	{
@@ -211,7 +219,6 @@ public class BlockTeleporter extends BlockContainer
 	}
 
 	// used by the renderer to control lighting and visibility of other blocks.
-	// set to false because this block doesn't fill the entire 1x1x1 space
 	@Override
 	public boolean isOpaqueCube() {
 		return false;
@@ -219,7 +226,6 @@ public class BlockTeleporter extends BlockContainer
 
 	// used by the renderer to control lighting and visibility of other blocks, also by
 	// (eg) wall or fence to control whether the fence joins itself to this block
-	// set to false because this block doesn't fill the entire 1x1x1 space
 	@Override
 	public boolean isFullCube() {
 		return true;
