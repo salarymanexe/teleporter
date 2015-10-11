@@ -10,8 +10,12 @@ import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.monster.EntityMob;
+import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -79,6 +83,12 @@ public class BlockTeleporter extends BlockContainer
 	{
 		TeleporterEntity tentity = null;
 		tentity = TeleporterEntity.get(entityIn);
+		if(tentity == null)
+		{
+			TeleporterEntity.register(entityIn);
+			tentity = TeleporterEntity.get(entityIn);
+			System.out.println("New Teleporter Entity: " + entityIn.getName());
+		}
 		
 		if(!worldIn.isRemote)
 		{
@@ -88,12 +98,18 @@ public class BlockTeleporter extends BlockContainer
 			{				
 				if (tentity.onTeleporter && !tentity.teleported)
 				{
+					boolean isHostile = (entityIn instanceof EntityMob) || (entityIn instanceof EntityWolf && ((EntityWolf) entityIn).isAngry());
 					
-					tentity.teleported = true;
-					TeleporterNode dest = teleporter.teleport(entityIn);
-					if(dest != null)
-					{
-						System.out.println("Teleported " + entityIn.getName() + " to " + dest.pos.getX() + "," + dest.pos.getY()  + "," +  dest.pos.getZ() );
+					boolean isPassive = (entityIn instanceof EntityAnimal);
+					
+					if((isHostile == false || isHostile == Reference.teleportHostileMobs) && (isPassive == false || isPassive == Reference.teleportPassiveMobs))
+					{					
+						tentity.teleported = true;
+						TeleporterNode dest = teleporter.teleport(entityIn);
+						if(dest != null)
+						{
+							System.out.println("Teleported " + entityIn.getName() + " to " + dest.pos.getX() + "," + dest.pos.getY()  + "," +  dest.pos.getZ() );
+						}
 					}
 				}
 			}
@@ -119,6 +135,7 @@ public class BlockTeleporter extends BlockContainer
 						mx, my, mz);
 			}
 		}
+		
 		super.onEntityCollidedWithBlock(worldIn, pos, entityIn);
     }
 		
@@ -159,8 +176,7 @@ public class BlockTeleporter extends BlockContainer
 				}
 			}
 			tele.markDirty();
-		}		
-		
+		}
 	}
 
 	// This is where you can do something when the block is broken. In this case drop the inventory's contents

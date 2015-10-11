@@ -78,7 +78,7 @@ public class ContainerTeleporter extends Container {
 	{
 		return tileEntityTeleporter.isUseableByPlayer(player);
 	}
-
+	
 	// This is where you specify what happens when a player shift clicks a slot in the gui
 	//  (when you shift click a slot in the TileEntity Inventory, it moves it to the first available position in the hotbar and/or
 	//    player inventory.  When you you shift-click a hotbar or player inventory item, it moves it to the first available
@@ -93,27 +93,37 @@ public class ContainerTeleporter extends Container {
 		if (sourceSlot == null || !sourceSlot.getHasStack()) return null;
 		ItemStack sourceStack = sourceSlot.getStack();
 		ItemStack copyOfSourceStack = sourceStack.copy();
-		
+
 		// Check if the slot clicked is one of the vanilla container slots
-		if (sourceSlotIndex >= VANILLA_FIRST_SLOT_INDEX && sourceSlotIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
+		if (sourceSlotIndex >= VANILLA_FIRST_SLOT_INDEX && sourceSlotIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) 
+		{
 			// This is a vanilla container slot so merge the stack into the tile inventory
-			if (!mergeItemStack(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT, false)){
+			if (!mergeItemStack(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT, false))
+			{
 				return null;
 			}
-		} else if (sourceSlotIndex >= TE_INVENTORY_FIRST_SLOT_INDEX && sourceSlotIndex < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
+		} 
+		else if (sourceSlotIndex >= TE_INVENTORY_FIRST_SLOT_INDEX && sourceSlotIndex < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) 
+		{
 			// This is a TE slot so merge the stack into the players inventory
-			if (!mergeItemStack(sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
+			if (!mergeItemStack(sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) 
+			{
 				return null;
 			}
-		} else {
+		} 
+		else 
+		{
 			System.err.print("Invalid slotIndex:" + sourceSlotIndex);
 			return null;
 		}
 
 		// If stack size == 0 (the entire stack was moved) set slot contents to null
-		if (sourceStack.stackSize == 0) {
+		if (sourceStack.stackSize == 0) 
+		{
 			sourceSlot.putStack(null);
-		} else {
+		} 
+		else 
+		{
 			sourceSlot.onSlotChanged();
 		}
 

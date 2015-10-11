@@ -1,5 +1,7 @@
 package net.dyeo.teleporter;
 
+import java.util.BitSet;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -13,7 +15,7 @@ import net.minecraftforge.common.IExtendedEntityProperties;
 
 public class TeleporterEntity implements IExtendedEntityProperties 
 {
-
+	
 	public final static String EXT_PROP_NAME = "TeleporterEntity";
 	
 	private final Entity entity;
@@ -24,9 +26,6 @@ public class TeleporterEntity implements IExtendedEntityProperties
 	public TeleporterEntity(Entity entity)
 	{
 		this.entity = entity;
-		
-		teleported = false;
-		onTeleporter = false;
 	}
 	
 	//
@@ -41,24 +40,24 @@ public class TeleporterEntity implements IExtendedEntityProperties
 		return (TeleporterEntity) entity.getExtendedProperties(EXT_PROP_NAME);
 	}
 	
+	
+	public void copy(TeleporterEntity old) 
+	{
+		dimension = old.dimension;
+		teleported = old.teleported;
+		onTeleporter = old.onTeleporter;
+	}
+	
 	//
 	
 	@Override
 	public void saveNBTData(NBTTagCompound compound) 
 	{
-		// TODO Auto-generated method stub
-		compound.setByte("dimension", (byte) dimension);
-		compound.setBoolean("teleported", teleported);
-		compound.setBoolean("onTeleporter", onTeleporter);
 	}
 
 	@Override
 	public void loadNBTData(NBTTagCompound compound) 
 	{
-		// TODO Auto-generated method stub
-		onTeleporter = compound.getBoolean("onTeleporter");
-		teleported = compound.getBoolean("teleported");
-		dimension = compound.getByte("dimension");
 	}
 
 	@Override
@@ -70,14 +69,7 @@ public class TeleporterEntity implements IExtendedEntityProperties
 	public void checkLocation() 
 	{
 		if(!entity.worldObj.isRemote)
-		{
-			if(dimension != entity.dimension)
-			{
-				this.onTeleporter = false;
-				this.teleported = false;
-			} 
-			dimension = entity.dimension;
-			
+		{			
 			TeleporterNetwork netWrapper = TeleporterNetwork.get(entity.worldObj, false);
 		
 			BlockPos ppos = new BlockPos(MathHelper.floor_double(entity.posX), MathHelper.floor_double(entity.posY-(BlockTeleporter.getBounds().yCoord)), MathHelper.floor_double(entity.posZ));

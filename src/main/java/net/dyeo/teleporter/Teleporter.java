@@ -50,17 +50,24 @@ public class Teleporter
 		
 		Property useDiamondsP = config.get(config.CATEGORY_GENERAL, "useDiamonds", true);
 		useDiamondsP.comment = "If false, removes diamonds from the crafting recipe and replaces them with quartz blocks.\nDefault is true";
+		
 		Property numTeleportersP = config.get(config.CATEGORY_GENERAL, "numTeleporters", 1);
 		numTeleportersP.comment = "Specifies the number of teleporters created with a single recipe.\nDefault is 1";
+		
+		Property teleportPassiveMobsP = config.get(config.CATEGORY_GENERAL, "teleportPassiveMobs", true);
+		teleportPassiveMobsP.comment = "Specifies whether or not passive mobs can go through teleporters.\nDefault is true";
+		
+		Property teleportHostileMobsP = config.get(config.CATEGORY_GENERAL, "teleportHostileMobs", true);
+		teleportHostileMobsP.comment = "Specifies whether or not hostile mobs can go through teleporters.\nDefault is true";
 		
 		//Reference.useCustomTextures = useCustomTexturesP.getBoolean(false);
 		Reference.useDiamonds = useDiamondsP.getBoolean(true);
 		Reference.numTeleporters = numTeleportersP.getInt(1);
+		Reference.teleportPassiveMobs = teleportPassiveMobsP.getBoolean(true);
+		Reference.teleportHostileMobs = teleportHostileMobsP.getBoolean(true);
 		
 		config.save();
 		
-		//FMLCommonHandler.instance().bus().register(events);
-		//MinecraftForge.EVENT_BUS.register(events);
 		instance = this;
 	}
 	
@@ -69,11 +76,7 @@ public class Teleporter
 	{	
 		teleporterBlock = new BlockTeleporter().setUnlocalizedName(Reference.MODID.toLowerCase() + "_teleporterBlock");
 		GameRegistry.registerBlock(teleporterBlock, "teleporterBlock");
-		
-		if(Reference.useCustomTextures == true)
-		{
-		}
-		
+				
 		GameRegistry.registerTileEntity(TileEntityTeleporter.class, "teleporterBlock");
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(Teleporter.instance, GuiHandlerRegistry.getInstance());
@@ -109,14 +112,11 @@ public class Teleporter
 		
 		//
 		
-		//Minecraft.installResource("sound3/teleporter/extremecow.ogg", new File(Minecraft.getMinecraft().mcDataDir, "resources/assets/teleporter/sounds/extremecow.ogg"));
-		
-		//
-		
 		if(event.getSide() == Side.CLIENT)
 	    {
 			Item itemBlockInventoryBasic = GameRegistry.findItem(Reference.MODID.toLowerCase(), "teleporterBlock");
 			ModelResourceLocation itemModelResourceLocation = new ModelResourceLocation(Reference.MODID.toLowerCase() + ":teleporterBlock", "inventory");
+			
 			final int DEFAULT_ITEM_SUBTYPE = 0;
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(itemBlockInventoryBasic, DEFAULT_ITEM_SUBTYPE, itemModelResourceLocation);
     		

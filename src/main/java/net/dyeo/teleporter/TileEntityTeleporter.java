@@ -30,7 +30,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class TileEntityTeleporter extends TileEntity implements IInventory, IUpdatePlayerListBox
 {
-	// Create and initialize the items variable that will store store the items
+	// Create and initialize the items variable that will store the items
 	final int NUMBER_OF_SLOTS = 1;
 	public ItemStack[] itemStacks = new ItemStack[NUMBER_OF_SLOTS];
 	
@@ -95,7 +95,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 	@Override
 	public int getInventoryStackLimit() 
 	{
-		return 1;
+		return 64;
 	}
 
 	// Return true if the given player is able to use this block. In this case it checks that
