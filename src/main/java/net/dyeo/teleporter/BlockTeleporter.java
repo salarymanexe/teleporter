@@ -4,50 +4,44 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
-import net.minecraft.block.BlockStone;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
-import net.minecraft.util.Vec3i;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-/*
- * BlockInventoryBasic is a simple inventory capable of storing 9 item stacks. The block itself doesn't do much more
- * then any regular block except create a tile entity when placed, open a gui when right clicked and drop tne
- * inventory's contents when harvested. The actual storage is handled by the tile entity.
- */
+// Standard Teleporter Block Class
+// Has a 1-slot container for teleporter key
 public class BlockTeleporter extends BlockContainer
 {
 	
+	// Constructor
 	public BlockTeleporter()
 	{
+		// Set material to rock
 		super(Material.rock);
-		this.setCreativeTab(CreativeTabs.tabTransport);     // the block will appear on the Blocks tab.
+		// Set transport tab for creative
+		this.setCreativeTab(CreativeTabs.tabTransport);
+		// resistance: 30
 		this.setResistance(30);
+		// hardness: 3.0
 		this.setHardness(3.0f);
+		// light level (emission): 0.5f
 		this.setLightLevel(0.5f);
 		this.setBlockBounds(0.0f, 0.0f, 0.0f, (float)getBounds().xCoord, (float)getBounds().yCoord, (float)getBounds().zCoord);
 	}
@@ -57,15 +51,16 @@ public class BlockTeleporter extends BlockContainer
 		return new Vec3(1.0f, 0.9375f, 1.0f);
 	}
 
-	// Called when the block is placed or loaded client side to get the tile entity for the block
-	// Should return a new instance of the tile entity for the block
+	// called when the block is placed or loaded client side to get the tile entity for the block
+	// should return a new instance of the tile entity for the block
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) {
+	public TileEntity createNewTileEntity(World worldIn, int meta) 
+	{
 		return new TileEntityTeleporter();
 	}
 
-	// Called when the block is right clicked
-	// In this block it is used to open the blocks gui when right clicked by a player
+	// called when the block is right clicked
+	// in this case it's used to open the teleporter key gui when right-clicked by a player
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumFacing side, float hitX, float hitY, float hitZ) {
 		// Uses the gui handler registered to open the gui for the given gui id
@@ -142,46 +137,50 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighbourBlock)
 	{
-		TileEntityTeleporter tele = TileEntityTeleporter.getTileEntityAt(world, pos);
+		// get the tile entity at this block's world pos
+		TileEntityTeleporter tileEntityTeleporter = TileEntityTeleporter.getTileEntityAt(world, pos);
 		
 		// check if teleporter was powered before
-		boolean oldPowered = tele.isPowered;
+		boolean oldPowered = tileEntityTeleporter.isPowered;
 		
-		if (!world.isRemote && world.isBlockIndirectlyGettingPowered(pos) > 0 && tele != null)
+		if (!world.isRemote && world.isBlockIndirectlyGettingPowered(pos) > 0 && tileEntityTeleporter != null)
 		{
-			tele.isPowered = true;
+			tileEntityTeleporter.isPowered = true;
 			// if block was not powered before but is now powered
 			if(oldPowered == false)
 			{
-				// tell player who powered block that teleporter is exit-only
-				// ISSUE: can't determine player that powered block, tells closest player within 16 block radius
+				// there is no way in forge to determine who activated/deactivated the teleporter, so we simply get the closest player
+				// works for _most_ cases
 				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16);
 				if(player != null)
 				{
 					player.addChatMessage(new ChatComponentTranslation("Teleporter locked: can exit only."));
 				}
 			}
-			tele.markDirty();
+			tileEntityTeleporter.markDirty();
 		}
-		else if(tele != null)
+		else if(tileEntityTeleporter != null)
 		{
-			tele.isPowered = false;
+			tileEntityTeleporter.isPowered = false;
 			// if block was powered before but is now not powered
 			if(oldPowered == true)
 			{
+				// there is no way in forge to determine who activated/deactivated the teleporter, so we simply get the closest player
+				// works for _most_ cases
 				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16);
 				if(player != null)
 				{
 					player.addChatMessage(new ChatComponentTranslation("Teleporter unlocked: can enter and exit."));
 				}
 			}
-			tele.markDirty();
+			tileEntityTeleporter.markDirty();
 		}
 	}
 
-	// This is where you can do something when the block is broken. In this case drop the inventory's contents
+	// drop inventory contents when block is broken
 	@Override
-	public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
+	public void breakBlock(World worldIn, BlockPos pos, IBlockState state) 
+	{
 
 		IInventory inventory = worldIn.getTileEntity(pos) instanceof IInventory ? (IInventory)worldIn.getTileEntity(pos) : null;
 
@@ -210,24 +209,24 @@ public class BlockTeleporter extends BlockContainer
 				}
 			}
 
-			TileEntityTeleporter teleporter = TileEntityTeleporter.getTileEntityAt(worldIn, pos);
+			TileEntityTeleporter tileEntityTeleporter = TileEntityTeleporter.getTileEntityAt(worldIn, pos);
 			
-			if(teleporter != null)
+			if(tileEntityTeleporter != null)
 			{
-				teleporter.removeFromNetwork();
+				tileEntityTeleporter.removeFromNetwork();
 			}
 			
-			// Clear the inventory so nothing else (such as another mod) can do anything with the items
+			// clear the inventory so nothing else (such as another mod) can do anything with the items
 			inventory.clear();
 		}
 
-		// Super MUST be called last because it removes the tile entity
+		// super _must_ be called last because it removes the tile entity
 		super.breakBlock(worldIn, pos, state);
 	}
 
 	//---------------------------------------------------------
 
-	// the block will render in the CUTOUT layer. (allows transparency of glass and such)
+	// the block will render in the CUTOUT layer (allows transparency of glass and such)
 	@SideOnly(Side.CLIENT)
 	public EnumWorldBlockLayer getBlockLayer()
 	{
@@ -236,21 +235,24 @@ public class BlockTeleporter extends BlockContainer
 
 	// used by the renderer to control lighting and visibility of other blocks.
 	@Override
-	public boolean isOpaqueCube() {
+	public boolean isOpaqueCube() 
+	{
 		return false;
 	}
 
 	// used by the renderer to control lighting and visibility of other blocks, also by
 	// (eg) wall or fence to control whether the fence joins itself to this block
 	@Override
-	public boolean isFullCube() {
+	public boolean isFullCube() 
+	{
 		return true;
 	}
 
 	// render using a BakedModel
 	// not strictly required because the default (super method) is 3.
 	@Override
-	public int getRenderType() {
+	public int getRenderType() 
+	{
 		return 3;
 	}
 

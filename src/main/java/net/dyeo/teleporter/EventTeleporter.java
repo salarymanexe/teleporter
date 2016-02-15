@@ -1,16 +1,10 @@
 package net.dyeo.teleporter;
 
-import ibxm.Player;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.MathHelper;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class EventTeleporter 
@@ -38,6 +32,7 @@ public class EventTeleporter
 		}
 	}
 	
+	// we must add our entity extension to every living entity created so that it can use the teleporter
 	@SubscribeEvent
 	public void onCloneEntity(PlayerEvent.Clone event)
 	{

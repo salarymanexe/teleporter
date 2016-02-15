@@ -2,17 +2,11 @@ package net.dyeo.teleporter;
 
 import java.util.ArrayList;
 
-import com.sun.org.apache.bcel.internal.Constants;
-
 import net.minecraft.block.Block;
-import net.minecraft.client.gui.GuiScreenBook;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
@@ -108,9 +102,7 @@ public class TeleporterNetwork extends WorldSavedData
 	}
 	
 	public TeleporterNode getNextNode(Entity entityIn, World world, ItemStack stack, TeleporterNode source)
-	{
-		TileEntityTeleporter sourceEnt = TileEntityTeleporter.getTileEntityAt(world, source.pos);
-		
+	{		
 		boolean playerEnt = false;
 		if(entityIn instanceof EntityPlayer)
 		{
@@ -120,7 +112,6 @@ public class TeleporterNetwork extends WorldSavedData
 		for(int i = index+1; i < network.size()+index; ++i)
 		{
 			
-			boolean isUnique = false;
 			boolean matches = false;
 			boolean diffDimension = false;
 			

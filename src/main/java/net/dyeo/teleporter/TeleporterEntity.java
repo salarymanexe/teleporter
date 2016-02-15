@@ -1,21 +1,19 @@
 package net.dyeo.teleporter;
 
-import java.util.BitSet;
-
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IExtendedEntityProperties;
 
 
-
+// entity extension for objects that can use the teleporter
+// applies to every living entity through the EventTeleporter class
 public class TeleporterEntity implements IExtendedEntityProperties 
 {
 	
+	//
 	public final static String EXT_PROP_NAME = "TeleporterEntity";
 	
 	private final Entity entity;

@@ -1,21 +1,14 @@
 package net.dyeo.teleporter;
-
-import java.io.File;
-import java.util.ArrayList;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.client.event.sound.SoundLoadEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -39,25 +32,25 @@ public class Teleporter
 	public void preinit(FMLPreInitializationEvent event)
 	{
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
-		config.setCategoryRequiresMcRestart(config.CATEGORY_GENERAL, true);
+		config.setCategoryRequiresMcRestart(Configuration.CATEGORY_GENERAL, true);
 
 		config.load();
 		
-		config.addCustomCategoryComment(config.CATEGORY_GENERAL, "Vanilla-Inspired Teleporters Version " + Minecraft.getMinecraft().getVersion() + "-" + Reference.VERSION + " Configuration");
+		config.addCustomCategoryComment(Configuration.CATEGORY_GENERAL, "Vanilla-Inspired Teleporters Version " + Minecraft.getMinecraft().getVersion() + "-" + Reference.VERSION + " Configuration");
 		
 		//Property useCustomTexturesP = config.get(config.CATEGORY_GENERAL, "useCustomTextures", false);
 		//useCustomTexturesP.comment = "If true, allows the use of custom texture names, rather than the default minecraft textures.\nDefault is false";
 		
-		Property useDiamondsP = config.get(config.CATEGORY_GENERAL, "useDiamonds", true);
+		Property useDiamondsP = config.get(Configuration.CATEGORY_GENERAL, "useDiamonds", true);
 		useDiamondsP.comment = "If false, removes diamonds from the crafting recipe and replaces them with quartz blocks.\nDefault is true";
 		
-		Property numTeleportersP = config.get(config.CATEGORY_GENERAL, "numTeleporters", 1);
+		Property numTeleportersP = config.get(Configuration.CATEGORY_GENERAL, "numTeleporters", 1);
 		numTeleportersP.comment = "Specifies the number of teleporters created with a single recipe.\nDefault is 1";
 		
-		Property teleportPassiveMobsP = config.get(config.CATEGORY_GENERAL, "teleportPassiveMobs", true);
+		Property teleportPassiveMobsP = config.get(Configuration.CATEGORY_GENERAL, "teleportPassiveMobs", true);
 		teleportPassiveMobsP.comment = "Specifies whether or not passive mobs can go through teleporters.\nDefault is true";
 		
-		Property teleportHostileMobsP = config.get(config.CATEGORY_GENERAL, "teleportHostileMobs", true);
+		Property teleportHostileMobsP = config.get(Configuration.CATEGORY_GENERAL, "teleportHostileMobs", true);
 		teleportHostileMobsP.comment = "Specifies whether or not hostile mobs can go through teleporters.\nDefault is true";
 		
 		//Reference.useCustomTextures = useCustomTexturesP.getBoolean(false);
