@@ -3,13 +3,13 @@
   "modid": "teleporter",
   "name": "Vanilla-Inspired Teleporters",
   "description": "Teleport with ease!",
-  "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
+  "version": "${version}",
+  "url": "https://github.com/dyeo/vanillateleporter",
   "updateUrl": "",
   "authorList": ["DanYeomans","bronsonf1"],
-  "credits": "",
-  "logoFile": "",
+  "credits": "Programmed by DanYeomans, designed by bronsonf1",
+  "logoFile": "/vanillateleporter.png",
   "screenshots": [],
   "dependencies": [ "mod_MinecraftForge" ]
 }

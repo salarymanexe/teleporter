@@ -15,6 +15,8 @@ hs_err_pid*
 /bin
 /build
 /eclipse
+/saves
+/logs
 .classpath
 .project
 

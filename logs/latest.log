@@ -1,80 +1,22 @@
-[17:20:09] [Client thread/INFO]: Setting user: Player810
-[17:20:11] [Client thread/INFO]: LWJGL Version: 2.9.1
-[17:20:13] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
-[17:20:14] [Client thread/ERROR]: Couldn't initialize twitch stream
-[17:20:14] [Sound Library Loader/INFO]: Starting up SoundSystem...
-[17:20:14] [Thread-7/INFO]: Initializing LWJGL OpenAL
-[17:20:14] [Thread-7/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
-[17:20:14] [Thread-7/INFO]: OpenAL initialized.
-[17:20:14] [Sound Library Loader/INFO]: Sound engine started
-[17:20:17] [Client thread/INFO]: Created: 512x512 textures-atlas
-[17:20:19] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
-[17:20:19] [Client thread/INFO]: SoundSystem shutting down...
-[17:20:19] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
-[17:20:19] [Sound Library Loader/INFO]: Starting up SoundSystem...
-[17:20:19] [Thread-9/INFO]: Initializing LWJGL OpenAL
-[17:20:19] [Thread-9/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
-[17:20:19] [Thread-9/INFO]: OpenAL initialized.
-[17:20:20] [Sound Library Loader/INFO]: Sound engine started
-[17:20:21] [Client thread/INFO]: Created: 512x512 textures-atlas
-[17:20:27] [Server thread/INFO]: Starting integrated minecraft server version 1.8
-[17:20:27] [Server thread/INFO]: Generating keypair
-[17:20:27] [Server thread/INFO]: Preparing start region for level 0
-[17:20:28] [Server thread/INFO]: Preparing spawn area: 73%
-[17:20:29] [Server thread/INFO]: Changing view distance to 12, from 10
-[17:20:29] [Server thread/INFO]: Player810[local:E:d8a9c87a] logged in with entity id 287 at (-7.249207295949686, 63.0, 5.736744324730026)
-[17:20:29] [Server thread/INFO]: Player810 joined the game
-[17:20:39] [Server thread/INFO]: Saving and pausing game...
-[17:20:39] [Server thread/INFO]: Saving chunks for level 'sos'/Overworld
-[17:20:39] [Server thread/INFO]: Saving chunks for level 'sos'/Nether
-[17:20:39] [Server thread/INFO]: Saving chunks for level 'sos'/The End
-[17:20:41] [Server thread/INFO]: Saving and pausing game...
-[17:20:41] [Server thread/INFO]: Saving chunks for level 'sos'/Overworld
-[17:20:41] [Server thread/INFO]: Saving chunks for level 'sos'/Nether
-[17:20:41] [Server thread/INFO]: Saving chunks for level 'sos'/The End
-[17:20:53] [Server thread/INFO]: Player810 has just earned the achievement [Taking Inventory]
-[17:20:53] [Client thread/INFO]: [CHAT] Player810 has just earned the achievement [Taking Inventory]
-[17:22:05] [Server thread/INFO]: Saving and pausing game...
-[17:22:05] [Server thread/INFO]: Saving chunks for level 'sos'/Overworld
-[17:22:06] [Server thread/INFO]: Saving chunks for level 'sos'/Nether
-[17:22:06] [Server thread/INFO]: Saving chunks for level 'sos'/The End
-[17:22:24] [Server thread/INFO]: Saving and pausing game...
-[17:22:24] [Server thread/INFO]: Saving chunks for level 'sos'/Overworld
-[17:22:24] [Server thread/INFO]: Saving chunks for level 'sos'/Nether
-[17:22:24] [Server thread/INFO]: Saving chunks for level 'sos'/The End
-[17:24:40] [Client thread/INFO]: [CHAT] Unknown command. Try /help for a list of commands
-[17:24:44] [Client thread/INFO]: [CHAT] Unknown command. Try /help for a list of commands
-[17:24:47] [Client thread/INFO]: [CHAT] --- Showing help page 1 of 7 (/help <page>) ---
-[17:24:47] [Client thread/INFO]: [CHAT] /achievement <give|take> <stat_name|*> [player]
-[17:24:47] [Client thread/INFO]: [CHAT] /blockdata <x> <y> <z> <dataTag>
-[17:24:47] [Client thread/INFO]: [CHAT] /clear [player] [item] [data] [maxCount] [dataTag]
-[17:24:47] [Client thread/INFO]: [CHAT] /clone <x1> <y1> <z1> <x2> <y2> <z2> <x> <y> <z> [mode]
-[17:24:47] [Client thread/INFO]: [CHAT] /debug <start|stop|chunk> [<x> <y> <z>]
-[17:24:47] [Client thread/INFO]: [CHAT] /defaultgamemode <mode>
-[17:24:47] [Client thread/INFO]: [CHAT] /difficulty <new difficulty>
-[17:24:47] [Client thread/INFO]: [CHAT] Tip: Use the <tab> key while typing a command to auto-complete the command or its arguments
-[17:24:51] [Server thread/INFO]: Player810 fell out of the world
-[17:24:51] [Server thread/INFO]: [Player810: Killed Player810]
-[17:24:51] [Client thread/INFO]: [CHAT] Player810 fell out of the world
-[17:24:51] [Client thread/INFO]: [CHAT] Killed Player810
-[17:25:01] [Server thread/INFO]: Saving and pausing game...
-[17:25:01] [Server thread/INFO]: Saving chunks for level 'sos'/Overworld
-[17:25:01] [Server thread/INFO]: Saving chunks for level 'sos'/Nether
-[17:25:01] [Server thread/INFO]: Saving chunks for level 'sos'/The End
-[17:25:02] [Server thread/INFO]: Saving and pausing game...
-[17:25:02] [Server thread/INFO]: Saving chunks for level 'sos'/Overworld
-[17:25:02] [Server thread/INFO]: Saving chunks for level 'sos'/Nether
-[17:25:02] [Server thread/INFO]: Saving chunks for level 'sos'/The End
-[17:25:17] [Server thread/INFO]: Saving and pausing game...
-[17:25:17] [Server thread/INFO]: Saving chunks for level 'sos'/Overworld
-[17:25:17] [Server thread/INFO]: Saving chunks for level 'sos'/Nether
-[17:25:17] [Server thread/INFO]: Saving chunks for level 'sos'/The End
-[17:25:20] [Server thread/INFO]: Stopping server
-[17:25:20] [Server thread/INFO]: Saving players
-[17:25:20] [Server thread/INFO]: Saving worlds
-[17:25:20] [Server thread/INFO]: Saving chunks for level 'sos'/Overworld
-[17:25:20] [Server thread/INFO]: Saving chunks for level 'sos'/Nether
-[17:25:20] [Server thread/INFO]: Saving chunks for level 'sos'/The End
-[17:25:21] [Client thread/INFO]: Stopping!
-[17:25:21] [Client thread/INFO]: SoundSystem shutting down...
-[17:25:21] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
+[17:56:12] [Client thread/INFO]: Setting user: Player634
+[17:56:15] [Client thread/INFO]: LWJGL Version: 2.9.1
+[17:56:18] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
+[17:56:18] [Client thread/ERROR]: Couldn't initialize twitch stream
+[17:56:18] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[17:56:19] [Thread-9/INFO]: Initializing LWJGL OpenAL
+[17:56:19] [Thread-9/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[17:56:19] [Thread-9/INFO]: OpenAL initialized.
+[17:56:19] [Sound Library Loader/INFO]: Sound engine started
+[17:56:22] [Client thread/INFO]: Created: 16x16 textures-atlas
+[17:56:23] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
+[17:56:23] [Client thread/INFO]: SoundSystem shutting down...
+[17:56:23] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
+[17:56:23] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[17:56:23] [Thread-11/INFO]: Initializing LWJGL OpenAL
+[17:56:23] [Thread-11/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[17:56:23] [Thread-11/INFO]: OpenAL initialized.
+[17:56:24] [Sound Library Loader/INFO]: Sound engine started
+[17:56:26] [Client thread/INFO]: Created: 512x512 textures-atlas
+[17:58:41] [Client thread/INFO]: Stopping!
+[17:58:41] [Client thread/INFO]: SoundSystem shutting down...
+[17:58:41] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
