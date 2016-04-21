@@ -1,5 +1,8 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.entities;
 
+import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.network.TeleporterNetwork;
+import net.dyeo.teleporter.network.TeleporterNode;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
@@ -18,9 +21,27 @@ public class TeleporterEntity implements IExtendedEntityProperties
 	
 	private final Entity entity;
 	
-	boolean teleported, onTeleporter;
+	private boolean teleported;
+
+	private boolean onTeleporter;
 	int dimension;
 	
+	public boolean getTeleported() {
+		return teleported;
+	}
+
+	public void setTeleported(boolean teleported) {
+		this.teleported = teleported;
+	}
+
+	public boolean getOnTeleporter() {
+		return onTeleporter;
+	}
+
+	public void setOnTeleporter(boolean onTeleporter) {
+		this.onTeleporter = onTeleporter;
+	}
+
 	public TeleporterEntity(Entity entity)
 	{
 		this.entity = entity;
@@ -42,8 +63,8 @@ public class TeleporterEntity implements IExtendedEntityProperties
 	public void copy(TeleporterEntity old) 
 	{
 		dimension = old.dimension;
-		teleported = old.teleported;
-		onTeleporter = old.onTeleporter;
+		setTeleported(old.getTeleported());
+		setOnTeleporter(old.getOnTeleporter());
 	}
 	
 	//
@@ -51,17 +72,22 @@ public class TeleporterEntity implements IExtendedEntityProperties
 	@Override
 	public void saveNBTData(NBTTagCompound compound) 
 	{
+		compound.setInteger("dimension", dimension);
+		compound.setBoolean("teleported", getTeleported());
+		compound.setBoolean("onTeleporter", getOnTeleporter());
 	}
 
 	@Override
 	public void loadNBTData(NBTTagCompound compound) 
 	{
+		dimension    = compound.getInteger("dimension");
+		setTeleported(compound.getBoolean("teleported"));
+		setOnTeleporter(compound.getBoolean("onTeleporter"));
 	}
 
 	@Override
 	public void init(Entity entity, World world) 
-	{
-		// TODO Auto-generated method stub
+	{	
 	}
 
 	public void checkLocation() 
@@ -77,13 +103,14 @@ public class TeleporterEntity implements IExtendedEntityProperties
 			if(node != null)
 			{
 				//System.out.println("[Teleporter] Player on block " + ppos.getX() + "," + ppos.getY() + "," + ppos.getZ());
-				this.onTeleporter = true;
+				this.setOnTeleporter(true);
 			}
 			else
 			{
-				this.onTeleporter = false;
-				this.teleported = false;
-			}			
+				this.setOnTeleporter(false);
+				this.setTeleported(false);
+			}
 		}
 	}
+	
 }

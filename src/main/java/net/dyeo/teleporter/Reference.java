@@ -16,4 +16,6 @@ public final class Reference {
 	public static boolean teleportPassiveMobs = true;
 	public static boolean teleportHostileMobs = true;
 	
+	public static String teleporterBlockId = "teleporterBlock";
+	public static String enderTeleporterBlockId = "enderTeleporterBlock";
 }

@@ -1,5 +1,6 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.container;
 
+import net.dyeo.teleporter.entities.TileEntityTeleporter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;

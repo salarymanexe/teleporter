@@ -2,8 +2,8 @@
     "ambientocclusion": false,
     "textures": {
         "glass": "blocks/glass",
-        "quartz": "blocks/quartz_block_top",
-        "redstone": "blocks/redstone_block",
+        "side": "blocks/iron_block",
+        "diode": "blocks/redstone_block",
         "particle": "blocks/quartz_block_top"
     },
     "elements": [
@@ -13,23 +13,23 @@
             "to": [16,8,16],
             "faces": {
                 "up": {
-                    "texture": "#quartz"
+                    "texture": "#side"
                 },
                 "down": {
-                    "texture": "#quartz"
+                    "texture": "#side"
                 },
                 "west": {
-                    "texture": "#quartz"
+                    "texture": "#side"
                 },
                 "east": {
                     "uv": [0,8,16,16],
-                    "texture": "#quartz"
+                    "texture": "#side"
                 },
                 "north": {
-                    "texture": "#quartz"
+                    "texture": "#side"
                 },
                 "south": {
-                    "texture": "#quartz"
+                    "texture": "#side"
                 }
             }
         },
@@ -40,19 +40,19 @@
             "faces": {
                 "up": {
                     "uv": [4,4,12,12],
-                    "texture": "#redstone"
+                    "texture": "#diode"
                 },
                 "west": {
-                    "texture": "#redstone"
+                    "texture": "#diode"
                 },
                 "east": {
-                    "texture": "#redstone"
+                    "texture": "#diode"
                 },
                 "north": {
-                    "texture": "#redstone"
+                    "texture": "#diode"
                 },
                 "south": {
-                    "texture": "#redstone"
+                    "texture": "#diode"
                 }
             }
         },

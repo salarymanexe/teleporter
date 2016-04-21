@@ -1,5 +1,8 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.gui;
 
+import net.dyeo.teleporter.Reference;
+import net.dyeo.teleporter.container.ContainerTeleporter;
+import net.dyeo.teleporter.entities.TileEntityTeleporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;

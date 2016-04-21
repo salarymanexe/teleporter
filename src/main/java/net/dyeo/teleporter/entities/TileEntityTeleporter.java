@@ -1,7 +1,13 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.entities;
 
 import java.util.Arrays;
 
+import net.dyeo.teleporter.Reference;
+import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.blocks.BlockTeleporterBase;
+import net.dyeo.teleporter.network.TeleporterNetwork;
+import net.dyeo.teleporter.network.TeleporterNode;
+import net.dyeo.teleporter.utilities.TeleporterUtility;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -25,8 +31,27 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 	
 	boolean firstUpdate = true;
 	
-	boolean isPowered = false;
+	private boolean isPowered = false;
 		
+	//
+	
+	public boolean isPowered() {
+		return isPowered;
+	}
+
+	public void setPowered(boolean isPowered) {
+		this.isPowered = isPowered;
+	}
+
+	public TileEntityTeleporter()
+	{ }
+		
+	public String getBlockName()
+	{
+		BlockTeleporterBase block = (BlockTeleporterBase)this.getBlockType();
+		return block.getBlockName();
+	}
+	
 	/* The following are some IInventory methods you are required to override */		
 	
 	// Gets the number of slots in the inventory
@@ -50,17 +75,22 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 	 * @return a new itemstack containing the units removed from the slot
 	 */
 	@Override
-	public ItemStack decrStackSize(int slotIndex, int count) {
+	public ItemStack decrStackSize(int slotIndex, int count) 
+	{
 		ItemStack itemStackInSlot = getStackInSlot(slotIndex);
 		if (itemStackInSlot == null) return null;
 
 		ItemStack itemStackRemoved;
-		if (itemStackInSlot.stackSize <= count) {
+		if (itemStackInSlot.stackSize <= count) 
+		{
 			itemStackRemoved = itemStackInSlot;
 			setInventorySlotContents(slotIndex, null);
-		} else {
+		} 
+		else 
+		{
 			itemStackRemoved = itemStackInSlot.splitStack(count);
-			if (itemStackInSlot.stackSize == 0) {
+			if (itemStackInSlot.stackSize == 0) 
+			{
 				setInventorySlotContents(slotIndex, null);
 			}
 		}
@@ -70,16 +100,18 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 
 	// overwrites the stack in the given slotIndex with the given stack
 	@Override
-	public void setInventorySlotContents(int slotIndex, ItemStack itemstack) {
+	public void setInventorySlotContents(int slotIndex, ItemStack itemstack) 
+	{
 		itemStacks[slotIndex] = itemstack;
-		if (itemstack != null && itemstack.stackSize > getInventoryStackLimit()) {
+		if (itemstack != null && itemstack.stackSize > getInventoryStackLimit()) 
+		{
 			itemstack.stackSize = getInventoryStackLimit();
 		}
 		markDirty();
 	}
 
-	// This is the maximum number if items allowed in each slot
-	// This only affects things such as hoppers trying to insert items you need to use the container to enforce this for players
+	// this is the maximum number if items allowed in each slot
+	// this only affects things such as hoppers trying to insert items you need to use the container to enforce this for players
 	// inserting items via the gui
 	@Override
 	public int getInventoryStackLimit() 
@@ -87,9 +119,9 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 		return 64;
 	}
 
-	// Return true if the given player is able to use this block. In this case it checks that
-	// 1) the world tileentity hasn't been replaced in the meantime, and
-	// 2) the player isn't too far away from the centre of the block
+	// return true if the given player is able to use this block. In this case it checks that
+	// the world tileentity hasn't been replaced in the meantime, and
+	// the player isn't too far away from the centre of the block
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer player) {
 		if (this.worldObj.getTileEntity(this.pos) != this) return false;
@@ -100,16 +132,16 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 		return player.getDistanceSq(pos.getX() + X_CENTRE_OFFSET, pos.getY() + Y_CENTRE_OFFSET, pos.getZ() + Z_CENTRE_OFFSET) < MAXIMUM_DISTANCE_SQ;
 	}
 
-	// Return true if the given stack is allowed to go in the given slot.  In this case, we can insert anything.
-	// This only affects things such as hoppers trying to insert items you need to use the container to enforce this for players
+	// return true if the given stack is allowed to go in the given slot.  In this case, we can insert anything.
+	// this only affects things such as hoppers trying to insert items you need to use the container to enforce this for players
 	// inserting items via the gui
 	@Override
-	public boolean isItemValidForSlot(int slotIndex, ItemStack itemstack) {
+	public boolean isItemValidForSlot(int slotIndex, ItemStack itemstack)
+	{
 		return true;
 	}
 
-	// This is where you save any data that you don't want to lose when the tile entity unloads
-	// In this case, it saves the itemstacks stored in the container
+	// save item stacks and powered state
 	@Override
 	public void writeToNBT(NBTTagCompound parentNBTTagCompound)
 	{
@@ -126,16 +158,16 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 			if (this.itemStacks[i] != null)	
 			{
 				NBTTagCompound dataForThisSlot = new NBTTagCompound();
-				dataForThisSlot.setByte("Slot", (byte) i);
+				dataForThisSlot.setByte("slot", (byte) i);
 				this.itemStacks[i].writeToNBT(dataForThisSlot);
 				dataForAllSlots.appendTag(dataForThisSlot);
 			}
 		}
 		
-		parentNBTTagCompound.setBoolean("Powered", isPowered);
+		parentNBTTagCompound.setBoolean("powered", isPowered());
 				
 		// the array of hashmaps is then inserted into the parent hashmap for the container
-		parentNBTTagCompound.setTag("Items", dataForAllSlots);
+		parentNBTTagCompound.setTag("items", dataForAllSlots);
 	}
 
 	// This is where you load the data that you saved in writeToNBT
@@ -144,15 +176,16 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 	{
 		super.readFromNBT(parentNBTTagCompound); // The super call is required to save and load the tiles location
 		final byte NBT_TYPE_COMPOUND = 10;       // See NBTBase.createNewByType() for a listing
-		NBTTagList dataForAllSlots = parentNBTTagCompound.getTagList("Items", NBT_TYPE_COMPOUND);
+		NBTTagList dataForAllSlots = parentNBTTagCompound.getTagList("items", NBT_TYPE_COMPOUND);
 		
-		isPowered = parentNBTTagCompound.getBoolean("Powered");
+		
+		setPowered(parentNBTTagCompound.getBoolean("powered"));
 		
 		Arrays.fill(itemStacks, null);           // set all slots to empty
 		for (int i = 0; i < dataForAllSlots.tagCount(); ++i) 
 		{
 			NBTTagCompound dataForOneSlot = dataForAllSlots.getCompoundTagAt(i);
-			int slotIndex = dataForOneSlot.getByte("Slot") & 255;
+			int slotIndex = dataForOneSlot.getByte("slot") & 255;
 			
 
 			if (slotIndex >= 0 && slotIndex < this.itemStacks.length) 
@@ -172,7 +205,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 	// will add a key for this container to the lang file so we can name it in the GUI
 	@Override
 	public String getName() {
-		return "tile." + Reference.MODID.toLowerCase() + "_teleporterBlock.name";
+		return "tile." + Reference.MODID.toLowerCase() + "_" + getBlockName() + ".name";
 	}
 
 	@Override
@@ -232,7 +265,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 				netWrapper.addNode(thisNode);
 			}
 						
-			System.out.println("[Teleporter][closeInventory] Node updated! (" + thisNode.pos.getX() + "," + thisNode.pos.getY() + "," + thisNode.pos.getZ() + " @ dim " + thisNode.dimension + ")");
+			System.out.println("Node updated! (" + thisNode.pos.getX() + "," + thisNode.pos.getY() + "," + thisNode.pos.getZ() + " @ dim " + thisNode.dimension + ")");
 			markDirty();
 		}
 	}
@@ -280,30 +313,63 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 		return null;		
 	}
 
+	// call this when you want an entity to teleport to the next teleporter node
 	public TeleporterNode teleport(Entity entityIn) 
 	{
-		//System.out.println("[Teleporter] Teleported " + entityIn.getName() + " to ");
-		
 		Vec3 bounds = BlockTeleporter.getBounds();
 		
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, false);
 		TeleporterNode source = netWrapper.getNode(pos, worldObj.provider.getDimensionId(), false);
-		TeleporterNode destination = netWrapper.getNextNode(entityIn, worldObj, itemStacks[0], source);
+		TeleporterNode destination = netWrapper.getNextNode(entityIn, itemStacks[0], source);
+				
+		// teleport success variable
+		boolean teleportSuccess = false;
 		
+		// if the destination and entity exist
 		if(destination != null && entityIn != null)
 		{
-			entityIn.setPositionAndUpdate(destination.pos.getX() + (bounds.xCoord*0.5f), destination.pos.getY() + (float)bounds.yCoord, destination.pos.getZ() + (bounds.zCoord*0.5f));
+			// don't allow cross-dimensional teleportation if the entity is a mount and the destination is another dimension
+			if (source.dimension != destination.dimension && entityIn.riddenByEntity != null) 
+			{
+				return null;
+			}
 			
+			// if the block type for this block is an instance of the basic teleporter block
+			if(getBlockType() instanceof BlockTeleporterBase)
+			{
+				BlockTeleporterBase block = (BlockTeleporterBase)getBlockType();
+				
+				double x = destination.pos.getX() + (bounds.xCoord*0.5f), 
+					   y = destination.pos.getY() + (float)bounds.yCoord, 
+					   z = destination.pos.getZ() + (bounds.zCoord*0.5f);
+				
+				float yaw = entityIn.rotationYaw, pitch = entityIn.rotationPitch;
+				
+				if(block.getInterdimensional())
+				{
+					teleportSuccess = TeleporterUtility.transferToDimensionLocation(entityIn, destination.dimension, x, y, z, yaw, pitch);
+					// don't allow if the entity is a mount
+				}
+				else
+				{
+					teleportSuccess = TeleporterUtility.transferToLocation(entityIn, x, y, z, yaw, pitch);
+				}
+			}
+		}
+		
+		if(teleportSuccess)
+		{
 			worldObj.playSoundEffect(source.pos.getX(), source.pos.getY(), source.pos.getZ(), Reference.MODID.toLowerCase() + ":portalEnter", 0.9f, 1.0f);
 			worldObj.playSoundEffect(destination.pos.getX(), destination.pos.getY(), destination.pos.getZ(), Reference.MODID.toLowerCase() + ":portalExit", 0.9f, 1.0f);
-					
+			System.out.println("Teleport successful.");
+			return destination;
 		}
 		else
 		{
 			worldObj.playSoundEffect(source.pos.getX(), source.pos.getY(), source.pos.getZ(), Reference.MODID.toLowerCase() + ":portalError", 0.9f, 1.0f);
+			System.out.println("Teleport unsuccessful.");
+			return source;
 		}
-		
-		return destination;
 		
 	}
 
@@ -340,7 +406,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 					netWrapper.addNode(thisNode);
 				}
 							
-				System.out.println("[Teleporter][closeInventory] Node updated! (" + thisNode.pos.getX() + "," + thisNode.pos.getY() + "," + thisNode.pos.getZ() + " @ dim " + thisNode.dimension + ")");
+				System.out.println("Node updated! (" + thisNode.pos.getX() + "," + thisNode.pos.getY() + "," + thisNode.pos.getZ() + " @ dim " + thisNode.dimension + ")");
 				markDirty();
 			}
 			firstUpdate = false;

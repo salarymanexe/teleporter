@@ -1,0 +1,116 @@
+---- Minecraft Crash Report ----
+// Shall we play a game?
+
+Time: 18/02/16 17:40
+Description: Ticking entity
+
+java.lang.NullPointerException: Ticking entity
+	at net.dyeo.teleporter.entities.TeleporterEntity.transferEntityToDimension(TeleporterEntity.java:256)
+	at net.dyeo.teleporter.entities.TeleporterEntity.transferToDimensionLocation(TeleporterEntity.java:142)
+	at net.dyeo.teleporter.entities.TileEntityTeleporter.teleport(TileEntityTeleporter.java:340)
+	at net.dyeo.teleporter.blocks.BlockTeleporterBase.onEntityCollidedWithBlock(BlockTeleporterBase.java:140)
+	at net.dyeo.teleporter.blocks.BlockEnderTeleporter.onEntityCollidedWithBlock(BlockEnderTeleporter.java:59)
+	at net.minecraft.entity.Entity.moveEntity(Entity.java:822)
+	at net.minecraft.entity.EntityLivingBase.moveEntityWithHeading(EntityLivingBase.java:1699)
+	at net.minecraft.entity.passive.EntityHorse.moveEntityWithHeading(EntityHorse.java:1360)
+	at net.minecraft.entity.EntityLivingBase.onLivingUpdate(EntityLivingBase.java:2026)
+	at net.minecraft.entity.EntityLiving.onLivingUpdate(EntityLiving.java:449)
+	at net.minecraft.entity.EntityAgeable.onLivingUpdate(EntityAgeable.java:173)
+	at net.minecraft.entity.passive.EntityAnimal.onLivingUpdate(EntityAnimal.java:47)
+	at net.minecraft.entity.passive.EntityHorse.onLivingUpdate(EntityHorse.java:1079)
+	at net.minecraft.entity.EntityLivingBase.onUpdate(EntityLivingBase.java:1828)
+	at net.minecraft.entity.EntityLiving.onUpdate(EntityLiving.java:273)
+	at net.minecraft.entity.passive.EntityHorse.onUpdate(EntityHorse.java:1116)
+	at net.minecraft.world.World.updateEntityWithOptionalForce(World.java:2031)
+	at net.minecraft.world.WorldServer.updateEntityWithOptionalForce(WorldServer.java:758)
+	at net.minecraft.world.World.updateEntity(World.java:1997)
+	at net.minecraft.world.World.updateEntities(World.java:1823)
+	at net.minecraft.world.WorldServer.updateEntities(WorldServer.java:587)
+	at net.minecraft.server.MinecraftServer.updateTimeLightAndEntities(MinecraftServer.java:775)
+	at net.minecraft.server.MinecraftServer.tick(MinecraftServer.java:669)
+	at net.minecraft.server.integrated.IntegratedServer.tick(IntegratedServer.java:171)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:540)
+	at java.lang.Thread.run(Unknown Source)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Stacktrace:
+	at net.dyeo.teleporter.entities.TeleporterEntity.transferEntityToDimension(TeleporterEntity.java:256)
+	at net.dyeo.teleporter.entities.TeleporterEntity.transferToDimensionLocation(TeleporterEntity.java:142)
+	at net.dyeo.teleporter.entities.TileEntityTeleporter.teleport(TileEntityTeleporter.java:340)
+	at net.dyeo.teleporter.blocks.BlockTeleporterBase.onEntityCollidedWithBlock(BlockTeleporterBase.java:140)
+	at net.dyeo.teleporter.blocks.BlockEnderTeleporter.onEntityCollidedWithBlock(BlockEnderTeleporter.java:59)
+	at net.minecraft.entity.Entity.moveEntity(Entity.java:822)
+	at net.minecraft.entity.EntityLivingBase.moveEntityWithHeading(EntityLivingBase.java:1699)
+	at net.minecraft.entity.passive.EntityHorse.moveEntityWithHeading(EntityHorse.java:1360)
+	at net.minecraft.entity.EntityLivingBase.onLivingUpdate(EntityLivingBase.java:2026)
+	at net.minecraft.entity.EntityLiving.onLivingUpdate(EntityLiving.java:449)
+	at net.minecraft.entity.EntityAgeable.onLivingUpdate(EntityAgeable.java:173)
+	at net.minecraft.entity.passive.EntityAnimal.onLivingUpdate(EntityAnimal.java:47)
+	at net.minecraft.entity.passive.EntityHorse.onLivingUpdate(EntityHorse.java:1079)
+	at net.minecraft.entity.EntityLivingBase.onUpdate(EntityLivingBase.java:1828)
+	at net.minecraft.entity.EntityLiving.onUpdate(EntityLiving.java:273)
+	at net.minecraft.entity.passive.EntityHorse.onUpdate(EntityHorse.java:1116)
+	at net.minecraft.world.World.updateEntityWithOptionalForce(World.java:2031)
+	at net.minecraft.world.WorldServer.updateEntityWithOptionalForce(WorldServer.java:758)
+	at net.minecraft.world.World.updateEntity(World.java:1997)
+
+-- Entity being ticked --
+Details:
+	Entity Type: EntityHorse (net.minecraft.entity.passive.EntityHorse)
+	Entity ID: 19131
+	Entity Name: Horse
+	Entity's Exact location: 219.57, 69.00, -183.06
+	Entity's Block location: 219.00,69.00,-184.00 - World: (219,69,-184), Chunk: (at 11,4,8 in 13,-12; contains blocks 208,0,-192 to 223,255,-177), Region: (0,-1; contains chunks 0,-32 to 31,-1, blocks 0,0,-512 to 511,255,-1)
+	Entity's Momentum: 0.00, 0.00, 0.35
+	Entity's Rider: EntityPlayerMP['Player299'/254, l='New World', x=219.57, y=69.85, z=-183.42]
+	Entity's Vehicle: ~~ERROR~~ NullPointerException: null
+Stacktrace:
+	at net.minecraft.world.World.updateEntities(World.java:1823)
+	at net.minecraft.world.WorldServer.updateEntities(WorldServer.java:587)
+
+-- Affected level --
+Details:
+	Level name: New World
+	All players: 1 total; [EntityPlayerMP['Player299'/254, l='New World', x=219.57, y=69.85, z=-183.42]]
+	Chunk stats: ServerChunkCache: 691 Drop: 0
+	Level seed: 2524685646940693498
+	Level generator: ID 00 - default, ver 1. Features enabled: true
+	Level generator options: 
+	Level spawn location: 240.00,64.00,-184.00 - World: (240,64,-184), Chunk: (at 0,4,8 in 15,-12; contains blocks 240,0,-192 to 255,255,-177), Region: (0,-1; contains chunks 0,-32 to 31,-1, blocks 0,0,-512 to 511,255,-1)
+	Level time: 51974 game time, 41120 day time
+	Level dimension: 0
+	Level storage version: 0x04ABD - Anvil
+	Level weather: Rain time: 99676 (now: false), thunder time: 45702 (now: false)
+	Level game mode: Game mode: creative (ID 1). Hardcore: false. Cheats: true
+Stacktrace:
+	at net.minecraft.server.MinecraftServer.updateTimeLightAndEntities(MinecraftServer.java:775)
+	at net.minecraft.server.MinecraftServer.tick(MinecraftServer.java:669)
+	at net.minecraft.server.integrated.IntegratedServer.tick(IntegratedServer.java:171)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:540)
+	at java.lang.Thread.run(Unknown Source)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.8
+	Operating System: Windows 7 (amd64) version 6.1
+	Java Version: 1.7.0_79, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation
+	Memory: 1329232184 bytes (1267 MB) / 1837105152 bytes (1752 MB) up to 3806855168 bytes (3630 MB)
+	JVM Flags: 0 total; 
+	IntCache: cache: 0, tcache: 0, allocated: 12, tallocated: 94
+	FML: MCP v9.10 FML v8.0.99.99 Minecraft Forge 11.14.4.1577 4 mods loaded, 4 mods active
+	States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored
+	UCHIJAAAA	mcp{9.05} [Minecraft Coder Pack] (minecraft.jar) 
+	UCHIJAAAA	FML{8.0.99.99} [Forge Mod Loader] (forgeSrc-1.8-11.14.4.1577.jar) 
+	UCHIJAAAA	Forge{11.14.4.1577} [Minecraft Forge] (forgeSrc-1.8-11.14.4.1577.jar) 
+	UCHIJAAAA	teleporter{1.4.6} [Vanilla-Inspired Teleporters] (bin) 
+	Loaded coremods (and transformers): 
+	GL info: ~~ERROR~~ RuntimeException: No OpenGL context found in the current thread.
+	Profiler Position: N/A (disabled)
+	Player Count: 1 / 8; [EntityPlayerMP['Player299'/254, l='New World', x=219.57, y=69.85, z=-183.42]]
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Definitely; Client brand changed to 'fml,forge'

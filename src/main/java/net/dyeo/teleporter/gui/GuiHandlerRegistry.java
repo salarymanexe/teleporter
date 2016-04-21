@@ -1,4 +1,4 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.gui;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;

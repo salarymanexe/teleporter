@@ -1,7 +1,13 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.blocks;
 
 import java.util.Random;
 
+import net.dyeo.teleporter.Reference;
+import net.dyeo.teleporter.Teleporter;
+import net.dyeo.teleporter.entities.TeleporterEntity;
+import net.dyeo.teleporter.network.TeleporterNode;
+import net.dyeo.teleporter.entities.TileEntityTeleporter;
+import net.dyeo.teleporter.gui.GuiHandlerTeleporter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -27,11 +33,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 // Standard Teleporter Block Class
 // Has a 1-slot container for teleporter key
-public class BlockTeleporter extends BlockContainer
+public class BlockTeleporterBase extends BlockContainer
 {
 	
+	// whether or not the teleporter uses interdimensional teleports
+	private boolean interdimensional = false;
+	
 	// Constructor
-	public BlockTeleporter()
+	public BlockTeleporterBase(boolean isInterdimensional)
 	{
 		// Set material to rock
 		super(Material.rock);
@@ -44,6 +53,30 @@ public class BlockTeleporter extends BlockContainer
 		// light level (emission): 0.5f
 		this.setLightLevel(0.5f);
 		this.setBlockBounds(0.0f, 0.0f, 0.0f, (float)getBounds().xCoord, (float)getBounds().yCoord, (float)getBounds().zCoord);
+		
+		this.setInterdimensional(isInterdimensional);
+	}
+	
+	// gets a human readable message to be used in the teleporter network
+	public ChatComponentTranslation GetMessage(String messageName)
+	{
+		return new ChatComponentTranslation("message." + Reference.MODID.toLowerCase() + '_' + this.getClass().getSimpleName() + '.' + messageName);
+	}
+	
+	// Returns block name; null if block is not meant to be used
+	public String getBlockName()
+	{
+		return null;
+	}
+	
+	public void setInterdimensional(boolean val)
+	{
+		interdimensional = val;
+	}
+	
+	public boolean getInterdimensional()
+	{
+		return interdimensional;
 	}
 	
 	public static Vec3 getBounds()
@@ -56,7 +89,8 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) 
 	{
-		return new TileEntityTeleporter();
+		TileEntityTeleporter result = new TileEntityTeleporter();
+		return result;
 	}
 
 	// called when the block is right clicked
@@ -91,7 +125,7 @@ public class BlockTeleporter extends BlockContainer
 		
 			if(teleporter != null && tentity != null)
 			{				
-				if (tentity.onTeleporter && !tentity.teleported)
+				if (tentity.getOnTeleporter() && !tentity.getTeleported())
 				{
 					boolean isHostile = (entityIn instanceof EntityMob) || (entityIn instanceof EntityWolf && ((EntityWolf) entityIn).isAngry());
 					
@@ -99,11 +133,16 @@ public class BlockTeleporter extends BlockContainer
 					
 					if((isHostile == false || isHostile == Reference.teleportHostileMobs) && (isPassive == false || isPassive == Reference.teleportPassiveMobs))
 					{					
-						tentity.teleported = true;
-						TeleporterNode dest = teleporter.teleport(entityIn);
-						if(dest != null)
+						// Set entity to teleported
+						tentity.setTeleported(true);
+						
+						// Attempt to teleport the entity
+						TeleporterNode destinationNode = teleporter.teleport(entityIn);
+						
+						// if teleport was successful
+						if(destinationNode != null)
 						{
-							System.out.println("Teleported " + entityIn.getName() + " to " + dest.pos.getX() + "," + dest.pos.getY()  + "," +  dest.pos.getZ() );
+							System.out.println("Teleported " + entityIn.getName() + " to " + destinationNode.pos.getX() + "," + destinationNode.pos.getY()  + "," +  destinationNode.pos.getZ() + " : " + destinationNode.dimension);
 						}
 					}
 				}
@@ -116,7 +155,7 @@ public class BlockTeleporter extends BlockContainer
 			
 			Random rand = new Random();
 			
-			if (!tentity.teleported)
+			if (!tentity.getTeleported())
 			{
 				double mx = rand.nextGaussian() * 0.2d;
 				double my = rand.nextGaussian() * 0.2d;
@@ -141,11 +180,11 @@ public class BlockTeleporter extends BlockContainer
 		TileEntityTeleporter tileEntityTeleporter = TileEntityTeleporter.getTileEntityAt(world, pos);
 		
 		// check if teleporter was powered before
-		boolean oldPowered = tileEntityTeleporter.isPowered;
+		boolean oldPowered = tileEntityTeleporter.isPowered();
 		
 		if (!world.isRemote && world.isBlockIndirectlyGettingPowered(pos) > 0 && tileEntityTeleporter != null)
 		{
-			tileEntityTeleporter.isPowered = true;
+			tileEntityTeleporter.setPowered(true);
 			// if block was not powered before but is now powered
 			if(oldPowered == false)
 			{
@@ -154,14 +193,14 @@ public class BlockTeleporter extends BlockContainer
 				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16);
 				if(player != null)
 				{
-					player.addChatMessage(new ChatComponentTranslation("Teleporter locked: can exit only."));
+					player.addChatMessage(GetMessage("teleporterLocked"));
 				}
 			}
 			tileEntityTeleporter.markDirty();
 		}
 		else if(tileEntityTeleporter != null)
 		{
-			tileEntityTeleporter.isPowered = false;
+			tileEntityTeleporter.setPowered(false);
 			// if block was powered before but is now not powered
 			if(oldPowered == true)
 			{
@@ -170,7 +209,7 @@ public class BlockTeleporter extends BlockContainer
 				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16);
 				if(player != null)
 				{
-					player.addChatMessage(new ChatComponentTranslation("Teleporter unlocked: can enter and exit."));
+					player.addChatMessage(GetMessage("teleporterUnlocked"));
 				}
 			}
 			tileEntityTeleporter.markDirty();
