@@ -2,21 +2,37 @@ package net.dyeo.teleporter.client;
 
 import net.dyeo.teleporter.ISidedProxy;
 import net.dyeo.teleporter.Reference;
+import net.dyeo.teleporter.common.CommonProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.Item;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class ClientProxy implements ISidedProxy {
+public class ClientProxy extends CommonProxy implements ISidedProxy {
 
 	@Override
-	public void preInit() {
-		// TODO Auto-generated method stub
-
+	public void preInit(FMLPreInitializationEvent event) 
+	{
+		super.preInit(event);
 	}
 
 	@Override
-	public void init() 
+	public void init(FMLInitializationEvent event) 
+	{
+		super.init(event);
+		
+		registerRenderers();
+	}
+
+	@Override
+	public void load(FMLInitializationEvent event) 
+	{
+		super.load(event);		
+	}
+	
+	void registerRenderers()
 	{
 		final int DEFAULT_ITEM_SUBTYPE = 0;
 		
@@ -31,7 +47,6 @@ public class ClientProxy implements ISidedProxy {
 		ModelResourceLocation itemEnderTeleporterModelResourceLocation = new ModelResourceLocation(Reference.MODID.toLowerCase() + ":enderTeleporterBlock", "inventory");
 		
 		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(itemBlockEnderTeleporter, DEFAULT_ITEM_SUBTYPE, itemEnderTeleporterModelResourceLocation);
-
 	}
 
 }
