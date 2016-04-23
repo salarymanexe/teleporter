@@ -47,7 +47,9 @@ public class TeleporterUtility
 	{
 		try
 		{
-			entityIn.setLocationAndAngles(x, y, z, yaw, pitch);
+			entityIn.setPositionAndUpdate(x, y, z);
+			entityIn.rotationYaw = yaw; 
+			entityIn.rotationPitch = pitch;
 		}
 		catch(Exception e)
 		{
@@ -118,8 +120,6 @@ public class TeleporterUtility
             {
 				Entity destinationEntity = entityClass.getConstructor(World.class).newInstance((World)destinationWorldServer);
 				
-    			destinationEntity.setWorld(destinationWorldServer);
-
             	TeleporterUtility.transferToLocation(destinationEntity, x, y, z, yaw, pitch);
             	
     	        destinationEntity.forceSpawn = true;
