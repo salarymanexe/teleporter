@@ -1,45 +1,15 @@
-[18:44:56] [Client thread/INFO]: Setting user: Player674
-[18:44:59] [Client thread/INFO]: LWJGL Version: 2.9.1
-[18:45:02] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
-[18:45:02] [Client thread/ERROR]: Couldn't initialize twitch stream
-[18:45:02] [Sound Library Loader/INFO]: Starting up SoundSystem...
-[18:45:02] [Thread-9/INFO]: Initializing LWJGL OpenAL
-[18:45:02] [Thread-9/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
-[18:45:03] [Thread-9/INFO]: OpenAL initialized.
-[18:45:03] [Sound Library Loader/INFO]: Sound engine started
-[18:45:05] [Client thread/INFO]: Created: 16x16 textures-atlas
-[18:45:07] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
-[18:45:07] [Client thread/INFO]: SoundSystem shutting down...
-[18:45:07] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
-[18:45:07] [Sound Library Loader/INFO]: Starting up SoundSystem...
-[18:45:07] [Thread-11/INFO]: Initializing LWJGL OpenAL
-[18:45:07] [Thread-11/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
-[18:45:07] [Thread-11/INFO]: OpenAL initialized.
-[18:45:08] [Sound Library Loader/INFO]: Sound engine started
-[18:45:10] [Client thread/INFO]: Created: 512x512 textures-atlas
-[18:45:12] [Server thread/INFO]: Starting integrated minecraft server version 1.8
-[18:45:12] [Server thread/INFO]: Generating keypair
-[18:45:13] [Server thread/INFO]: Preparing start region for level 0
-[18:45:14] [Server thread/INFO]: Preparing spawn area: 83%
-[18:45:14] [Server thread/INFO]: Changing view distance to 12, from 10
-[18:45:15] [Server thread/INFO]: Player674[local:E:e65aa08c] logged in with entity id 231 at (31.950080513289006, 70.0, 35.30000001192093)
-[18:45:15] [Server thread/INFO]: Player674 joined the game
-[18:45:25] [Chunk Batcher 0/WARN]: Needed to grow BufferBuilder buffer: Old size 524288 bytes, new size 2621440 bytes.
-[18:45:26] [Chunk Batcher 1/WARN]: Needed to grow BufferBuilder buffer: Old size 524288 bytes, new size 2621440 bytes.
-[18:45:26] [Chunk Batcher 1/WARN]: Needed to grow BufferBuilder buffer: Old size 524288 bytes, new size 2621440 bytes.
-[18:45:27] [Chunk Batcher 1/WARN]: Needed to grow BufferBuilder buffer: Old size 524288 bytes, new size 2621440 bytes.
-[18:45:35] [Chunk Batcher 1/WARN]: Needed to grow BufferBuilder buffer: Old size 524288 bytes, new size 2621440 bytes.
-[18:45:59] [Server thread/WARN]: Can't keep up! Did the system time change, or is the server overloaded? Running 2492ms behind, skipping 49 tick(s)
-[18:47:12] [Server thread/INFO]: Saving and pausing game...
-[18:47:12] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[18:47:12] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[18:47:12] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[18:47:13] [Server thread/INFO]: Stopping server
-[18:47:13] [Server thread/INFO]: Saving players
-[18:47:13] [Server thread/INFO]: Saving worlds
-[18:47:13] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[18:47:13] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[18:47:13] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[18:47:14] [Client thread/INFO]: Stopping!
-[18:47:14] [Client thread/INFO]: SoundSystem shutting down...
-[18:47:14] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
+[18:49:42] [Server thread/INFO]: Starting minecraft server version 1.8
+[18:49:46] [Server thread/INFO]: Loading properties
+[18:49:46] [Server thread/INFO]: Default game type: SURVIVAL
+[18:49:46] [Server thread/INFO]: Generating keypair
+[18:49:46] [Server thread/INFO]: Starting Minecraft server on *:25565
+[18:49:47] [Server thread/INFO]: Preparing level "world"
+[18:49:48] [Server thread/INFO]: Preparing start region for level 0
+[18:49:49] [Server thread/INFO]: Preparing spawn area: 19%
+[18:49:49] [Server thread/INFO]: Done (2.354s)! For help, type "help" or "?"
+[18:49:51] [Server thread/INFO]: Stopping server
+[18:49:51] [Server thread/INFO]: Saving players
+[18:49:51] [Server thread/INFO]: Saving worlds
+[18:49:51] [Server thread/INFO]: Saving chunks for level 'world'/Overworld
+[18:49:51] [Server thread/INFO]: Saving chunks for level 'world'/Nether
+[18:49:51] [Server thread/INFO]: Saving chunks for level 'world'/The End
