@@ -1,12 +1,14 @@
 package net.dyeo.teleporter.utilities;
 
+import com.google.common.base.Throwables;
+
 import net.dyeo.teleporter.entities.TeleporterEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
 public class TeleporterUtility 
@@ -20,7 +22,7 @@ public class TeleporterUtility
 			// if the dimensions are the same, we can fall back to the transfer to location teleport
 			if(sourceEntity.dimension == dimensionDestination)
 			{
-				return TeleporterUtility.transferToLocation(sourceEntity, x, y, z, sourceEntity.rotationYaw, sourceEntity.rotationPitch);
+				return TeleporterUtility.transferToLocation(sourceEntity, x, y, z, yaw, pitch);
 			}
 			else
 			{
@@ -32,7 +34,7 @@ public class TeleporterUtility
 				else if(sourceEntity instanceof EntityLivingBase)
 				{
 					System.out.println("EntityLivingBase");
-					return TeleporterUtility._transferEntityToDimension(sourceEntity, dimensionDestination, x, y, z, sourceEntity.rotationYaw, sourceEntity.rotationPitch);
+					return TeleporterUtility._transferEntityToDimension(sourceEntity, dimensionDestination, x, y, z, yaw, pitch);
 				}
 			}
 		}
@@ -41,17 +43,15 @@ public class TeleporterUtility
 	}
 	
 	// transfers entity to a location in the same dimension
-	public static boolean transferToLocation(Entity sourceEntity, double x, double y, double z, float yaw, float pitch)
+	public static boolean transferToLocation(Entity entityIn, double x, double y, double z, float yaw, float pitch)
 	{
 		try
 		{
-			sourceEntity.rotationYaw = yaw;
-			sourceEntity.rotationPitch = pitch;
-			sourceEntity.setPositionAndUpdate(x, y, z);
+			entityIn.setLocationAndAngles(x, y, z, yaw, pitch);
 		}
 		catch(Exception e)
 		{
-			System.out.println("EXCEPTION: " + e.getMessage());
+            Throwables.propagate(e);
 			return false;
 		}
 		return true;
@@ -74,22 +74,15 @@ public class TeleporterUtility
         	MinecraftServer.getServer().getConfigurationManager().transferPlayerToDimension(playerIn, destinationDimension);
         
         	// handle returning from end, such that it behaves like a regular dimensional teleport
-        	if (sourceDimension == 1 ) 
+        	if (sourceDimension == 1) 
         	{
-        		playerIn.setPositionAndUpdate(x, y, z);
+        		playerIn.setLocationAndAngles(x, y, z, yaw, pitch);
             	destinationWorldServer.spawnEntityInWorld(playerIn);
             	destinationWorldServer.updateEntityWithOptionalForce(playerIn, false);
         	}
         	
-        	// get TeleporterEntity, or register one if it doesn't already exist
-        	TeleporterEntity destinationPlayerProperties = TeleporterEntity.get(playerIn);
-            
-        	// set so the player doesn't teleport again when the dimension loads
-        	destinationPlayerProperties.setOnTeleporter(true);
-        	destinationPlayerProperties.setTeleported(true);
-        	
         	// transfer the player to the location of the teleport, and preserve rotation
-        	TeleporterUtility.transferToLocation(playerIn, x, y, z, playerIn.rotationYaw, playerIn.rotationPitch);
+        	TeleporterUtility.transferToLocation(playerIn, x, y, z, yaw, pitch);
         
         	// teleport successful
 			return true;		
@@ -113,61 +106,39 @@ public class TeleporterUtility
         WorldServer destinationWorldServer = minecraftServer.worldServerForDimension(destinationDimension);
 
         if(destinationWorldServer != null)
-        {      
-            Entity destinationEntity;
+        {   
     		NBTTagCompound tagCompound = new NBTTagCompound();
-    		
-    		// if the entity is not successfully written to nbt (on a mount):
-        	if(!entityIn.writeToNBTOptional(tagCompound))
-        	{
-        		// teleport unsuccessful
-        		System.out.println("Entity could not be written to NBT.");
-        		return false;
-        	}
-        
-        	// remove the original entity from the source world
-    		sourceWorldServer.removeEntity(entityIn);
-    		entityIn.isDead = false;
-    		
-    		// transfer the original entity data to the new world
-    		minecraftServer.getConfigurationManager().transferEntityToWorld(entityIn, sourceDimension, sourceWorldServer, destinationWorldServer);
-    		
-    		// spawn the new entity in the destination world
-    		destinationEntity = EntityList.createEntityFromNBT(tagCompound, destinationWorldServer);
 
-    		// if the entity was successfully created:
-    		if(destinationEntity != null)
-    		{
-    			// copy the old entity data into the new entity
-    			destinationEntity.copyDataFromOld(entityIn);
-    			
-            	// get TeleporterEntity, or register one if it doesn't already exist
-            	TeleporterEntity destinationEntityProperties = TeleporterEntity.get(destinationEntity);
-                
-            	// set so the entity doesn't teleport again when the dimension loads
-            	destinationEntityProperties.setOnTeleporter(true);
-            	destinationEntityProperties.setTeleported(true);
-    			
-    			// set the new entity's position/rotation to the teleport position/rotation
-    			TeleporterUtility.transferToLocation(destinationEntity, x, y, z, yaw, pitch);
-    			
-    			// spawn the entity in the world
+    		entityIn.writeToNBT(tagCompound); 
+    		        	
+            Class<? extends Entity> entityClass = entityIn.getClass();
+
+    		sourceWorldServer.removeEntity(entityIn);    		
+            try 
+            {
+				Entity destinationEntity = entityClass.getConstructor(World.class).newInstance((World)destinationWorldServer);
+				
+    			destinationEntity.setWorld(destinationWorldServer);
+
+            	TeleporterUtility.transferToLocation(destinationEntity, x, y, z, yaw, pitch);
+            	
+    	        destinationEntity.forceSpawn = true;
     			destinationWorldServer.spawnEntityInWorld(destinationEntity);
-    		}
-    		else
-    		{
+    	        destinationEntity.forceSpawn = false;
+    	        
+    	        TeleporterEntity entityProperties = TeleporterEntity.get(destinationEntity);
+    	        entityProperties.setOnTeleporter(true);
+    	        entityProperties.setTeleported(true);
+            	
+    	        destinationWorldServer.updateEntityWithOptionalForce(destinationEntity, false);
+            } 
+            catch (Exception e) 
+            {
             	// teleport unsuccessful
-            	System.out.println("Entity could not be created.");
-            	return false;
-    		}
-    		
-    		// kill the original entity
-    		entityIn.isDead = true;
-        	
-        	// reset the update ticks so the entity will be included in the next update loop properly
-        	sourceWorldServer.resetUpdateEntityTick();
-            destinationWorldServer.resetUpdateEntityTick();
-        	
+                Throwables.propagate(e);
+                return false;
+            }
+            
         	// teleport successful
 			return true;		
         }

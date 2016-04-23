@@ -1,16 +1,40 @@
-[22:17:10] [Server thread/INFO]: Starting minecraft server version 1.8
-[22:17:14] [Server thread/INFO]: Loading properties
-[22:17:14] [Server thread/INFO]: Default game type: SURVIVAL
-[22:17:14] [Server thread/INFO]: Generating keypair
-[22:17:15] [Server thread/INFO]: Starting Minecraft server on *:25565
-[22:17:16] [Server thread/INFO]: Preparing level "world"
-[22:17:17] [Server thread/INFO]: Preparing start region for level 0
-[22:17:18] [Server thread/INFO]: Preparing spawn area: 2%
-[22:17:19] [Server thread/INFO]: Preparing spawn area: 91%
-[22:17:19] [Server thread/INFO]: Done (3.096s)! For help, type "help" or "?"
-[22:17:27] [Server thread/INFO]: Stopping server
-[22:17:27] [Server thread/INFO]: Saving players
-[22:17:27] [Server thread/INFO]: Saving worlds
-[22:17:27] [Server thread/INFO]: Saving chunks for level 'world'/Overworld
-[22:17:27] [Server thread/INFO]: Saving chunks for level 'world'/Nether
-[22:17:27] [Server thread/INFO]: Saving chunks for level 'world'/The End
+[18:13:22] [Client thread/INFO]: Setting user: Player72
+[18:13:24] [Client thread/INFO]: LWJGL Version: 2.9.1
+[18:13:27] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
+[18:13:28] [Client thread/ERROR]: Couldn't initialize twitch stream
+[18:13:28] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[18:13:28] [Thread-9/INFO]: Initializing LWJGL OpenAL
+[18:13:28] [Thread-9/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[18:13:28] [Thread-9/INFO]: OpenAL initialized.
+[18:13:28] [Sound Library Loader/INFO]: Sound engine started
+[18:13:31] [Client thread/INFO]: Created: 16x16 textures-atlas
+[18:13:32] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
+[18:13:32] [Client thread/INFO]: SoundSystem shutting down...
+[18:13:32] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
+[18:13:32] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[18:13:33] [Thread-11/INFO]: Initializing LWJGL OpenAL
+[18:13:33] [Thread-11/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[18:13:33] [Thread-11/INFO]: OpenAL initialized.
+[18:13:33] [Sound Library Loader/INFO]: Sound engine started
+[18:13:35] [Client thread/INFO]: Created: 512x512 textures-atlas
+[18:13:41] [Server thread/INFO]: Starting integrated minecraft server version 1.8
+[18:13:41] [Server thread/INFO]: Generating keypair
+[18:13:41] [Server thread/INFO]: Preparing start region for level 0
+[18:13:42] [Server thread/INFO]: Preparing spawn area: 67%
+[18:13:43] [Server thread/INFO]: Changing view distance to 12, from 10
+[18:13:44] [Server thread/INFO]: Player72[local:E:2aee549d] logged in with entity id 399 at (51.609300920140285, 75.0, 29.54575662644527)
+[18:13:44] [Server thread/INFO]: Player72 joined the game
+[18:13:46] [Server thread/WARN]: Can't keep up! Did the system time change, or is the server overloaded? Running 2397ms behind, skipping 47 tick(s)
+[18:14:24] [Server thread/INFO]: Saving and pausing game...
+[18:14:24] [Server thread/INFO]: Saving chunks for level 'New World 2'/Overworld
+[18:14:24] [Server thread/INFO]: Saving chunks for level 'New World 2'/Nether
+[18:14:24] [Server thread/INFO]: Saving chunks for level 'New World 2'/The End
+[18:14:24] [Server thread/INFO]: Stopping server
+[18:14:24] [Server thread/INFO]: Saving players
+[18:14:24] [Server thread/INFO]: Saving worlds
+[18:14:24] [Server thread/INFO]: Saving chunks for level 'New World 2'/Overworld
+[18:14:24] [Server thread/INFO]: Saving chunks for level 'New World 2'/Nether
+[18:14:24] [Server thread/INFO]: Saving chunks for level 'New World 2'/The End
+[18:14:26] [Client thread/INFO]: Stopping!
+[18:14:26] [Client thread/INFO]: SoundSystem shutting down...
+[18:14:26] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com

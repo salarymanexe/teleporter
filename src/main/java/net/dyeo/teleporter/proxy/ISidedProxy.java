@@ -1,4 +1,4 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.proxy;
 
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;

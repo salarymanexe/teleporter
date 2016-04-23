@@ -1,8 +1,6 @@
-package net.dyeo.teleporter.client;
+package net.dyeo.teleporter.proxy;
 
-import net.dyeo.teleporter.ISidedProxy;
 import net.dyeo.teleporter.Reference;
-import net.dyeo.teleporter.common.CommonProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.Item;

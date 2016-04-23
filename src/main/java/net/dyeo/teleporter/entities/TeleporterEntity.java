@@ -102,7 +102,6 @@ public class TeleporterEntity implements IExtendedEntityProperties
 			
 			if(node != null)
 			{
-				//System.out.println("[Teleporter] Player on block " + ppos.getX() + "," + ppos.getY() + "," + ppos.getZ());
 				this.setOnTeleporter(true);
 			}
 			else

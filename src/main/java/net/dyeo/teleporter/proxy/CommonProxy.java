@@ -1,6 +1,5 @@
-package net.dyeo.teleporter.common;
+package net.dyeo.teleporter.proxy;
 
-import net.dyeo.teleporter.ISidedProxy;
 import net.dyeo.teleporter.Reference;
 import net.dyeo.teleporter.Teleporter;
 import net.dyeo.teleporter.blocks.BlockEnderTeleporter;

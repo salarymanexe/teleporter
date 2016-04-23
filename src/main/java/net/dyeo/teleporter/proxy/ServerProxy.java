@@ -1,7 +1,5 @@
-package net.dyeo.teleporter.server;
+package net.dyeo.teleporter.proxy;
 
-import net.dyeo.teleporter.ISidedProxy;
-import net.dyeo.teleporter.common.CommonProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 

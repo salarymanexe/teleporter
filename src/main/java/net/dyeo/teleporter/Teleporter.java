@@ -1,5 +1,6 @@
 package net.dyeo.teleporter;
 
+import net.dyeo.teleporter.proxy.ISidedProxy;
 import net.minecraft.block.Block;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -22,16 +23,16 @@ public class Teleporter
 	@Instance(Reference.MODID)
 	public static Object instance;
 	
-	@SidedProxy(clientSide = "net.dyeo.teleporter.client.ClientProxy", serverSide = "net.dyeo.teleporter.common.CommonProxy")
+	@SidedProxy(clientSide = "net.dyeo.teleporter.proxy.ClientProxy", serverSide = "net.dyeo.teleporter.proxy.ServerProxy")
     public static ISidedProxy proxy;
 	
 	//
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		proxy.preInit(event);
-		
 		instance = this;
+		
+		proxy.preInit(event);
 	}
 	
 	//
