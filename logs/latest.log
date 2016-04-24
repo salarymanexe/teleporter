@@ -1,15 +1,67 @@
-[18:49:42] [Server thread/INFO]: Starting minecraft server version 1.8
-[18:49:46] [Server thread/INFO]: Loading properties
-[18:49:46] [Server thread/INFO]: Default game type: SURVIVAL
-[18:49:46] [Server thread/INFO]: Generating keypair
-[18:49:46] [Server thread/INFO]: Starting Minecraft server on *:25565
-[18:49:47] [Server thread/INFO]: Preparing level "world"
-[18:49:48] [Server thread/INFO]: Preparing start region for level 0
-[18:49:49] [Server thread/INFO]: Preparing spawn area: 19%
-[18:49:49] [Server thread/INFO]: Done (2.354s)! For help, type "help" or "?"
-[18:49:51] [Server thread/INFO]: Stopping server
-[18:49:51] [Server thread/INFO]: Saving players
-[18:49:51] [Server thread/INFO]: Saving worlds
-[18:49:51] [Server thread/INFO]: Saving chunks for level 'world'/Overworld
-[18:49:51] [Server thread/INFO]: Saving chunks for level 'world'/Nether
-[18:49:51] [Server thread/INFO]: Saving chunks for level 'world'/The End
+[21:18:17] [Client thread/INFO]: Setting user: Player241
+[21:18:20] [Client thread/INFO]: LWJGL Version: 2.9.4
+[21:18:24] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
+[21:18:24] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[21:18:24] [Thread-9/INFO]: Initializing LWJGL OpenAL
+[21:18:24] [Thread-9/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[21:18:24] [Thread-9/INFO]: OpenAL initialized.
+[21:18:25] [Sound Library Loader/INFO]: Sound engine started
+[21:18:30] [Client thread/INFO]: Created: 16x16 textures-atlas
+[21:18:31] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
+[21:18:31] [Client thread/INFO]: SoundSystem shutting down...
+[21:18:31] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
+[21:18:31] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[21:18:31] [Thread-11/INFO]: Initializing LWJGL OpenAL
+[21:18:31] [Thread-11/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[21:18:31] [Thread-11/INFO]: OpenAL initialized.
+[21:18:32] [Sound Library Loader/INFO]: Sound engine started
+[21:18:36] [Client thread/INFO]: Created: 512x512 textures-atlas
+[21:18:38] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
+[21:18:41] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
+[21:18:42] [Server thread/INFO]: Starting integrated minecraft server version 1.8.9
+[21:18:42] [Server thread/INFO]: Generating keypair
+[21:18:42] [Server thread/INFO]: Preparing start region for level 0
+[21:18:43] [Server thread/INFO]: Preparing spawn area: 72%
+[21:18:43] [Server thread/INFO]: Changing view distance to 12, from 10
+[21:18:43] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
+[21:18:44] [Server thread/INFO]: Player241[local:E:60a25584] logged in with entity id 365 at (14.83112269696743, 77.0, 36.966471071853654)
+[21:18:44] [Server thread/INFO]: Player241 joined the game
+[21:18:46] [pool-2-thread-1/WARN]: Couldn't look up profile properties for com.mojang.authlib.GameProfile@52511f90[id=70e91197-310e-329c-b14b-d42515dd7aa5,name=Player241,properties={},legacy=false]
+com.mojang.authlib.exceptions.AuthenticationException: The client has sent too many requests within a certain amount of time
+	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:65) ~[YggdrasilAuthenticationService.class:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService.fillGameProfile(YggdrasilMinecraftSessionService.java:175) [YggdrasilMinecraftSessionService.class:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService$1.load(YggdrasilMinecraftSessionService.java:59) [YggdrasilMinecraftSessionService$1.class:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService$1.load(YggdrasilMinecraftSessionService.java:56) [YggdrasilMinecraftSessionService$1.class:?]
+	at com.google.common.cache.LocalCache$LoadingValueReference.loadFuture(LocalCache.java:3524) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache$Segment.loadSync(LocalCache.java:2317) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache$Segment.lockedGetOrLoad(LocalCache.java:2280) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2195) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache.get(LocalCache.java:3934) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache.getOrLoad(LocalCache.java:3938) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache$LocalLoadingCache.get(LocalCache.java:4821) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache$LocalLoadingCache.getUnchecked(LocalCache.java:4827) [guava-17.0.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService.fillProfileProperties(YggdrasilMinecraftSessionService.java:165) [YggdrasilMinecraftSessionService.class:?]
+	at net.minecraft.client.Minecraft.func_181037_M(Minecraft.java:2915) [Minecraft.class:?]
+	at net.minecraft.client.resources.SkinManager$3.run(SkinManager.java:130) [SkinManager$3.class:?]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Unknown Source) [?:1.8.0_91]
+	at java.util.concurrent.FutureTask.run(Unknown Source) [?:1.8.0_91]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source) [?:1.8.0_91]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source) [?:1.8.0_91]
+	at java.lang.Thread.run(Unknown Source) [?:1.8.0_91]
+[21:18:50] [Server thread/INFO]: Player241 has just earned the achievement [Taking Inventory]
+[21:18:51] [Client thread/INFO]: [CHAT] Player241 has just earned the achievement [Taking Inventory]
+[21:19:07] [Client thread/INFO]: [CHAT] No teleporters found that match your key.
+[21:19:15] [Server thread/INFO]: Saving and pausing game...
+[21:19:15] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[21:19:15] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[21:19:15] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[21:19:15] [Server thread/INFO]: Stopping server
+[21:19:15] [Server thread/INFO]: Saving players
+[21:19:15] [Server thread/INFO]: Saving worlds
+[21:19:15] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[21:19:15] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[21:19:15] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[21:19:17] [Client thread/INFO]: Stopping!
+[21:19:17] [Client thread/INFO]: SoundSystem shutting down...
+[21:19:17] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
+[21:19:17] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com

@@ -14,16 +14,16 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-public class TileEntityTeleporter extends TileEntity implements IInventory, IUpdatePlayerListBox
+public class TileEntityTeleporter extends TileEntity implements IInventory, ITickable
 {
 	// Create and initialize the items variable that will store the items
 	final int NUMBER_OF_SLOTS = 1;
@@ -222,19 +222,6 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 	// -----------------------------------------------------------------------------------------------------------
 	// The following methods are not needed for this example but are part of IInventory so they must be implemented
 
-	/**
-	 * This method removes the entire contents of the given slot and returns it.
-	 * Used by containers such as crafting tables which return any items in their slots when you close the GUI
-	 * @param slotIndex
-	 * @return
-	 */
-	@Override
-	public ItemStack getStackInSlotOnClosing(int slotIndex) {
-		ItemStack itemStack = getStackInSlot(slotIndex);
-		if (itemStack != null) setInventorySlotContents(slotIndex, null);
-		return itemStack;
-	}
-
 	@Override
 	public void openInventory(EntityPlayer player) 
 	{
@@ -412,5 +399,13 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, IUpd
 			firstUpdate = false;
 		}
 		
+	}
+
+	@Override
+	public ItemStack removeStackFromSlot(int slotIndex) 
+	{
+		ItemStack itemStack = getStackInSlot(slotIndex);
+		if (itemStack != null) setInventorySlotContents(slotIndex, null);
+		return itemStack;
 	}
 }
