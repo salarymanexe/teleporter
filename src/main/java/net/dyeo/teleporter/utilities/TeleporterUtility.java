@@ -8,9 +8,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.play.server.S07PacketRespawn;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 
 public class TeleporterUtility 
 {
@@ -61,42 +65,81 @@ public class TeleporterUtility
 	}
 	
 	// transfer player to dimension, retaining all information and not dying
-	static boolean _transferPlayerToDimension(EntityPlayerMP playerIn, int destinationDimension, double x, double y, double z, float yaw, float pitch) 
-	{
-		int sourceDimension = playerIn.worldObj.provider.getDimensionId();
-		
-		// get player's world server
-        WorldServer destinationWorldServer = MinecraftServer.getServer().worldServerForDimension(destinationDimension);
-        
-        if(destinationWorldServer != null)
-        {
-        	// force the player entity to update
-        	playerIn.addExperienceLevel(0);
-        
-        	// teleport the player to the new dimension
-        	MinecraftServer.getServer().getConfigurationManager().transferPlayerToDimension(playerIn, destinationDimension);
-        
-        	// handle returning from end, such that it behaves like a regular dimensional teleport
-        	if (sourceDimension == 1) 
-        	{
-        		playerIn.setLocationAndAngles(x, y, z, yaw, pitch);
-            	destinationWorldServer.spawnEntityInWorld(playerIn);
-            	destinationWorldServer.updateEntityWithOptionalForce(playerIn, false);
-        	}
-        	
-        	// transfer the player to the location of the teleport, and preserve rotation
-        	TeleporterUtility.transferToLocation(playerIn, x, y, z, yaw, pitch);
-        
-        	// teleport successful
-			return true;		
-        }
-        else
-        {
-        	// teleport unsuccessful
-        	System.out.println("Destination world server does not exist.");
-        	return false;
-        }
-	}
+		static boolean _transferPlayerToDimension(EntityPlayerMP sourcePlayer, int dimensionDestination, double x, double y, double z, float yaw, float pitch) 
+		{
+
+			// get the server configuration manager for the player
+			ServerConfigurationManager serverConfigurationManager = sourcePlayer.mcServer.getConfigurationManager();
+			
+			// get the world server for the player's current dimension
+			WorldServer sourceWorldServer = sourcePlayer.mcServer.worldServerForDimension(sourcePlayer.dimension);
+			// get the world server for the destination dimension
+			WorldServer destinationWorldServer = sourcePlayer.mcServer.worldServerForDimension(dimensionDestination);
+
+			// fire player change dimension event and check that action is valid before continuing
+			PlayerChangedDimensionEvent playerChangedDimensionEvent = new PlayerChangedDimensionEvent(sourcePlayer, sourcePlayer.dimension, dimensionDestination);
+			if (FMLCommonHandler.instance().bus().post(playerChangedDimensionEvent) == true)
+			{
+				return false;
+			}
+
+			// (hard) set the player's dimension to the destination dimension
+			sourcePlayer.dimension = dimensionDestination;
+			
+			// send a player respawn packet to the destination dimension so the player respawns there
+			sourcePlayer.playerNetServerHandler.sendPacket(
+					new S07PacketRespawn(
+							sourcePlayer.dimension,
+							sourcePlayer.worldObj.getDifficulty(), 
+							sourcePlayer.worldObj.getWorldInfo().getTerrainType(),
+							sourcePlayer.theItemInWorldManager.getGameType()
+							)
+					);
+
+			// remove the original player entity
+			sourceWorldServer.removeEntity(sourcePlayer);
+			// make sure the player isn't dead (removeEntity sets player as dead)
+			sourcePlayer.isDead = false;
+
+			sourcePlayer.mountEntity((Entity) null);
+			if (sourcePlayer.riddenByEntity != null) 
+			{
+				sourcePlayer.riddenByEntity.mountEntity((Entity) null);
+			}
+
+			// spawn the player in the new world
+			destinationWorldServer.spawnEntityInWorld(sourcePlayer);
+			// update the entity (do not force)
+			destinationWorldServer.updateEntityWithOptionalForce(sourcePlayer, false);
+
+			// set the player's world to the new world
+			sourcePlayer.setWorld(destinationWorldServer);
+			
+			//serverConfigurationManager.func_72375_a(sourcePlayer, sourceWorldServer);
+			serverConfigurationManager.preparePlayer(sourcePlayer, sourceWorldServer);
+
+			// set player's location (net server handler)
+			sourcePlayer.playerNetServerHandler.setPlayerLocation(x, y, z, yaw, pitch);
+			
+			// set item in world manager's world to the same as the player
+			sourcePlayer.theItemInWorldManager.setWorld(destinationWorldServer);
+			
+			// update time and weather for the player so that it's the same as the world
+			sourcePlayer.mcServer.getConfigurationManager().updateTimeAndWeatherForPlayer(sourcePlayer, destinationWorldServer);
+			sourcePlayer.mcServer.getConfigurationManager().syncPlayerInventory(sourcePlayer);
+			
+			// add no experience (syncs experience)
+			sourcePlayer.addExperience(0);
+			// update player's health
+			sourcePlayer.setPlayerHealthUpdated();
+
+			// fire the dimension changed event so that minecraft swithces dimensions properly
+			FMLCommonHandler.instance().firePlayerChangedDimensionEvent( sourcePlayer, sourceWorldServer.provider.getDimensionId(), destinationWorldServer.provider.getDimensionId());
+
+	        TeleporterUtility.transferToLocation(sourcePlayer, x, y, z, sourcePlayer.rotationYaw, sourcePlayer.rotationPitch);
+			
+			return true;
+		}
 	
 	// transfer entity to dimension. do not transfer player using this method! use _transferPlayerToDimension
 	static boolean _transferEntityToDimension(Entity entityIn, int destinationDimension, double x, double y, double z, float yaw, float pitch)
