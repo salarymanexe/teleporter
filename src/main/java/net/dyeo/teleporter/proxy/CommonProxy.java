@@ -4,6 +4,7 @@ import net.dyeo.teleporter.Reference;
 import net.dyeo.teleporter.Teleporter;
 import net.dyeo.teleporter.blocks.BlockEnderTeleporter;
 import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.capabilities.CapabilityTeleporterEntity;
 import net.dyeo.teleporter.entities.TileEntityTeleporter;
 import net.dyeo.teleporter.event.EventTeleporter;
 import net.dyeo.teleporter.gui.GuiHandlerRegistry;
@@ -154,6 +155,8 @@ public class CommonProxy implements ISidedProxy {
 	
 	void registerEvents()
 	{
+		CapabilityTeleporterEntity.register();
+		
 		MinecraftForge.EVENT_BUS.register(new EventTeleporter());
 	}
 	

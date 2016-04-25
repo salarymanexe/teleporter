@@ -2,7 +2,8 @@ package net.dyeo.teleporter.utilities;
 
 import com.google.common.base.Throwables;
 
-import net.dyeo.teleporter.entities.TeleporterEntity;
+import net.dyeo.teleporter.capabilities.CapabilityTeleporterEntity;
+import net.dyeo.teleporter.capabilities.ITeleporterEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -126,9 +127,9 @@ public class TeleporterUtility
     			destinationWorldServer.spawnEntityInWorld(destinationEntity);
     	        destinationEntity.forceSpawn = false;
     	        
-    	        TeleporterEntity entityProperties = TeleporterEntity.get(destinationEntity);
-    	        entityProperties.setOnTeleporter(true);
-    	        entityProperties.setTeleported(true);
+    	        ITeleporterEntity ite = destinationEntity.getCapability(CapabilityTeleporterEntity.INSTANCE, null);
+    	        ite.setOnTeleporter(true);
+    	        ite.setTeleported(true);
             	
     	        destinationWorldServer.updateEntityWithOptionalForce(destinationEntity, false);
             } 

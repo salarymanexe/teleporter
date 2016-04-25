@@ -4,7 +4,8 @@ import java.util.Random;
 
 import net.dyeo.teleporter.Reference;
 import net.dyeo.teleporter.Teleporter;
-import net.dyeo.teleporter.entities.TeleporterEntity;
+import net.dyeo.teleporter.capabilities.CapabilityTeleporterEntity;
+import net.dyeo.teleporter.capabilities.ITeleporterEntity;
 import net.dyeo.teleporter.network.TeleporterNode;
 import net.dyeo.teleporter.entities.TileEntityTeleporter;
 import net.dyeo.teleporter.gui.GuiHandlerTeleporter;
@@ -110,66 +111,64 @@ public class BlockTeleporterBase extends BlockContainer
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, Entity entityIn)
 	{
-		TeleporterEntity tentity = null;
-		tentity = TeleporterEntity.get(entityIn);
-		if(tentity == null)
-		{
-			TeleporterEntity.register(entityIn);
-			tentity = TeleporterEntity.get(entityIn);
-			System.out.println("New Teleporter Entity: " + entityIn.getName());
-		}
-		
-		if(!worldIn.isRemote)
-		{
-			TileEntityTeleporter teleporter = TileEntityTeleporter.getTileEntityAt(worldIn, pos);
-		
-			if(teleporter != null && tentity != null)
-			{				
-				if (tentity.getOnTeleporter() && !tentity.getTeleported())
+		ITeleporterEntity tentity = null;
+		tentity = entityIn.getCapability(CapabilityTeleporterEntity.INSTANCE, null);
+		if (tentity != null) {
+
+			if (!worldIn.isRemote) 
+			{
+				TileEntityTeleporter teleporter = TileEntityTeleporter.getTileEntityAt(worldIn, pos);
+
+				if (teleporter != null && tentity != null) 
 				{
-					boolean isHostile = (entityIn instanceof EntityMob) || (entityIn instanceof EntityWolf && ((EntityWolf) entityIn).isAngry());
-					
-					boolean isPassive = (entityIn instanceof EntityAnimal);
-					
-					if((isHostile == false || isHostile == Reference.teleportHostileMobs) && (isPassive == false || isPassive == Reference.teleportPassiveMobs))
-					{					
-						// Set entity to teleported
-						tentity.setTeleported(true);
-						
-						// Attempt to teleport the entity
-						TeleporterNode destinationNode = teleporter.teleport(entityIn);
-						
-						// if teleport was successful
-						if(destinationNode != null)
+					if (tentity.getOnTeleporter() && !tentity.getTeleported()) 
+					{
+						boolean isHostile = (entityIn instanceof EntityMob)
+								|| (entityIn instanceof EntityWolf && ((EntityWolf) entityIn).isAngry());
+
+						boolean isPassive = (entityIn instanceof EntityAnimal);
+
+						if ((isHostile == false || isHostile == Reference.teleportHostileMobs)
+								&& (isPassive == false || isPassive == Reference.teleportPassiveMobs))
 						{
-							System.out.println("Teleported " + entityIn.getName() + " to " + destinationNode.pos.getX() + "," + destinationNode.pos.getY()  + "," +  destinationNode.pos.getZ() + " : " + destinationNode.dimension);
+							// Set entity to teleported
+							tentity.setTeleported(true);
+
+							// Attempt to teleport the entity
+							TeleporterNode destinationNode = teleporter.teleport(entityIn);
+
+							// if teleport was successful
+							if (destinationNode != null) 
+							{
+								System.out.println("Teleported " + entityIn.getName() + " to "
+										+ destinationNode.pos.getX() + "," + destinationNode.pos.getY() + ","
+										+ destinationNode.pos.getZ() + " : " + destinationNode.dimension);
+							}
 						}
 					}
 				}
-			}
-		}
-		else
-		{
-			double width = 0.25;
-			double height = 0.25;
-			
-			Random rand = new Random();
-			
-			if (!tentity.getTeleported())
+			} 
+			else 
 			{
-				double mx = rand.nextGaussian() * 0.2d;
-				double my = rand.nextGaussian() * 0.2d;
-				double mz = rand.nextGaussian() * 0.2d;
-				
-				worldIn.spawnParticle(
-						EnumParticleTypes.PORTAL,           
-						pos.getX() + 0.5 + rand.nextFloat() * width * 2.0F - width, 
-						pos.getY() + 1.5 + rand.nextFloat() * height, 
-						pos.getZ() + 0.5 + rand.nextFloat() * width * 2.0F - width, 
-						mx, my, mz);
+				double width = 0.25;
+				double height = 0.25;
+
+				Random rand = new Random();
+
+				if (!tentity.getTeleported()) 
+				{
+					double mx = rand.nextGaussian() * 0.2d;
+					double my = rand.nextGaussian() * 0.2d;
+					double mz = rand.nextGaussian() * 0.2d;
+
+					worldIn.spawnParticle(EnumParticleTypes.PORTAL,
+							pos.getX() + 0.5 + rand.nextFloat() * width * 2.0F - width,
+							pos.getY() + 1.5 + rand.nextFloat() * height,
+							pos.getZ() + 0.5 + rand.nextFloat() * width * 2.0F - width, mx, my, mz);
+				}
 			}
+
 		}
-		
 		super.onEntityCollidedWithBlock(worldIn, pos, entityIn);
     }
 		
