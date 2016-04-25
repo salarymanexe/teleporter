@@ -1,5 +1,10 @@
 {
-    "variants": {
-        "normal": { "model": "teleporter:teleporterBlock" }
-    }
+	"variants": {
+		"type=regular": {
+			"model": "teleporter:teleporterBlock"
+		},
+		"type=ender": {
+			"model": "teleporter:enderTeleporterBlock"
+		}
+	}
 }

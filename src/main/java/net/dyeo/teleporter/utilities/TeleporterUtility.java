@@ -13,6 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 
@@ -78,7 +79,7 @@ public class TeleporterUtility
 
 			// fire player change dimension event and check that action is valid before continuing
 			PlayerChangedDimensionEvent playerChangedDimensionEvent = new PlayerChangedDimensionEvent(sourcePlayer, sourcePlayer.dimension, dimensionDestination);
-			if (FMLCommonHandler.instance().bus().post(playerChangedDimensionEvent) == true)
+			if (MinecraftForge.EVENT_BUS.post(playerChangedDimensionEvent) == true)
 			{
 				return false;
 			}

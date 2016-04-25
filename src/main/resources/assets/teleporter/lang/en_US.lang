@@ -1,10 +1,10 @@
 < en_US.lang - English (US) localization file for Vanilla-Inspired Teleporters (teleporter) >
 
 # teleporter block name
-tile.teleporter_teleporterBlock.name=Teleporter
+tile.teleporter_teleporterBlock.regular.name=Teleporter
 
 # ender teleporter block name
-tile.teleporter_enderTeleporterBlock.name=Ender Teleporter
+tile.teleporter_teleporterBlock.ender.name=Ender Teleporter
 
 # message that displays when the user attempts to go to a blocked teleporter
 message.teleporter_TeleporterNetwork.teleporterBlocked=Teleporter is blocked; skipping...
@@ -20,9 +20,3 @@ message.teleporter_BlockTeleporter.teleporterLocked=Teleporter locked: can exit 
 
 # message that displays when a teleporter is unlocked by the player
 message.teleporter_BlockTeleporter.teleporterUnlocked=Teleporter unlocked: can enter and exit.
-
-# message that displays when an ender teleporter is locked by the player
-message.teleporter_BlockEnderTeleporter.teleporterLocked=Teleporter locked: can exit only.
-
-# message that displays when an ender teleporter is unlocked by the player
-message.teleporter_BlockEnderTeleporter.teleporterUnlocked=Teleporter unlocked: can enter and exit.

@@ -1,32 +1,32 @@
-[14:37:25] [Client thread/INFO]: Setting user: Player565
-[14:37:28] [Client thread/INFO]: LWJGL Version: 2.9.4
-[14:37:32] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
-[14:37:33] [Sound Library Loader/INFO]: Starting up SoundSystem...
-[14:37:33] [Thread-9/INFO]: Initializing LWJGL OpenAL
-[14:37:33] [Thread-9/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
-[14:37:33] [Thread-9/INFO]: OpenAL initialized.
-[14:37:33] [Sound Library Loader/INFO]: Sound engine started
-[14:37:38] [Client thread/INFO]: Created: 16x16 textures-atlas
-[14:37:40] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
-[14:37:40] [Client thread/INFO]: SoundSystem shutting down...
-[14:37:41] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
-[14:37:41] [Sound Library Loader/INFO]: Starting up SoundSystem...
-[14:37:41] [Thread-11/INFO]: Initializing LWJGL OpenAL
-[14:37:41] [Thread-11/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
-[14:37:41] [Thread-11/INFO]: OpenAL initialized.
-[14:37:41] [Sound Library Loader/INFO]: Sound engine started
-[14:37:46] [Client thread/INFO]: Created: 512x512 textures-atlas
-[14:37:48] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
-[14:37:55] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
-[14:37:55] [Server thread/INFO]: Starting integrated minecraft server version 1.8.9
-[14:37:55] [Server thread/INFO]: Generating keypair
-[14:37:55] [Server thread/INFO]: Preparing start region for level 0
-[14:37:56] [Server thread/INFO]: Preparing spawn area: 79%
-[14:37:56] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
-[14:37:57] [Server thread/INFO]: Changing view distance to 12, from 10
-[14:37:57] [Server thread/INFO]: Player565[local:E:0f77e371] logged in with entity id 195 at (-3.7952547440859146, 77.0, 3.370160486549139)
-[14:37:57] [Server thread/INFO]: Player565 joined the game
-[14:37:59] [pool-2-thread-1/WARN]: Couldn't look up profile properties for com.mojang.authlib.GameProfile@4b4aafe2[id=f72636fb-c7db-3c44-8cd4-8a6790fd9b69,name=Player565,properties={},legacy=false]
+[18:32:29] [Client thread/INFO]: Setting user: Player530
+[18:32:33] [Client thread/INFO]: LWJGL Version: 2.9.4
+[18:32:36] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
+[18:32:37] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[18:32:37] [Thread-9/INFO]: Initializing LWJGL OpenAL
+[18:32:37] [Thread-9/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[18:32:37] [Thread-9/INFO]: OpenAL initialized.
+[18:32:37] [Sound Library Loader/INFO]: Sound engine started
+[18:32:43] [Client thread/INFO]: Created: 16x16 textures-atlas
+[18:32:44] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:Vanilla-Inspired Teleporters
+[18:32:44] [Client thread/INFO]: SoundSystem shutting down...
+[18:32:44] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
+[18:32:44] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[18:32:44] [Thread-11/INFO]: Initializing LWJGL OpenAL
+[18:32:44] [Thread-11/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[18:32:44] [Thread-11/INFO]: OpenAL initialized.
+[18:32:45] [Sound Library Loader/INFO]: Sound engine started
+[18:32:50] [Client thread/INFO]: Created: 512x512 textures-atlas
+[18:32:51] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
+[18:32:54] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
+[18:32:55] [Server thread/INFO]: Starting integrated minecraft server version 1.8.9
+[18:32:55] [Server thread/INFO]: Generating keypair
+[18:32:55] [Server thread/INFO]: Preparing start region for level 0
+[18:32:56] [Server thread/INFO]: Preparing spawn area: 58%
+[18:32:56] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
+[18:32:56] [Server thread/INFO]: Changing view distance to 12, from 10
+[18:32:57] [Server thread/INFO]: Player530[local:E:0dc0c1b0] logged in with entity id 187 at (-6.889432298633883, 76.0, -1.4789503535382635)
+[18:32:57] [Server thread/INFO]: Player530 joined the game
+[18:32:59] [pool-2-thread-1/WARN]: Couldn't look up profile properties for com.mojang.authlib.GameProfile@3a0a3206[id=e0b801b1-6b73-363a-a46f-105be4f0f90f,name=Player530,properties={},legacy=false]
 com.mojang.authlib.exceptions.AuthenticationException: The client has sent too many requests within a certain amount of time
 	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:65) ~[YggdrasilAuthenticationService.class:?]
 	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService.fillGameProfile(YggdrasilMinecraftSessionService.java:175) [YggdrasilMinecraftSessionService.class:?]
@@ -48,17 +48,48 @@ com.mojang.authlib.exceptions.AuthenticationException: The client has sent too m
 	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source) [?:1.8.0_91]
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source) [?:1.8.0_91]
 	at java.lang.Thread.run(Unknown Source) [?:1.8.0_91]
-[14:38:14] [Server thread/INFO]: Saving and pausing game...
-[14:38:14] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[14:38:14] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[14:38:14] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[14:38:15] [Server thread/INFO]: Stopping server
-[14:38:15] [Server thread/INFO]: Saving players
-[14:38:15] [Server thread/INFO]: Saving worlds
-[14:38:15] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
-[14:38:15] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
-[14:38:15] [Server thread/INFO]: Saving chunks for level 'New World'/The End
-[14:38:17] [Client thread/INFO]: Stopping!
-[14:38:17] [Client thread/INFO]: SoundSystem shutting down...
-[14:38:17] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: Invalid session id
-[14:38:17] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 281357, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 281357, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 159431, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 170390, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 170390, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 159431, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 170390, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 159431, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 228955, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 159431, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 228955, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 180609, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 228955, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 46811, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 228955, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 46811, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 46811, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 46811, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 46811, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 46811, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 46811, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 46811, defaulting to 0 (Ocean)
+[18:33:19] [Server thread/WARN]: Biome ID is out of bounds: 46811, defaulting to 0 (Ocean)
+[18:33:51] [Server thread/INFO]: Player530 has just earned the achievement [Taking Inventory]
+[18:33:51] [Client thread/INFO]: [CHAT] Player530 has just earned the achievement [Taking Inventory]
+[18:37:37] [Server thread/INFO]: Saving and pausing game...
+[18:37:37] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[18:37:38] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[18:37:38] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[18:38:32] [Client thread/INFO]: [CHAT] No teleporters found that match your key.
+[18:38:36] [Client thread/INFO]: [CHAT] No teleporters found that match your key.
+[18:38:37] [Client thread/INFO]: [CHAT] No teleporters found that match your key.
+[18:38:38] [Client thread/INFO]: [CHAT] No teleporters found that match your key.
+[18:38:40] [Client thread/INFO]: [CHAT] No teleporters found that match your key.
+[18:38:42] [Client thread/INFO]: [CHAT] No teleporters found that match your key.
+[18:38:43] [Client thread/INFO]: [CHAT] No teleporters found that match your key.
+[18:38:53] [Client thread/INFO]: [CHAT] No teleporters found that match your key.
+[18:39:02] [Client thread/INFO]: [CHAT] Teleporter is blocked; skipping...
+[18:39:02] [Client thread/INFO]: [CHAT] No teleporters found that match your key.
+[18:39:04] [Client thread/INFO]: [CHAT] Teleporter is blocked; skipping...
+[18:39:04] [Client thread/INFO]: [CHAT] No teleporters found that match your key.
+[18:39:15] [Server thread/INFO]: Saving and pausing game...
+[18:39:15] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[18:39:15] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[18:39:15] [Server thread/INFO]: Saving chunks for level 'New World'/The End

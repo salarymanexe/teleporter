@@ -2,13 +2,13 @@ package net.dyeo.teleporter.proxy;
 
 import net.dyeo.teleporter.Reference;
 import net.dyeo.teleporter.Teleporter;
-import net.dyeo.teleporter.blocks.BlockEnderTeleporter;
 import net.dyeo.teleporter.blocks.BlockTeleporter;
 import net.dyeo.teleporter.capabilities.CapabilityTeleporterEntity;
 import net.dyeo.teleporter.entities.TileEntityTeleporter;
 import net.dyeo.teleporter.event.EventTeleporter;
 import net.dyeo.teleporter.gui.GuiHandlerRegistry;
 import net.dyeo.teleporter.gui.GuiHandlerTeleporter;
+import net.dyeo.teleporter.items.ItemBlockTeleporter;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -85,19 +85,10 @@ public class CommonProxy implements ISidedProxy {
 	void initBlocks()
 	{
 		// register the teleporter block
-		Teleporter.teleporterBlock = new BlockTeleporter().setUnlocalizedName(Reference.MODID.toLowerCase() + "_" + Reference.teleporterBlockId);
-		GameRegistry.registerBlock(Teleporter.teleporterBlock, "teleporterBlock");
+		Teleporter.teleporterBlock = new BlockTeleporter(Reference.MODID + "_" + Reference.teleporterBlockId);
+		GameRegistry.registerBlock(Teleporter.teleporterBlock, ItemBlockTeleporter.class, Reference.teleporterBlockId);
 						
-		GameRegistry.registerTileEntity(TileEntityTeleporter.class, "teleporterBlock");
-				
-		NetworkRegistry.INSTANCE.registerGuiHandler(Teleporter.instance, GuiHandlerRegistry.getInstance());
-		GuiHandlerRegistry.getInstance().registerGuiHandler(new GuiHandlerTeleporter(), GuiHandlerTeleporter.getGuiID());
-				
-		// register the ender teleporter block
-		Teleporter.enderTeleporterBlock = new BlockEnderTeleporter().setUnlocalizedName(Reference.MODID.toLowerCase() + "_" + Reference.enderTeleporterBlockId);
-		GameRegistry.registerBlock(Teleporter.enderTeleporterBlock, "enderTeleporterBlock");
-						
-		GameRegistry.registerTileEntity(TileEntityTeleporter.class, "enderTeleporterBlock");
+		GameRegistry.registerTileEntity(TileEntityTeleporter.class, Reference.teleporterBlockId);
 				
 		NetworkRegistry.INSTANCE.registerGuiHandler(Teleporter.instance, GuiHandlerRegistry.getInstance());
 		GuiHandlerRegistry.getInstance().registerGuiHandler(new GuiHandlerTeleporter(), GuiHandlerTeleporter.getGuiID());
@@ -107,7 +98,7 @@ public class CommonProxy implements ISidedProxy {
 	{
 		if(Reference.useDiamonds == true)
 		{
-			GameRegistry.addRecipe(new ItemStack(Teleporter.teleporterBlock, Reference.numTeleporters), new Object[]{
+			GameRegistry.addRecipe(new ItemStack(Teleporter.teleporterBlock, Reference.numTeleporters, 0), new Object[]{
 				"AAA",
      			"DCD",
      			"EBE",
@@ -118,7 +109,7 @@ public class CommonProxy implements ISidedProxy {
      			'E', Items.diamond
 			});
 			
-			GameRegistry.addRecipe(new ItemStack(Teleporter.enderTeleporterBlock,Reference.numTeleporters), new Object[]{
+			GameRegistry.addRecipe(new ItemStack(Teleporter.teleporterBlock, Reference.numTeleporters, 1), new Object[]{
 				"AAA",
 	     		"DCD",
 	     		"EBE",
@@ -131,7 +122,7 @@ public class CommonProxy implements ISidedProxy {
 		}
 		else
 		{
-			GameRegistry.addRecipe(new ItemStack(Teleporter.teleporterBlock,Reference.numTeleporters), new Object[]{
+			GameRegistry.addRecipe(new ItemStack(Teleporter.teleporterBlock, Reference.numTeleporters, 0), new Object[]{
 				"AAA",
 	     		"DCD",
 	     		"DBD",
@@ -141,7 +132,7 @@ public class CommonProxy implements ISidedProxy {
 	     		'D', Blocks.iron_block
 			});
 			
-			GameRegistry.addRecipe(new ItemStack(Teleporter.enderTeleporterBlock,Reference.numTeleporters), new Object[]{
+			GameRegistry.addRecipe(new ItemStack(Teleporter.teleporterBlock, Reference.numTeleporters, 1), new Object[]{
 				"AAA",
 		    	"DCD",
 		    	"DBD",

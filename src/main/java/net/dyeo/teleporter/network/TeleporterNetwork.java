@@ -3,7 +3,6 @@ package net.dyeo.teleporter.network;
 import java.util.ArrayList;
 
 import net.dyeo.teleporter.Reference;
-import net.dyeo.teleporter.blocks.BlockTeleporterBase;
 import net.dyeo.teleporter.entities.TileEntityTeleporter;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
@@ -121,7 +120,7 @@ public class TeleporterNetwork extends WorldSavedData {
 	public TeleporterNode getNextNode(Entity entityIn, ItemStack stack, TeleporterNode source) 
 	{
 
-		TileEntityTeleporter tileEntityTeleporterSource = TileEntityTeleporter.getTileEntityAt(entityIn.worldObj, source.pos);
+		TileEntityTeleporter tEntSource = TileEntityTeleporter.getTileEntityAt(entityIn.worldObj, source.pos);
 
 		// a teleporter with matching key, no obstructions, and no lock
 		TeleporterNode destinationNode = null;
@@ -144,63 +143,52 @@ public class TeleporterNetwork extends WorldSavedData {
 			if (destinationWorld != null) 
 			{
 				// get destination tile entity
-				TileEntityTeleporter tileEntityTeleporterDestination = TileEntityTeleporter.getTileEntityAt(destinationWorld, node.pos);
-
-				// get source and destination block types
-				BlockTeleporterBase blockSource = (BlockTeleporterBase) tileEntityTeleporterSource.getBlockType();
-				BlockTeleporterBase blockDestination = (BlockTeleporterBase) tileEntityTeleporterDestination .getBlockType();
-
-				// if either blocks are null, safely skip the loop
-				if (blockSource != null && blockDestination != null) 
-				{
-					// if teleporter types are different, skip the loop
-					if (blockSource.getClass() != blockDestination.getClass()) 
-					{
-						continue;
-					}
-				} 
-				else
+				TileEntityTeleporter tEntDest = TileEntityTeleporter.getTileEntityAt(destinationWorld, node.pos);
+				
+				if(tEntDest == null)
 				{
 					continue;
 				}
 
-				// if block doesn't travel different dimensions, and if dimensions are different
-				if ((blockSource.getInterdimensional() == false) && (source.dimension != node.dimension))
+				// if teleporter types are different, skip the loop
+				if (tEntSource.getTypeProperty().getID() != tEntDest.getTypeProperty().getID()) 
 				{
-					// skip this destination
-					continue;
+					continue; // skip this destination
+				}
+
+				// if block doesn't travel different dimensions, and if dimensions are different
+				if ((tEntSource.getInterdimensional() == false) && (source.dimension != node.dimension))
+				{
+					continue; // skip this destination
 				}
 
 				// if teleporter is trying to teleport to itself
 				if (node == source) 
 				{
-					// skip this destination
-					continue;
+					continue; // skip this destination
 				}
 
 				// if keys are completely different
-				if (stack == null && tileEntityTeleporterDestination.itemStacks[0] != null) 
+				if (stack == null && tEntDest.itemStacks[0] != null) 
 				{
-					// skip this destination
-					continue;
+					continue; // skip this destination
 				} 
-				else if (stack != null && tileEntityTeleporterDestination.itemStacks[0] == null) 
+				else if (stack != null && tEntDest.itemStacks[0] == null) 
 				{
-					// skip this destination
-					continue;
+					continue; // skip this destination
 				}
 
 
-				if (stack != null && tileEntityTeleporterDestination.itemStacks[0] != null) 
+				if (stack != null && tEntDest.itemStacks[0] != null) 
 				{					
 					// check if keys are the same
-					if (stack.getItem().getUnlocalizedName().equals(tileEntityTeleporterDestination.itemStacks[0].getItem().getUnlocalizedName()) == false)
+					if (stack.getItem().getUnlocalizedName().equals(tEntDest.itemStacks[0].getItem().getUnlocalizedName()) == false)
 					{
 						continue;
 					}
 					
 					// both items are written books
-					if (stack.getItem() == Items.written_book && tileEntityTeleporterDestination.itemStacks[0].getItem() == Items.written_book) 
+					if (stack.getItem() == Items.written_book && tEntDest.itemStacks[0].getItem() == Items.written_book) 
 					{
 						
 						// get author and title for A as "author:title"
@@ -208,17 +196,17 @@ public class TeleporterNetwork extends WorldSavedData {
 						author += ":" + stack.getTagCompound().getString("title");
 
 						// get author and title for B as "author:title"
-						String nodeAuthor = tileEntityTeleporterDestination.itemStacks[0].getTagCompound().getString("author");
-						nodeAuthor += ":" + tileEntityTeleporterDestination.itemStacks[0].getTagCompound().getString("title");
+						String nodeAuthor = tEntDest.itemStacks[0].getTagCompound().getString("author");
+						nodeAuthor += ":" + tEntDest.itemStacks[0].getTagCompound().getString("title");
 						if (author.equals(nodeAuthor) == false) 
 						{
 							continue;
 						}
 					} 
-					else if (stack.getItem() == Items.filled_map && tileEntityTeleporterDestination.itemStacks[0].getItem() == Items.filled_map) 
+					else if (stack.getItem() == Items.filled_map && tEntDest.itemStacks[0].getItem() == Items.filled_map) 
 					{
 						// compare map value (stored in item damage)
-						if (stack.getItemDamage() != tileEntityTeleporterDestination.itemStacks[0].getItemDamage()) 
+						if (stack.getItemDamage() != tEntDest.itemStacks[0].getItemDamage()) 
 						{
 							// skip this destination
 							continue;
@@ -235,9 +223,9 @@ public class TeleporterNetwork extends WorldSavedData {
 							name = display.getString("Name");
 						}
 						// set item B name if second item has tag compound
-						if((tileEntityTeleporterDestination.itemStacks[0].hasTagCompound()))
+						if((tEntDest.itemStacks[0].hasTagCompound()))
 						{
-							NBTTagCompound display = (NBTTagCompound) tileEntityTeleporterDestination.itemStacks[0].getTagCompound().getTag("display");
+							NBTTagCompound display = (NBTTagCompound) tEntDest.itemStacks[0].getTagCompound().getTag("display");
 							nodeName = display.getString("Name");
 						}
 						// compare resulting names to see if they are a unique pair
@@ -262,7 +250,7 @@ public class TeleporterNetwork extends WorldSavedData {
 					}
 					continue;
 				} 
-				else if (tileEntityTeleporterDestination.isPowered() == true) 
+				else if (tEntDest.isPowered() == true) 
 				{
 					if (potentialPlayerEntity instanceof EntityPlayer) 
 					{

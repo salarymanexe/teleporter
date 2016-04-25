@@ -1,12 +1,12 @@
 < fr_FR.lang - French (France) localization file for Vanilla-Inspired Teleporters (teleporter) >
-# fr_FR.lang - Français (France) fichier de localisation de la Vanille-Inspiré des Téléporteurs (téléporteur)
+# fr_FR.lang - Français (France) fichier de localisation de la Vanille-Inspiré des Téléporteurs (teleporter)
 # NOTE: I used BabelXL for this!
 
 # teleporter block name
-tile.teleporter_teleporterBlock.name=Teleporter
+tile.teleporter_teleporterBlock.regular.name=Teleporter
 
 # ender teleporter block name
-tile.teleporter_enderTeleporterBlock.name=Ender Teleporter
+tile.teleporter_teleporterBlock.ender.name=Ender Teleporter
 
 # message that displays when the user attempts to go to a blocked teleporter
 message.teleporter_TeleporterNetwork.teleporterBlocked=Téléporteur est bloqué; sauter...
@@ -22,9 +22,3 @@ message.teleporter_BlockTeleporter.teleporterLocked=Téléporteur verrouillé: peut
 
 # message that displays when a teleporter is unlocked by the player
 message.teleporter_BlockTeleporter.teleporterUnlocked=Téléporteur déverrouillé: pouvez entrer et de sortir.
-
-# message that displays when an ender teleporter is locked by the player
-message.teleporter_BlockEnderTeleporter.teleporterLocked=Téléporteur verrouillé: peut quitter seul.
-
-# message that displays when an ender teleporter is unlocked by the player
-message.teleporter_BlockEnderTeleporter.teleporterUnlocked=Téléporteur déverrouillé: pouvez entrer et de sortir.

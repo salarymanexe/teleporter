@@ -4,10 +4,11 @@ import java.util.Arrays;
 
 import net.dyeo.teleporter.Reference;
 import net.dyeo.teleporter.blocks.BlockTeleporter;
-import net.dyeo.teleporter.blocks.BlockTeleporterBase;
+import net.dyeo.teleporter.blocks.BlockTeleporter.EnumType;
 import net.dyeo.teleporter.network.TeleporterNetwork;
 import net.dyeo.teleporter.network.TeleporterNode;
 import net.dyeo.teleporter.utilities.TeleporterUtility;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -46,10 +47,23 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 	public TileEntityTeleporter()
 	{ }
 		
-	public String getBlockName()
+	public BlockTeleporter.EnumType getTypeProperty()
 	{
-		BlockTeleporterBase block = (BlockTeleporterBase)this.getBlockType();
-		return block.getBlockName();
+		IBlockState state = getWorld().getBlockState(getPos());
+		return state.getValue(BlockTeleporter.TYPE);
+	}
+	
+	public boolean getInterdimensional()
+	{
+		return getTypeProperty().getID() == EnumType.ENDER.getID();
+	}
+	
+	public String getBlockName()
+	{		
+		IBlockState state = getWorld().getBlockState(getPos());
+		BlockTeleporter.EnumType type = state.getValue(BlockTeleporter.TYPE);
+		
+		return Reference.teleporterBlockId + "." + type.getName();
 	}
 	
 	/* The following are some IInventory methods you are required to override */		
@@ -281,23 +295,18 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 	
 	public static TileEntityTeleporter getTileEntityAt(World world, BlockPos pos)
 	{
+		TileEntityTeleporter teleTileEnt = null;
 		TileEntity teleEnt = world.getTileEntity(pos);
 		
 		if(teleEnt != null)
 		{
-			TileEntityTeleporter teleTileEnt;
 			if(teleEnt instanceof TileEntityTeleporter) 
 			{
 				teleTileEnt = (TileEntityTeleporter) teleEnt;
-				
-				if (teleTileEnt != null)
-				{
-					return teleTileEnt;
-				}
 			}
 		}
 		
-		return null;		
+		return teleTileEnt;		
 	}
 
 	// call this when you want an entity to teleport to the next teleporter node
@@ -322,17 +331,15 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 			}
 			
 			// if the block type for this block is an instance of the basic teleporter block
-			if(getBlockType() instanceof BlockTeleporterBase)
-			{
-				BlockTeleporterBase block = (BlockTeleporterBase)getBlockType();
-				
+			if(getBlockType() instanceof BlockTeleporter)
+			{				
 				double x = destination.pos.getX() + (bounds.xCoord*0.5f), 
 					   y = destination.pos.getY() + (float)bounds.yCoord, 
 					   z = destination.pos.getZ() + (bounds.zCoord*0.5f);
 				
 				float yaw = entityIn.rotationYaw, pitch = entityIn.rotationPitch;
 				
-				if(block.getInterdimensional())
+				if(getInterdimensional())
 				{
 					teleportSuccess = TeleporterUtility.transferToDimensionLocation(entityIn, destination.dimension, x, y, z, yaw, pitch);
 					// don't allow if the entity is a mount
