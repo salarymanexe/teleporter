@@ -36,7 +36,7 @@ public class TeleporterUtility
 				if (srcEntity instanceof EntityPlayerMP)
 				{
 					System.out.println("EntityPlayerMp");
-					return _transferPlayerToDimension((EntityPlayerMP) srcEntity, dstDimension, x, y, z, yaw, pitch);
+					return transferPlayerToDimension((EntityPlayerMP) srcEntity, dstDimension, x, y, z, yaw, pitch);
 				}
 				else if (srcEntity instanceof EntityLivingBase)
 				{
@@ -67,7 +67,7 @@ public class TeleporterUtility
 	}
 
 	// transfer player to dimension, retaining all information and not dying
-	static boolean _transferPlayerToDimension(EntityPlayerMP srcPlayer, int dstDimension, double x, double y, double z,
+	public static boolean transferPlayerToDimension(EntityPlayerMP srcPlayer, int dstDimension, double x, double y, double z,
 			float yaw, float pitch)
 	{
 
