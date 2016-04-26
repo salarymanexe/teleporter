@@ -10,27 +10,27 @@ import net.minecraft.util.BlockPos;
  * TeleporterNode contains the members that must be saved to the world. 
  * It also contains methods to save and write and read the data to NBT.
  */
-public class TeleporterNode 
-{	
+public class TeleporterNode
+{
 	public static enum Type
 	{
 		teleporterBlock, // teleports to other REGULAR teleporters in same dimension
 		enderTeleporterBlock // teleports to ENDER teleporters in any dimension
 	};
-	
+
 	public BlockPos pos;
 	public int dimension;
 	public Type type;
-	
+
 	public TeleporterNode()
 	{
-		pos = new BlockPos(0,0,0);
+		pos = new BlockPos(0, 0, 0);
 		dimension = 0;
 		type = Type.teleporterBlock;
 	}
-	
+
 	// write from nbt
-	public void writeToNBT(NBTTagCompound nbt) 
+	public void writeToNBT(NBTTagCompound nbt)
 	{
 		nbt.setInteger("x", pos.getX());
 		nbt.setInteger("y", pos.getY());
@@ -38,23 +38,23 @@ public class TeleporterNode
 		nbt.setInteger("dim", dimension);
 		nbt.setInteger("type", type.ordinal());
 	}
-	
+
 	// read from nbt
-	public void readFromNBT(NBTTagCompound nbt) 
+	public void readFromNBT(NBTTagCompound nbt)
 	{
 		int x = nbt.getInteger("x");
 		int y = nbt.getInteger("y");
 		int z = nbt.getInteger("z");
-		pos = new BlockPos(x,y,z);
+		pos = new BlockPos(x, y, z);
 		dimension = nbt.getInteger("dim");
 		type = TeleporterNode.Type.values()[nbt.getInteger("type")];
 	}
-	
+
 	// get tile entity associated with this node
 	public TileEntityTeleporter getTileEntity()
 	{
 		TileEntity result = MinecraftServer.getServer().worldServerForDimension(this.dimension).getTileEntity(this.pos);
-		if(result instanceof TileEntityTeleporter) return (TileEntityTeleporter) result;
+		if (result instanceof TileEntityTeleporter) return (TileEntityTeleporter) result;
 		else return null;
 	}
 }
