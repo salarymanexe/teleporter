@@ -1,0 +1,25 @@
+{
+	"homepage": "https://github.com/crazysnailboy/VanillaTeleporter/releases",
+	"promos": {
+		"1.11.2-latest": "1.6.1-beta1",
+		"1.11.2-recommended": "1.6.1-beta1",
+		"1.11-latest": "1.6.1-beta1",
+		"1.11-recommended": "1.6.1-beta1",
+		"1.10.2-latest": "1.6.1-beta1",
+		"1.10.2-recommended": "1.6.1-beta1",
+		"1.9.4-latest": "1.6.1-beta1",
+		"1.9.4-recommended": "1.6.1-beta1"
+	},
+	"1.11.2": {
+		"1.6.1-beta1": "Initial release by crazysnailboy"
+	},
+	"1.11": {
+		"1.6.1-beta1": "Initial release by crazysnailboy"
+	},
+	"1.10.2": {
+		"1.6.1-beta1": "Initial release by crazysnailboy"
+	},
+	"1.9.4": {
+		"1.6.1-beta1": "Initial release by crazysnailboy"
+	}	
+}
