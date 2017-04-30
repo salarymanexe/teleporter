@@ -145,7 +145,7 @@ public class TeleporterNetwork extends WorldSavedData
 				}
 
 				// if teleporter types are different, skip the loop
-				if (tEntSource.getTypeProperty().getID() != tEntDest.getTypeProperty().getID())
+				if (tEntSource.getTypeProperty() != tEntDest.getTypeProperty())
 				{
 					continue; // skip this destination
 				}

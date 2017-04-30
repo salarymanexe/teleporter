@@ -2,6 +2,7 @@ package net.dyeo.teleporter.init;
 
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
+import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
 import net.dyeo.teleporter.common.config.ModConfiguration;
 import net.dyeo.teleporter.item.ItemBlockTeleporter;
 import net.minecraft.block.Block;
@@ -18,10 +19,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public class ModBlocks
 {
 
-	public static final Block TELEPORTER = new BlockTeleporter().setRegistryName("teleporterBlock").setUnlocalizedName("teleporterBlock");
-
-	public static String teleporterBlockId = "teleporterBlock";
-	public static String enderTeleporterBlockId = "enderTeleporterBlock";
+	public static final Block TELEPORTER = new BlockTeleporter().setRegistryName("teleporter").setUnlocalizedName("teleporter");
 
 
 	public static void registerBlocks()
@@ -34,18 +32,18 @@ public class ModBlocks
 	public static void registerBlockVariants()
 	{
 		ModelBakery.registerItemVariants(Item.getItemFromBlock(ModBlocks.TELEPORTER),
-			new ResourceLocation(TeleporterMod.MODID, teleporterBlockId),
-			new ResourceLocation(TeleporterMod.MODID, enderTeleporterBlockId)
+			new ResourceLocation(TeleporterMod.MODID, EnumType.REGULAR.getRegistryName()),
+			new ResourceLocation(TeleporterMod.MODID, EnumType.ENDER.getRegistryName())
 		);
 	}
 
 	public static void registerInventoryModels()
 	{
 		Item item = Item.getItemFromBlock(TELEPORTER);
-
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(TeleporterMod.MODID + ":" + teleporterBlockId, "inventory"));
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 1, new ModelResourceLocation(TeleporterMod.MODID + ":" + enderTeleporterBlockId, "inventory"));
-
+		for ( EnumType type : EnumType.values() )
+		{
+			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, type.getMetadata(), new ModelResourceLocation(TeleporterMod.MODID + ":" + type.getRegistryName(), "inventory"));
+		}
 	}
 
 

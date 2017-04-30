@@ -45,7 +45,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 
-public class BlockTeleporter extends BlockContainer implements IMetaBlockName
+public class BlockTeleporter extends BlockContainer
 {
 
 	public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("type", BlockTeleporter.EnumType.class);
@@ -77,8 +77,7 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 	@Override
 	public int getMetaFromState(IBlockState state)
 	{
-		EnumType type = state.getValue(TYPE);
-		return type.getID();
+		return state.getValue(TYPE).getMetadata();
 	}
 
 	@Override
@@ -90,26 +89,16 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 	@Override
 	public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
 	{
-		list.add(new ItemStack(item, 1, 0)); // Meta 0
-		list.add(new ItemStack(item, 1, 1)); // Meta 1
-	}
-
-	@Override
-	public String getSpecialName(ItemStack stack)
-	{
-		return stack.getItemDamage() == 0 ? EnumType.REGULAR.getName() : EnumType.ENDER.getName();
+		for ( EnumType type : EnumType.values() )
+		{
+			list.add(new ItemStack(item, 1, type.getMetadata()));
+		}
 	}
 
 	@Override
 	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
 	{
 		return new ItemStack(Item.getItemFromBlock(this), 1, this.getMetaFromState(world.getBlockState(pos)));
-	}
-
-	// gets a human readable message to be used in the teleporter network
-	public TextComponentTranslation GetMessage(String messageName)
-	{
-		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + messageName);
 	}
 
 	public static Vec3d getBounds()
@@ -124,8 +113,6 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
     }
 
 
-	// called when the block is placed or loaded client side to get the tile entity for the block
-	// should return a new instance of the tile entity for the block
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta)
 	{
@@ -133,18 +120,13 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 		return result;
 	}
 
-	// called when the block is right clicked
-	// in this case it's used to open the teleporter key gui when right-clicked by a player
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		// Uses the gui handler registered to open the gui for the given gui id
-		// open on the server side only
 		if (!world.isRemote && !player.isSneaking())
 		{
 			player.openGui(TeleporterMod.instance, GuiHandler.GUI_ID_TELEPORTER, world, pos.getX(), pos.getY(), pos.getZ());
 		}
-
 		return true;
 	}
 
@@ -163,26 +145,16 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 				{
 					if (teleEnt.getOnTeleporter() && !teleEnt.getTeleported())
 					{
-						boolean isHostile = (entity instanceof EntityMob)
-								|| (entity instanceof EntityWolf && ((EntityWolf) entity).isAngry());
-
+						boolean isHostile = (entity instanceof EntityMob) || (entity instanceof EntityWolf && ((EntityWolf)entity).isAngry());
 						boolean isPassive = (entity instanceof EntityAnimal);
 
-						if ((isHostile == false || isHostile == ModConfiguration.teleportHostileMobs)
-								&& (isPassive == false || isPassive == ModConfiguration.teleportPassiveMobs))
+						if ((isHostile == false || isHostile == ModConfiguration.teleportHostileMobs) && (isPassive == false || isPassive == ModConfiguration.teleportPassiveMobs))
 						{
-							// Set entity to teleported
-							teleEnt.setTeleported(true);
-
-							// Attempt to teleport the entity
-							TeleporterNode destinationNode = teleporter.teleport(entity);
-
-							// if teleport was successful
-							if (destinationNode != null)
+							teleEnt.setTeleported(true); // Set entity to teleported
+							TeleporterNode destinationNode = teleporter.teleport(entity); // Attempt to teleport the entity
+							if (destinationNode != null) // if teleport was successful
 							{
-								System.out.println("Teleported " + entity.getName() + " to "
-										+ destinationNode.pos.getX() + "," + destinationNode.pos.getY() + ","
-										+ destinationNode.pos.getZ() + " : " + destinationNode.dimension);
+								System.out.println("Teleported " + entity.getName() + " to " + destinationNode.pos.getX() + "," + destinationNode.pos.getY() + "," + destinationNode.pos.getZ() + " : " + destinationNode.dimension);
 							}
 						}
 					}
@@ -201,9 +173,10 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 				double mz = rand.nextGaussian() * 0.2d;
 
 				world.spawnParticle(EnumParticleTypes.PORTAL,
-						pos.getX() + 0.5 + rand.nextFloat() * width * 2.0F - width,
-						pos.getY() + 1.5 + rand.nextFloat() * height,
-						pos.getZ() + 0.5 + rand.nextFloat() * width * 2.0F - width, mx, my, mz);
+					pos.getX() + 0.5 + rand.nextFloat() * width * 2.0F - width,
+					pos.getY() + 1.5 + rand.nextFloat() * height,
+					pos.getZ() + 0.5 + rand.nextFloat() * width * 2.0F - width, mx, my, mz
+				);
 			}
 		}
 	}
@@ -228,7 +201,8 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, false);
 				if (player != null)
 				{
-					player.addChatMessage(GetMessage("teleporterLocked"));
+					TextComponentTranslation message = new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + "teleporterLocked");
+					player.addChatMessage(message);
 				}
 			}
 			tileEntityTeleporter.markDirty();
@@ -239,14 +213,13 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 			// if block was powered before but is now not powered
 			if (oldPowered == true)
 			{
-				// there is no way in forge to determine who
-				// activated/deactivated the teleporter, so we simply get the
-				// closest player
+				// there is no way in forge to determine who activated/deactivated the teleporter, so we simply get the closest player
 				// works for _most_ cases
 				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, false);
 				if (player != null)
 				{
-					player.addChatMessage(GetMessage("teleporterUnlocked"));
+					TextComponentTranslation message = new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + "teleporterUnlocked");
+					player.addChatMessage(message);
 				}
 			}
 			tileEntityTeleporter.markDirty();
@@ -268,8 +241,7 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 				if (inventory.getStackInSlot(i) != null)
 				{
 					// Create a new entity item with the item stack in the slot
-					EntityItem item = new EntityItem(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-							inventory.getStackInSlot(i));
+					EntityItem item = new EntityItem(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, inventory.getStackInSlot(i));
 
 					// Apply some random motion to the item
 					float multiplier = 0.1f;
@@ -293,8 +265,7 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 				tileEntityTeleporter.removeFromNetwork();
 			}
 
-			// clear the inventory so nothing else (such as another mod) can do
-			// anything with the items
+			// clear the inventory so nothing else (such as another mod) can do anything with the items
 			inventory.clear();
 		}
 
@@ -335,35 +306,60 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 	}
 
 
-	public enum EnumType implements IStringSerializable
+	public static enum EnumType implements IStringSerializable
 	{
-		REGULAR(0, "regular"),
-		ENDER(1, "ender");
+		REGULAR(0, "regular", "teleporter", "teleporter"),
+		ENDER(1, "ender", "enderTeleporter", "ender_teleporter");
 
-		private int ID;
-		private String name;
+		private final int meta;
+		private final String name;
+		private final String unlocalizedName;
+		private final String registryName;
 
-		private EnumType(int ID, String name)
-		{
-			this.ID = ID;
-			this.name = name;
-		}
+		private static final EnumType[] META_LOOKUP = new EnumType[values().length];
 
 		@Override
 		public String getName()
 		{
-			return name;
+			return this.name;
 		}
 
-		@Override
-		public String toString()
+		public int getMetadata()
 		{
-			return getName();
+			return this.meta;
 		}
 
-		public int getID()
+		public String getUnlocalizedName()
 		{
-			return ID;
+			return this.unlocalizedName;
 		}
+
+		public String getRegistryName()
+		{
+			return this.registryName;
+		}
+
+		public static EnumType byMetadata(int meta)
+		{
+			if (meta < 0 || meta >= META_LOOKUP.length) meta = 0;
+			return META_LOOKUP[meta];
+		}
+
+		private EnumType(int meta, String name, String unlocalizedName, String registryName)
+		{
+			this.meta = meta;
+			this.name = name;
+			this.unlocalizedName = unlocalizedName;
+			this.registryName = registryName;
+		}
+
+		static
+		{
+			for (EnumType value : values())
+			{
+				META_LOOKUP[value.getMetadata()] = value;
+			}
+		}
+
 	}
 }

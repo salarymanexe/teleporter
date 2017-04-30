@@ -1,10 +1,8 @@
 package net.dyeo.teleporter.tileentity;
 
 import java.util.Arrays;
-import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
-import net.dyeo.teleporter.init.ModBlocks;
 import net.dyeo.teleporter.init.ModSounds;
 import net.dyeo.teleporter.network.TeleporterNetwork;
 import net.dyeo.teleporter.network.TeleporterNode;
@@ -28,79 +26,54 @@ import net.minecraft.world.World;
 
 public class TileEntityTeleporter extends TileEntity implements IInventory, ITickable
 {
-	// Create and initialize the items variable that will store the items
-	final int NUMBER_OF_SLOTS = 1;
+
+	private final int NUMBER_OF_SLOTS = 1;
 	public ItemStack[] itemStacks = new ItemStack[NUMBER_OF_SLOTS];
 
-	boolean firstUpdate = true;
+	private boolean firstUpdate = true;
 
 	private boolean isPowered = false;
 
-	// Determines if the block is currently being powered.
-	public boolean isPowered()
-	{
-		return isPowered;
-	}
-
-	// Sets if the block is currently being powered.
-	public void setPowered(boolean isPowered)
-	{
-		this.isPowered = isPowered;
-	}
 
 	public TileEntityTeleporter()
 	{
 	}
 
-	// Retrieves the BlockTeleporter.EnumType property for this tile entity.
-	// Values are 0 (REGULAR) and 1 (ENDER)
+
+	public boolean isPowered()
+	{
+		return isPowered;
+	}
+
+	public void setPowered(boolean isPowered)
+	{
+		this.isPowered = isPowered;
+	}
+
 	public BlockTeleporter.EnumType getTypeProperty()
 	{
 		IBlockState state = getWorld().getBlockState(getPos());
 		return state.getValue(BlockTeleporter.TYPE);
 	}
 
-	// Determines if the block is an ender teleporter (dimensional == true).
 	public boolean getInterdimensional()
 	{
-		return getTypeProperty().getID() == EnumType.ENDER.getID();
+		return getTypeProperty() == EnumType.ENDER;
 	}
 
-	// Retrieves the full block name for this block. Along the lines of
-	// tile.teleporter_teleporterBlock.<type>.name
-	public String getBlockName()
-	{
-		IBlockState state = getWorld().getBlockState(getPos());
-		BlockTeleporter.EnumType type = state.getValue(BlockTeleporter.TYPE);
 
-		return ModBlocks.teleporterBlockId + "." + type.getName();
-	}
-
-	/* The following are some IInventory methods you are required to override */
-
-	// Gets the number of slots in the inventory
 	@Override
 	public int getSizeInventory()
 	{
 		return NUMBER_OF_SLOTS;
 	}
 
-	// Gets the stack in the given slot
 	@Override
 	public ItemStack getStackInSlot(int slotIndex)
 	{
 		return itemStacks[slotIndex];
 	}
 
-	/**
-	 * Removes some of the units from itemstack in the given slot, and returns as a separate itemstack
-	 *
-	 * @param slotIndex
-	 *            the slot number to remove the items from
-	 * @param count
-	 *            the number of units to remove
-	 * @return a new itemstack containing the units removed from the slot
-	 */
 	@Override
 	public ItemStack decrStackSize(int slotIndex, int count)
 	{
@@ -125,7 +98,6 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 		return itemStackRemoved;
 	}
 
-	// overwrites the stack in the given slotIndex with the given stack
 	@Override
 	public void setInventorySlotContents(int slotIndex, ItemStack itemstack)
 	{
@@ -137,20 +109,12 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 		markDirty();
 	}
 
-	// this is the maximum number if items allowed in each slot
-	// this only affects things such as hoppers trying to insert items you need
-	// to use the container to enforce this for players
-	// inserting items via the gui
 	@Override
 	public int getInventoryStackLimit()
 	{
 		return 64;
 	}
 
-	// return true if the given player is able to use this block. In this case
-	// it checks that
-	// the world tileentity hasn't been replaced in the meantime, and
-	// the player isn't too far away from the centre of the block
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer player)
 	{
@@ -163,11 +127,6 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 				pos.getZ() + Z_CENTRE_OFFSET) < MAXIMUM_DISTANCE_SQ;
 	}
 
-	// return true if the given stack is allowed to go in the given slot. In
-	// this case, we can insert anything.
-	// this only affects things such as hoppers trying to insert items you need
-	// to use the container to enforce this for players
-	// inserting items via the gui
 	@Override
 	public boolean isItemValidForSlot(int slotIndex, ItemStack itemstack)
 	{
@@ -234,19 +193,11 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 	}
 
-	// set all slots to empty
-	@Override
-	public void clear()
-	{
-		Arrays.fill(itemStacks, null);
-	}
 
-	// will add a key for this container to the lang file so we can name it in
-	// the GUI
 	@Override
 	public String getName()
 	{
-		return "tile." + TeleporterMod.MODID + "_" + getBlockName() + ".name";
+		return "tile." + getWorld().getBlockState(getPos()).getValue(BlockTeleporter.TYPE).getUnlocalizedName() + ".name";
 	}
 
 	@Override
@@ -255,16 +206,18 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 		return false;
 	}
 
-	// standard code to look up what the human-readable name is
 	@Override
 	public ITextComponent getDisplayName()
 	{
 		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
 	}
 
-	// -----------------------------------------------------------------------------------------------------------
-	// The following methods are not needed for this example but are part of
-	// IInventory so they must be implemented
+
+	@Override
+	public void clear()
+	{
+		Arrays.fill(itemStacks, null);
+	}
 
 	@Override
 	public void openInventory(EntityPlayer player)
@@ -371,11 +324,12 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 			// teleporter block
 			if (getBlockType() instanceof BlockTeleporter)
 			{
-				double x = destination.pos.getX() + (bounds.xCoord * 0.5f),
-						y = destination.pos.getY() + (float) bounds.yCoord,
-						z = destination.pos.getZ() + (bounds.zCoord * 0.5f);
+				double x = destination.pos.getX() + (bounds.xCoord * 0.5f);
+				double y = destination.pos.getY() + (float)bounds.yCoord;
+				double z = destination.pos.getZ() + (bounds.zCoord * 0.5f);
 
-				float yaw = entityIn.rotationYaw, pitch = entityIn.rotationPitch;
+				float yaw = entityIn.rotationYaw;
+				float pitch = entityIn.rotationPitch;
 
 				if (getInterdimensional())
 				{
