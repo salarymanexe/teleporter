@@ -1,6 +1,3 @@
-# VanillaTeleporter
-The Vanilla-Inspired Teleporters Mod for Minecraft/Forge!
+# Vanilla-Inspired Teleporters
 
-Special thanks to diesieben07 and #MinecraftForge for their consistent support and unending patience!
-
-As well, thanks to brandon3055 for his MinecraftByExample tutorials!
+### A mod for Minecraft 1.8.9
