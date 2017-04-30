@@ -4,6 +4,7 @@ import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.capabilities.CapabilityHandler;
 import net.dyeo.teleporter.common.network.GuiHandler;
 import net.dyeo.teleporter.init.ModBlocks;
+import net.dyeo.teleporter.init.ModSounds;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -14,6 +15,7 @@ public class CommonProxy
 	public void preInit()
 	{
 		registerBlocks();
+		registerSounds();
 		registerTileEntities();
 	}
 
@@ -46,10 +48,14 @@ public class CommonProxy
 		ModBlocks.registerCraftingRecipes();
 	}
 
-
 	private void registerGuiHandler()
 	{
 		NetworkRegistry.INSTANCE.registerGuiHandler(TeleporterMod.instance, new GuiHandler());
+	}
+
+	private void registerSounds()
+	{
+		ModSounds.registerSounds();
 	}
 
 	private void registerTileEntities()

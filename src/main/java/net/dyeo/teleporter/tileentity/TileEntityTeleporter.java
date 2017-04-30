@@ -5,6 +5,7 @@ import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
 import net.dyeo.teleporter.init.ModBlocks;
+import net.dyeo.teleporter.init.ModSounds;
 import net.dyeo.teleporter.network.TeleporterNetwork;
 import net.dyeo.teleporter.network.TeleporterNode;
 import net.dyeo.teleporter.utilities.TeleporterUtility;
@@ -17,9 +18,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
@@ -392,14 +391,14 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 		if (teleportSuccess)
 		{
-			worldObj.playSound(source.pos.getX(), source.pos.getY(), source.pos.getZ(), new SoundEvent(new ResourceLocation( TeleporterMod.MODID + ":portalEnter")), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
-			worldObj.playSound(destination.pos.getX(), destination.pos.getY(), destination.pos.getZ(), new SoundEvent(new ResourceLocation( TeleporterMod.MODID + ":portalExit" )), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
+			worldObj.playSound(null, source.pos.getX(), source.pos.getY(), source.pos.getZ(), ModSounds.PORTAL_ENTER, SoundCategory.BLOCKS, 0.9f, 1.0f);
+			worldObj.playSound(null, destination.pos.getX(), destination.pos.getY(), destination.pos.getZ(), ModSounds.PORTAL_EXIT, SoundCategory.BLOCKS, 0.9f, 1.0f);
 			System.out.println("Teleport successful.");
 			return destination;
 		}
 		else
 		{
-			worldObj.playSound(source.pos.getX(), source.pos.getY(), source.pos.getZ(), new SoundEvent(new ResourceLocation( TeleporterMod.MODID + ":portalError" )), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
+			worldObj.playSound(null, source.pos.getX(), source.pos.getY(), source.pos.getZ(), ModSounds.PORTAL_ERROR, SoundCategory.BLOCKS, 0.9f, 1.0f);
 			System.out.println("Teleport unsuccessful.");
 			return source;
 		}
