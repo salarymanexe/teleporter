@@ -1,8 +1,6 @@
 package net.dyeo.teleporter.block;
 
-import java.util.List;
 import java.util.Random;
-import javax.annotation.Nullable;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.capabilities.CapabilityHandler;
 import net.dyeo.teleporter.capabilities.ITeleporterEntity;
@@ -34,6 +32,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -87,7 +86,7 @@ public class BlockTeleporter extends BlockContainer
 	}
 
 	@Override
-	public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
+	public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
 	{
 		for ( EnumType type : EnumType.values() )
 		{
@@ -121,7 +120,7 @@ public class BlockTeleporter extends BlockContainer
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
 		if (!world.isRemote && !player.isSneaking())
 		{
@@ -182,7 +181,7 @@ public class BlockTeleporter extends BlockContainer
 	}
 
 	@Override
-	public void neighborChanged(IBlockState state, World world, BlockPos pos, Block neighbourBlock)
+	public void neighborChanged(IBlockState state, World world, BlockPos pos, Block neighbourBlock, BlockPos fromPos)
 	{
 		// get the tile entity at this block's world pos
 		TileEntityTeleporter tileEntityTeleporter = TileEntityTeleporter.getTileEntityAt(world, pos);

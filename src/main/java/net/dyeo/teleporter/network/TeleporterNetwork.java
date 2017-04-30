@@ -167,16 +167,16 @@ public class TeleporterNetwork extends WorldSavedData
 				ItemStack tEntDestStack = tEntDest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
 
 				// if keys are completely different
-				if (stack == null && tEntDestStack != null)
+				if (stack.isEmpty() && !tEntDestStack.isEmpty())
 				{
 					continue; // skip this destination
 				}
-				else if (stack != null && tEntDestStack == null)
+				else if (!stack.isEmpty() && tEntDestStack.isEmpty())
 				{
 					continue; // skip this destination
 				}
 
-				if (stack != null && tEntDestStack != null)
+				if (!stack.isEmpty() && !tEntDestStack.isEmpty())
 				{
 					// check if keys are the same
 					if (stack.getItem().getUnlocalizedName().equals(tEntDestStack.getItem().getUnlocalizedName()) == false)
