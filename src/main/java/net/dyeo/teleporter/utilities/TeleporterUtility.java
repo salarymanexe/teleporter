@@ -99,8 +99,8 @@ public class TeleporterUtility
 		srcPlayer.connection.sendPacket(
 			new SPacketRespawn(
 				srcPlayer.dimension,
-				srcPlayer.worldObj.getDifficulty(),
-				srcPlayer.worldObj.getWorldInfo().getTerrainType(),
+				srcPlayer.world.getDifficulty(),
+				srcPlayer.world.getWorldInfo().getTerrainType(),
 				srcPlayer.interactionManager.getGameType()
 			)
 		);
@@ -116,7 +116,7 @@ public class TeleporterUtility
 //		}
 
 		// spawn the player in the new world
-		dstWorldServer.spawnEntityInWorld(srcPlayer);
+		dstWorldServer.spawnEntity(srcPlayer);
 		// update the entity (do not force)
 		dstWorldServer.updateEntityWithOptionalForce(srcPlayer, false);
 		// set the player's world to the new world
@@ -157,7 +157,7 @@ public class TeleporterUtility
 	 */
 	private static boolean transferEntityToDimension(Entity srcEntity, int dstDimension, double x, double y, double z, float yaw, float pitch)
 	{
-		int srcDimension = srcEntity.worldObj.provider.getDimension();
+		int srcDimension = srcEntity.world.provider.getDimension();
 
 		MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
 
@@ -181,7 +181,7 @@ public class TeleporterUtility
 				TeleporterUtility.transferToLocation(dstEntity, x, y, z, yaw, pitch);
 
 				dstEntity.forceSpawn = true;
-				dstWorldServer.spawnEntityInWorld(dstEntity);
+				dstWorldServer.spawnEntity(dstEntity);
 				dstEntity.forceSpawn = false;
 
 				ITeleporterEntity ite = dstEntity.getCapability(CapabilityHandler.TELEPORT_CAPABILITY, null);

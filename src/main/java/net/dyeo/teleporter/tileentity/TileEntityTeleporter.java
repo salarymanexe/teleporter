@@ -111,6 +111,7 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 		this.customName = customNameIn;
 	}
 
+	@Override
 	public ITextComponent getDisplayName()
 	{
 		return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
@@ -120,13 +121,12 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		if (this.worldObj.getTileEntity(this.pos) != this) return false;
+		if (this.world.getTileEntity(this.pos) != this) return false;
 		final double X_CENTRE_OFFSET = 0.5;
 		final double Y_CENTRE_OFFSET = 0.5;
 		final double Z_CENTRE_OFFSET = 0.5;
 		final double MAXIMUM_DISTANCE_SQ = 8.0 * 8.0;
-		return player.getDistanceSq(pos.getX() + X_CENTRE_OFFSET, pos.getY() + Y_CENTRE_OFFSET,
-				pos.getZ() + Z_CENTRE_OFFSET) < MAXIMUM_DISTANCE_SQ;
+		return player.getDistanceSq(pos.getX() + X_CENTRE_OFFSET, pos.getY() + Y_CENTRE_OFFSET, pos.getZ() + Z_CENTRE_OFFSET) < MAXIMUM_DISTANCE_SQ;
 	}
 
 	@Override
@@ -156,8 +156,8 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	{
 		Vec3d bounds = BlockTeleporter.getBounds();
 
-		TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, false);
-		TeleporterNode source = netWrapper.getNode(pos, worldObj.provider.getDimension(), false);
+		TeleporterNetwork netWrapper = TeleporterNetwork.get(world, false);
+		TeleporterNode source = netWrapper.getNode(pos, world.provider.getDimension(), false);
 		TeleporterNode destination = netWrapper.getNextNode(entityIn, this.handler.getStackInSlot(0), source);
 
 		// teleport success variable
@@ -198,14 +198,14 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 
 		if (teleportSuccess)
 		{
-			worldObj.playSound(null, source.pos.getX(), source.pos.getY(), source.pos.getZ(), ModSounds.PORTAL_ENTER, SoundCategory.BLOCKS, 0.9f, 1.0f);
-			worldObj.playSound(null, destination.pos.getX(), destination.pos.getY(), destination.pos.getZ(), ModSounds.PORTAL_EXIT, SoundCategory.BLOCKS, 0.9f, 1.0f);
+			world.playSound(null, source.pos.getX(), source.pos.getY(), source.pos.getZ(), ModSounds.PORTAL_ENTER, SoundCategory.BLOCKS, 0.9f, 1.0f);
+			world.playSound(null, destination.pos.getX(), destination.pos.getY(), destination.pos.getZ(), ModSounds.PORTAL_EXIT, SoundCategory.BLOCKS, 0.9f, 1.0f);
 			System.out.println("Teleport successful.");
 			return destination;
 		}
 		else
 		{
-			worldObj.playSound(null, source.pos.getX(), source.pos.getY(), source.pos.getZ(), ModSounds.PORTAL_ERROR, SoundCategory.BLOCKS, 0.9f, 1.0f);
+			world.playSound(null, source.pos.getX(), source.pos.getY(), source.pos.getZ(), ModSounds.PORTAL_ERROR, SoundCategory.BLOCKS, 0.9f, 1.0f);
 			System.out.println("Teleport unsuccessful.");
 			return source;
 		}
@@ -214,8 +214,8 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 
 	public void removeFromNetwork()
 	{
-		TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, true);
-		netWrapper.removeNode(pos, worldObj.provider.getDimension());
+		TeleporterNetwork netWrapper = TeleporterNetwork.get(world, true);
+		netWrapper.removeNode(pos, world.provider.getDimension());
 	}
 
 	@Override
@@ -224,13 +224,13 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 
 		if (firstUpdate)
 		{
-			if (!worldObj.isRemote)
+			if (!world.isRemote)
 			{
 				boolean isNewNode = false;
 
-				TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, true);
+				TeleporterNetwork netWrapper = TeleporterNetwork.get(world, true);
 
-				int tileDim = worldObj.provider.getDimension();
+				int tileDim = world.provider.getDimension();
 				TeleporterNode thisNode = netWrapper.getNode(this.pos, tileDim, true);
 				if (thisNode == null)
 				{

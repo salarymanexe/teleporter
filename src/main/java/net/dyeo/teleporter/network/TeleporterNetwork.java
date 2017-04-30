@@ -115,7 +115,7 @@ public class TeleporterNetwork extends WorldSavedData
 	public TeleporterNode getNextNode(Entity entityIn, ItemStack stack, TeleporterNode source)
 	{
 
-		TileEntityTeleporter tEntSource = TileEntityTeleporter.getTileEntityAt(entityIn.worldObj, source.pos);
+		TileEntityTeleporter tEntSource = TileEntityTeleporter.getTileEntityAt(entityIn.world, source.pos);
 
 		// a teleporter with matching key, no obstructions, and no lock
 		TeleporterNode destinationNode = null;
@@ -241,7 +241,7 @@ public class TeleporterNetwork extends WorldSavedData
 					if (potentialPlayerEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-						entityPlayer.addChatMessage(GetMessage("teleporterBlocked"));
+						entityPlayer.sendMessage(GetMessage("teleporterBlocked"));
 					}
 					continue;
 				}
@@ -250,7 +250,7 @@ public class TeleporterNetwork extends WorldSavedData
 					if (potentialPlayerEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-						entityPlayer.addChatMessage(GetMessage("teleporterDisabled"));
+						entityPlayer.sendMessage(GetMessage("teleporterDisabled"));
 					}
 					continue;
 				}
@@ -265,7 +265,7 @@ public class TeleporterNetwork extends WorldSavedData
 		if (destinationNode == null && potentialPlayerEntity instanceof EntityPlayer)
 		{
 			EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-			entityPlayer.addChatMessage(GetMessage("teleporterNotFound"));
+			entityPlayer.sendMessage(GetMessage("teleporterNotFound"));
 			System.out.println("[Teleporter] Destination not found");
 		}
 		return destinationNode;
@@ -331,7 +331,7 @@ public class TeleporterNetwork extends WorldSavedData
 		{
 			if (debug) System.out.println("New network created!");
 			data = new TeleporterNetwork();
-			world.setItemData(IDENTIFIER, data);
+			world.setData(IDENTIFIER, data);
 		}
 		else
 		{

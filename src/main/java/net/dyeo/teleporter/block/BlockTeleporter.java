@@ -202,7 +202,7 @@ public class BlockTeleporter extends BlockContainer
 				if (player != null)
 				{
 					TextComponentTranslation message = new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + "teleporterLocked");
-					player.addChatMessage(message);
+					player.sendMessage(message);
 				}
 			}
 			tileEntityTeleporter.markDirty();
@@ -219,7 +219,7 @@ public class BlockTeleporter extends BlockContainer
 				if (player != null)
 				{
 					TextComponentTranslation message = new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + "teleporterUnlocked");
-					player.addChatMessage(message);
+					player.sendMessage(message);
 				}
 			}
 			tileEntityTeleporter.markDirty();
@@ -254,7 +254,7 @@ public class BlockTeleporter extends BlockContainer
 					item.motionZ = motionZ * multiplier;
 
 					// Spawn the item in the world
-					world.spawnEntityInWorld(item);
+					world.spawnEntity(item);
 				}
 			}
 

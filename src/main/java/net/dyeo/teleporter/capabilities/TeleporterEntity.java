@@ -64,18 +64,19 @@ public class TeleporterEntity implements ITeleporterEntity
 	@Override
 	public void checkLocation()
 	{
-		if (entity != null && !entity.worldObj.isRemote)
+		if (entity != null && !entity.world.isRemote)
 		{
-			TeleporterNetwork netWrapper = TeleporterNetwork.get(entity.worldObj, false);
+			TeleporterNetwork netWrapper = TeleporterNetwork.get(entity.world, false);
 
-			BlockPos ppos = new BlockPos(MathHelper.floor_double(entity.posX),
-					MathHelper.floor_double(entity.posY - (BlockTeleporter.getBounds().yCoord)),
-					MathHelper.floor_double(entity.posZ));
+			BlockPos ppos = new BlockPos(
+				MathHelper.floor(entity.posX),
+				MathHelper.floor(entity.posY - (BlockTeleporter.getBounds().yCoord)),
+				MathHelper.floor(entity.posZ)
+			);
 
-			TeleporterNode node = netWrapper.getNode(new BlockPos(ppos), entity.worldObj.provider.getDimension(),
-					false);
+			TeleporterNode node = netWrapper.getNode(new BlockPos(ppos), entity.world.provider.getDimension(), false);
 
-			this.setDimension(entity.worldObj.provider.getDimension());
+			this.setDimension(entity.world.provider.getDimension());
 
 			if (node != null)
 			{
