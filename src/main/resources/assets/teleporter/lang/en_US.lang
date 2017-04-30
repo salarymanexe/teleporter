@@ -3,6 +3,8 @@
 tile.teleporter.name=Teleporter
 tile.enderTeleporter.name=Ender Teleporter
 
+container.teleporter=Teleporter
+
 # message that displays when the user attempts to go to a blocked teleporter
 message.teleporter_TeleporterNetwork.teleporterBlocked=Teleporter is blocked; skipping...
 

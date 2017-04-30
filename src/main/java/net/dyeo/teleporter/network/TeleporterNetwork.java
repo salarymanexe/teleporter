@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 /*
  * TeleporterNetwork is the singleton responsible for saving the teleporter data onto the world file, and is
@@ -163,27 +164,28 @@ public class TeleporterNetwork extends WorldSavedData
 					continue; // skip this destination
 				}
 
+				ItemStack tEntDestStack = tEntDest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
+
 				// if keys are completely different
-				if (stack == null && tEntDest.itemStacks[0] != null)
+				if (stack == null && tEntDestStack != null)
 				{
 					continue; // skip this destination
 				}
-				else if (stack != null && tEntDest.itemStacks[0] == null)
+				else if (stack != null && tEntDestStack == null)
 				{
 					continue; // skip this destination
 				}
 
-				if (stack != null && tEntDest.itemStacks[0] != null)
+				if (stack != null && tEntDestStack != null)
 				{
 					// check if keys are the same
-					if (stack.getItem().getUnlocalizedName()
-							.equals(tEntDest.itemStacks[0].getItem().getUnlocalizedName()) == false)
+					if (stack.getItem().getUnlocalizedName().equals(tEntDestStack.getItem().getUnlocalizedName()) == false)
 					{
 						continue;
 					}
 
 					// both items are written books
-					if (stack.getItem() == Items.WRITTEN_BOOK && tEntDest.itemStacks[0].getItem() == Items.WRITTEN_BOOK)
+					if (stack.getItem() == Items.WRITTEN_BOOK && tEntDestStack.getItem() == Items.WRITTEN_BOOK)
 					{
 
 						// get author and title for A as "author:title"
@@ -191,18 +193,17 @@ public class TeleporterNetwork extends WorldSavedData
 						author += ":" + stack.getTagCompound().getString("title");
 
 						// get author and title for B as "author:title"
-						String nodeAuthor = tEntDest.itemStacks[0].getTagCompound().getString("author");
-						nodeAuthor += ":" + tEntDest.itemStacks[0].getTagCompound().getString("title");
+						String nodeAuthor = tEntDestStack.getTagCompound().getString("author");
+						nodeAuthor += ":" + tEntDestStack.getTagCompound().getString("title");
 						if (author.equals(nodeAuthor) == false)
 						{
 							continue;
 						}
 					}
-					else if (stack.getItem() == Items.FILLED_MAP
-							&& tEntDest.itemStacks[0].getItem() == Items.FILLED_MAP)
+					else if (stack.getItem() == Items.FILLED_MAP && tEntDestStack.getItem() == Items.FILLED_MAP)
 					{
 						// compare map value (stored in item damage)
-						if (stack.getItemDamage() != tEntDest.itemStacks[0].getItemDamage())
+						if (stack.getItemDamage() != tEntDestStack.getItemDamage())
 						{
 							// skip this destination
 							continue;
@@ -219,14 +220,12 @@ public class TeleporterNetwork extends WorldSavedData
 							name = display.getString("Name");
 						}
 						// set item B name if second item has tag compound
-						if ((tEntDest.itemStacks[0].hasTagCompound()))
+						if ((tEntDestStack.hasTagCompound()))
 						{
-							NBTTagCompound display = (NBTTagCompound) tEntDest.itemStacks[0].getTagCompound()
-									.getTag("display");
+							NBTTagCompound display = (NBTTagCompound) tEntDestStack.getTagCompound().getTag("display");
 							nodeName = display.getString("Name");
 						}
-						// compare resulting names to see if they are a unique
-						// pair
+						// compare resulting names to see if they are a unique pair
 						if (name.equals(nodeName) == false)
 						{
 							continue;

@@ -1,6 +1,5 @@
 package net.dyeo.teleporter.client.gui.inventory;
 
-import java.awt.Color;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.inventory.ContainerTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
@@ -17,24 +16,25 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GuiTeleporter extends GuiContainer
 {
 
-	private static final ResourceLocation TELEPORTER_GUI_TEXTURE = new ResourceLocation(TeleporterMod.MODID, "textures/gui/container/teleporterBlock.png");
+	private static final ResourceLocation TELEPORTER_GUI_TEXTURE = new ResourceLocation(TeleporterMod.MODID, "textures/gui/container/teleporter.png");
 
-	private TileEntityTeleporter tileEntityTeleporter;
+	private final InventoryPlayer playerInventory;
+	private final TileEntityTeleporter tileEntity;
 
-	public GuiTeleporter(InventoryPlayer invPlayer, TileEntityTeleporter tile)
+	public GuiTeleporter(InventoryPlayer playerInventory, TileEntityTeleporter tileEntity)
 	{
-		super(new ContainerTeleporter(invPlayer, tile));
-		tileEntityTeleporter = tile;
-		xSize = 176;
-		ySize = 166;
+		super(new ContainerTeleporter(playerInventory, tileEntity));
+        this.playerInventory = playerInventory;
+		this.tileEntity = tileEntity;
+		this.xSize = 176;
+		this.ySize = 166;
 	}
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
 	{
-		final int LABEL_XPOS = 5;
-		final int LABEL_YPOS = 5;
-		fontRendererObj.drawString(tileEntityTeleporter.getDisplayName().getUnformattedText(), LABEL_XPOS, LABEL_YPOS, Color.darkGray.getRGB());
+        this.fontRendererObj.drawString(this.tileEntity.getDisplayName().getUnformattedText(), 8, 6, 0x404040);
+		this.fontRendererObj.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 0x404040);
 	}
 
 	@Override

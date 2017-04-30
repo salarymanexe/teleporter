@@ -1,6 +1,5 @@
 package net.dyeo.teleporter.tileentity;
 
-import java.util.Arrays;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
 import net.dyeo.teleporter.init.ModSounds;
@@ -10,11 +9,9 @@ import net.dyeo.teleporter.utilities.TeleporterUtility;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -23,21 +20,59 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
-public class TileEntityTeleporter extends TileEntity implements IInventory, ITickable
+public class TileEntityTeleporter extends TileEntity implements ITickable
 {
 
-	private final int NUMBER_OF_SLOTS = 1;
-	public ItemStack[] itemStacks = new ItemStack[NUMBER_OF_SLOTS];
-
+	private String customName = null;
 	private boolean firstUpdate = true;
-
 	private boolean isPowered = false;
 
-
-	public TileEntityTeleporter()
+	private ItemStackHandler handler = new ItemStackHandler(1)
 	{
+		@Override
+		protected void onContentsChanged(int slot)
+		{
+			TileEntityTeleporter.this.markDirty();
+		}
+	};
+
+
+
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+	{
+		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return true;
+		return super.hasCapability(capability, facing);
 	}
+
+	@Override
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+	{
+		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return (T)this.handler;
+		return super.getCapability(capability, facing);
+	}
+
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound)
+	{
+		compound = super.writeToNBT(compound);
+		compound.setBoolean("powered", isPowered());
+		compound.setTag("Inventory", handler.serializeNBT());
+		return compound;
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound compound)
+	{
+		super.readFromNBT(compound);
+		setPowered(compound.getBoolean("powered"));
+		this.handler.deserializeNBT(compound.getCompoundTag("Inventory"));
+	}
+
 
 
 	public boolean isPowered()
@@ -61,62 +96,29 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 		return getTypeProperty() == EnumType.ENDER;
 	}
 
-
-	@Override
-	public int getSizeInventory()
+	public String getName()
 	{
-		return NUMBER_OF_SLOTS;
+		return this.hasCustomName() ? this.customName : "container.teleporter";
 	}
 
-	@Override
-	public ItemStack getStackInSlot(int slotIndex)
+	public boolean hasCustomName()
 	{
-		return itemStacks[slotIndex];
+		return this.customName != null && !this.customName.isEmpty();
 	}
 
-	@Override
-	public ItemStack decrStackSize(int slotIndex, int count)
+	public void setCustomName(String customNameIn)
 	{
-		ItemStack itemStackInSlot = getStackInSlot(slotIndex);
-		if (itemStackInSlot == null) return null;
-
-		ItemStack itemStackRemoved;
-		if (itemStackInSlot.stackSize <= count)
-		{
-			itemStackRemoved = itemStackInSlot;
-			setInventorySlotContents(slotIndex, null);
-		}
-		else
-		{
-			itemStackRemoved = itemStackInSlot.splitStack(count);
-			if (itemStackInSlot.stackSize == 0)
-			{
-				setInventorySlotContents(slotIndex, null);
-			}
-		}
-		markDirty();
-		return itemStackRemoved;
+		this.customName = customNameIn;
 	}
 
-	@Override
-	public void setInventorySlotContents(int slotIndex, ItemStack itemstack)
+	public ITextComponent getDisplayName()
 	{
-		itemStacks[slotIndex] = itemstack;
-		if (itemstack != null && itemstack.stackSize > getInventoryStackLimit())
-		{
-			itemstack.stackSize = getInventoryStackLimit();
-		}
-		markDirty();
+		return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
 	}
 
-	@Override
-	public int getInventoryStackLimit()
-	{
-		return 64;
-	}
 
-	@Override
-	public boolean isUseableByPlayer(EntityPlayer player)
+
+	public boolean canInteractWith(EntityPlayer player)
 	{
 		if (this.worldObj.getTileEntity(this.pos) != this) return false;
 		final double X_CENTRE_OFFSET = 0.5;
@@ -125,155 +127,6 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 		final double MAXIMUM_DISTANCE_SQ = 8.0 * 8.0;
 		return player.getDistanceSq(pos.getX() + X_CENTRE_OFFSET, pos.getY() + Y_CENTRE_OFFSET,
 				pos.getZ() + Z_CENTRE_OFFSET) < MAXIMUM_DISTANCE_SQ;
-	}
-
-	@Override
-	public boolean isItemValidForSlot(int slotIndex, ItemStack itemstack)
-	{
-		return true;
-	}
-
-	// save item stacks and powered state
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound parentNBTTagCompound)
-	{
-		parentNBTTagCompound = super.writeToNBT(parentNBTTagCompound); // The super call is required to save and load the tileEntity's location
-
-		// to use an analogy with Java, this code generates an array of hashmaps
-		// The itemStack in each slot is converted to an NBTTagCompound, which
-		// is effectively a hashmap of key->value pairs such
-		// as slot=1, id=2353, count=1, etc
-		// Each of these NBTTagCompound are then inserted into NBTTagList, which
-		// is similar to an array.
-		NBTTagList dataForAllSlots = new NBTTagList();
-
-		for (int i = 0; i < this.itemStacks.length; ++i)
-		{
-			if (this.itemStacks[i] != null)
-			{
-				NBTTagCompound dataForThisSlot = new NBTTagCompound();
-				dataForThisSlot.setByte("slot", (byte) i);
-				this.itemStacks[i].writeToNBT(dataForThisSlot);
-				dataForAllSlots.appendTag(dataForThisSlot);
-			}
-		}
-
-		parentNBTTagCompound.setBoolean("powered", isPowered());
-
-		// the array of hashmaps is then inserted into the parent hashmap for the container
-		parentNBTTagCompound.setTag("items", dataForAllSlots);
-
-		return parentNBTTagCompound;
-	}
-
-	// This is where you load the data that you saved in writeToNBT
-	@Override
-	public void readFromNBT(NBTTagCompound parentNBTTagCompound)
-	{
-		super.readFromNBT(parentNBTTagCompound); // The super call is required
-													// to save and load the
-													// tiles location
-		final byte NBT_TYPE_COMPOUND = 10; // See NBTBase.createNewByType() for
-											// a listing
-		NBTTagList dataForAllSlots = parentNBTTagCompound.getTagList("items", NBT_TYPE_COMPOUND);
-
-		setPowered(parentNBTTagCompound.getBoolean("powered"));
-
-		Arrays.fill(itemStacks, null); // set all slots to empty
-		for (int i = 0; i < dataForAllSlots.tagCount(); ++i)
-		{
-			NBTTagCompound dataForOneSlot = dataForAllSlots.getCompoundTagAt(i);
-			int slotIndex = dataForOneSlot.getByte("slot") & 255;
-
-			if (slotIndex >= 0 && slotIndex < this.itemStacks.length)
-			{
-				this.itemStacks[slotIndex] = ItemStack.loadItemStackFromNBT(dataForOneSlot);
-			}
-		}
-
-	}
-
-
-	@Override
-	public String getName()
-	{
-		return "tile." + getWorld().getBlockState(getPos()).getValue(BlockTeleporter.TYPE).getUnlocalizedName() + ".name";
-	}
-
-	@Override
-	public boolean hasCustomName()
-	{
-		return false;
-	}
-
-	@Override
-	public ITextComponent getDisplayName()
-	{
-		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
-	}
-
-
-	@Override
-	public void clear()
-	{
-		Arrays.fill(itemStacks, null);
-	}
-
-	@Override
-	public void openInventory(EntityPlayer player)
-	{
-	}
-
-	@Override
-	public void closeInventory(EntityPlayer player)
-	{
-		if (!worldObj.isRemote)
-		{
-			boolean isNewNode = false;
-
-			TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, true);
-
-			int tileDim = worldObj.provider.getDimension();
-			TeleporterNode thisNode = netWrapper.getNode(this.pos, tileDim, true);
-			if (thisNode == null)
-			{
-				thisNode = new TeleporterNode();
-				isNewNode = true;
-			}
-
-			thisNode.pos = this.pos;
-			thisNode.dimension = tileDim;
-
-			if (isNewNode == true)
-			{
-				netWrapper.addNode(thisNode);
-			}
-
-			System.out.println("Node updated! ("
-					+ thisNode.pos.getX() + ","
-					+ thisNode.pos.getY() + ","
-					+ thisNode.pos.getZ() + " @ dim "
-					+ thisNode.dimension + ")"
-					);
-			markDirty();
-		}
-	}
-
-	@Override
-	public int getField(int id)
-	{
-		return 0;
-	}
-
-	@Override
-	public void setField(int id, int value)
-	{
-	}
-
-	@Override
-	public int getFieldCount()
-	{
-		return 0;
 	}
 
 	@Override
@@ -305,7 +158,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, false);
 		TeleporterNode source = netWrapper.getNode(pos, worldObj.provider.getDimension(), false);
-		TeleporterNode destination = netWrapper.getNextNode(entityIn, itemStacks[0], source);
+		TeleporterNode destination = netWrapper.getNextNode(entityIn, this.handler.getStackInSlot(0), source);
 
 		// teleport success variable
 		boolean teleportSuccess = false;
@@ -402,11 +255,4 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 	}
 
-	@Override
-	public ItemStack removeStackFromSlot(int slotIndex)
-	{
-		ItemStack itemStack = getStackInSlot(slotIndex);
-		if (itemStack != null) setInventorySlotContents(slotIndex, null);
-		return itemStack;
-	}
 }
