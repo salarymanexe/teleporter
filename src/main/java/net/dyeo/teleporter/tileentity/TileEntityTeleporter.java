@@ -1,10 +1,10 @@
-package net.dyeo.teleporter.entities;
+package net.dyeo.teleporter.tileentity;
 
 import java.util.Arrays;
-import com.sun.javafx.geom.Vec3f;
-import net.dyeo.teleporter.Reference;
-import net.dyeo.teleporter.blocks.BlockTeleporter;
-import net.dyeo.teleporter.blocks.BlockTeleporter.EnumType;
+import net.dyeo.teleporter.TeleporterMod;
+import net.dyeo.teleporter.block.BlockTeleporter;
+import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
+import net.dyeo.teleporter.init.ModBlocks;
 import net.dyeo.teleporter.network.TeleporterNetwork;
 import net.dyeo.teleporter.network.TeleporterNode;
 import net.dyeo.teleporter.utilities.TeleporterUtility;
@@ -21,6 +21,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -73,7 +74,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 		IBlockState state = getWorld().getBlockState(getPos());
 		BlockTeleporter.EnumType type = state.getValue(BlockTeleporter.TYPE);
 
-		return Reference.teleporterBlockId + "." + type.getName();
+		return ModBlocks.teleporterBlockId + "." + type.getName();
 	}
 
 	/* The following are some IInventory methods you are required to override */
@@ -246,7 +247,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 	@Override
 	public String getName()
 	{
-		return "tile." + Reference.MODID.toLowerCase() + "_" + getBlockName() + ".name";
+		return "tile." + TeleporterMod.MODID + "_" + getBlockName() + ".name";
 	}
 
 	@Override
@@ -348,7 +349,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 	// call this when you want an entity to teleport to the next teleporter node
 	public TeleporterNode teleport(Entity entityIn)
 	{
-		Vec3f bounds = BlockTeleporter.getBounds();
+		Vec3d bounds = BlockTeleporter.getBounds();
 
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, false);
 		TeleporterNode source = netWrapper.getNode(pos, worldObj.provider.getDimension(), false);
@@ -371,9 +372,9 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 			// teleporter block
 			if (getBlockType() instanceof BlockTeleporter)
 			{
-				double x = destination.pos.getX() + (bounds.x * 0.5f),
-						y = destination.pos.getY() + (float) bounds.y,
-						z = destination.pos.getZ() + (bounds.z * 0.5f);
+				double x = destination.pos.getX() + (bounds.xCoord * 0.5f),
+						y = destination.pos.getY() + (float) bounds.yCoord,
+						z = destination.pos.getZ() + (bounds.zCoord * 0.5f);
 
 				float yaw = entityIn.rotationYaw, pitch = entityIn.rotationPitch;
 
@@ -391,14 +392,14 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 		if (teleportSuccess)
 		{
-			worldObj.playSound(source.pos.getX(), source.pos.getY(), source.pos.getZ(), new SoundEvent(new ResourceLocation( Reference.MODID.toLowerCase() + ":portalEnter")), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
-			worldObj.playSound(destination.pos.getX(), destination.pos.getY(), destination.pos.getZ(), new SoundEvent(new ResourceLocation( Reference.MODID.toLowerCase() + ":portalExit" )), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
+			worldObj.playSound(source.pos.getX(), source.pos.getY(), source.pos.getZ(), new SoundEvent(new ResourceLocation( TeleporterMod.MODID + ":portalEnter")), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
+			worldObj.playSound(destination.pos.getX(), destination.pos.getY(), destination.pos.getZ(), new SoundEvent(new ResourceLocation( TeleporterMod.MODID + ":portalExit" )), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
 			System.out.println("Teleport successful.");
 			return destination;
 		}
 		else
 		{
-			worldObj.playSound(source.pos.getX(), source.pos.getY(), source.pos.getZ(), new SoundEvent(new ResourceLocation( Reference.MODID.toLowerCase() + ":portalError" )), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
+			worldObj.playSound(source.pos.getX(), source.pos.getY(), source.pos.getZ(), new SoundEvent(new ResourceLocation( TeleporterMod.MODID + ":portalError" )), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
 			System.out.println("Teleport unsuccessful.");
 			return source;
 		}

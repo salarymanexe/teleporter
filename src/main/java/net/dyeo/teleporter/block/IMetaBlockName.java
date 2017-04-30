@@ -1,4 +1,4 @@
-package net.dyeo.teleporter.blocks;
+package net.dyeo.teleporter.block;
 
 import net.minecraft.item.ItemStack;
 

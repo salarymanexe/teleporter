@@ -1,8 +1,8 @@
 package net.dyeo.teleporter.network;
 
 import java.util.ArrayList;
-import net.dyeo.teleporter.Reference;
-import net.dyeo.teleporter.entities.TileEntityTeleporter;
+import net.dyeo.teleporter.TeleporterMod;
+import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,13 +24,9 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 public class TeleporterNetwork extends WorldSavedData
 {
 
-	//
-
 	private ArrayList<TeleporterNode> network = new ArrayList<TeleporterNode>();
 
-	//
-
-	private static final String IDENTIFIER = Reference.MODID.toLowerCase();
+	private static final String IDENTIFIER = TeleporterMod.MODID;
 
 	public TeleporterNetwork()
 	{
@@ -45,7 +41,7 @@ public class TeleporterNetwork extends WorldSavedData
 	// gets a human readable message to be used in the teleporter network
 	public TextComponentTranslation GetMessage(String messageName)
 	{
-		return new TextComponentTranslation("message." + Reference.MODID.toLowerCase() + '_' + this.getClass().getSimpleName() + '.' + messageName);
+		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + messageName);
 	}
 
 	@Override

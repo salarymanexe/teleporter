@@ -1,6 +1,6 @@
 package net.dyeo.teleporter.capabilities;
 
-import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.network.TeleporterNetwork;
 import net.dyeo.teleporter.network.TeleporterNode;
 import net.minecraft.entity.Entity;
@@ -69,7 +69,7 @@ public class TeleporterEntity implements ITeleporterEntity
 			TeleporterNetwork netWrapper = TeleporterNetwork.get(entity.worldObj, false);
 
 			BlockPos ppos = new BlockPos(MathHelper.floor_double(entity.posX),
-					MathHelper.floor_double(entity.posY - (BlockTeleporter.getBounds().y)),
+					MathHelper.floor_double(entity.posY - (BlockTeleporter.getBounds().yCoord)),
 					MathHelper.floor_double(entity.posZ));
 
 			TeleporterNode node = netWrapper.getNode(new BlockPos(ppos), entity.worldObj.provider.getDimension(),

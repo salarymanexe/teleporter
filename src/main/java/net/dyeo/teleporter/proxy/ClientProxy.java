@@ -1,38 +1,40 @@
 package net.dyeo.teleporter.proxy;
 
-import net.dyeo.teleporter.rendering.BlockRenderRegister;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.dyeo.teleporter.init.ModBlocks;
 
-public class ClientProxy extends CommonProxy implements ISidedProxy
+public class ClientProxy extends CommonProxy
 {
 
 	@Override
-	public void preInit(FMLPreInitializationEvent event)
+	public void preInit()
 	{
-		super.preInit(event);
-
+		super.preInit();
 	}
 
 	@Override
-	public void init(FMLInitializationEvent event)
+	public void init()
 	{
-		super.init(event);
-
-		BlockRenderRegister.init();
-
-		registerRenderers();
+		super.init();
+		registerBlockVariants();
+		registerInventoryModels();
 	}
 
 	@Override
-	public void load(FMLInitializationEvent event)
+	public void postInit()
 	{
-		super.load(event);
+		super.postInit();
 	}
 
-	void registerRenderers()
+
+
+	private void registerBlockVariants()
 	{
-		BlockRenderRegister.registerBlockRenderer();
+		ModBlocks.registerBlockVariants();
+	}
+
+	private void registerInventoryModels()
+	{
+		ModBlocks.registerInventoryModels();
 	}
 
 }

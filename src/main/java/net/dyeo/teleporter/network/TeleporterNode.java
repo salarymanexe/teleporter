@@ -1,6 +1,6 @@
 package net.dyeo.teleporter.network;
 
-import net.dyeo.teleporter.entities.TileEntityTeleporter;
+import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;

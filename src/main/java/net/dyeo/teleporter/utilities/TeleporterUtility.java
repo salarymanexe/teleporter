@@ -1,7 +1,7 @@
 package net.dyeo.teleporter.utilities;
 
 import com.google.common.base.Throwables;
-import net.dyeo.teleporter.capabilities.CapabilityTeleporterEntity;
+import net.dyeo.teleporter.capabilities.CapabilityHandler;
 import net.dyeo.teleporter.capabilities.ITeleporterEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -181,7 +181,7 @@ public class TeleporterUtility
 				dstWorldServer.spawnEntityInWorld(dstEntity);
 				dstEntity.forceSpawn = false;
 
-				ITeleporterEntity ite = dstEntity.getCapability(CapabilityTeleporterEntity.INSTANCE, null);
+				ITeleporterEntity ite = dstEntity.getCapability(CapabilityHandler.TELEPORT_CAPABILITY, null);
 				ite.setOnTeleporter(true);
 				ite.setTeleported(true);
 
