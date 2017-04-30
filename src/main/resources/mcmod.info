@@ -1,0 +1,14 @@
+[{
+	"modid": "teleporter",
+	"name": "Vanilla-Inspired Teleporters",
+	"description": "Teleport with ease!",
+	"mcversion": "${mcversion}",
+	"version": "${version}",
+	"url": "",
+	"updateUrl": "",
+	"authorList": ["DanYeomans"],
+	"credits": "Minecraft forum, for pressuring me into making this ;)",
+	"logoFile": "",
+	"screenshots": [],
+	"dependencies": []
+}]

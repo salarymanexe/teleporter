@@ -1,0 +1,6 @@
+{
+    "portalEnter": {"category": "block", "sounds": [{"name": "portalEnter","stream": false}]},
+    "portalExit": {"category": "block", "sounds": [{"name": "portalExit","stream": false}]},
+    "portalError": {"category": "block", "sounds": [{"name": "portalError","stream": false}]}
+    
+}
