@@ -5,8 +5,8 @@ import net.dyeo.teleporter.network.TeleporterNetwork;
 import net.dyeo.teleporter.network.TeleporterNode;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 
 public class TeleporterEntity implements ITeleporterEntity
 {
@@ -69,13 +69,13 @@ public class TeleporterEntity implements ITeleporterEntity
 			TeleporterNetwork netWrapper = TeleporterNetwork.get(entity.worldObj, false);
 
 			BlockPos ppos = new BlockPos(MathHelper.floor_double(entity.posX),
-					MathHelper.floor_double(entity.posY - (BlockTeleporter.getBounds().yCoord)),
+					MathHelper.floor_double(entity.posY - (BlockTeleporter.getBounds().y)),
 					MathHelper.floor_double(entity.posZ));
 
-			TeleporterNode node = netWrapper.getNode(new BlockPos(ppos), entity.worldObj.provider.getDimensionId(),
+			TeleporterNode node = netWrapper.getNode(new BlockPos(ppos), entity.worldObj.provider.getDimension(),
 					false);
 
-			this.setDimension(entity.worldObj.provider.getDimensionId());
+			this.setDimension(entity.worldObj.provider.getDimension());
 
 			if (node != null)
 			{

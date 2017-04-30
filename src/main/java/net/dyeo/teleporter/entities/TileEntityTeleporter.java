@@ -1,7 +1,7 @@
 package net.dyeo.teleporter.entities;
 
 import java.util.Arrays;
-
+import com.sun.javafx.geom.Vec3f;
 import net.dyeo.teleporter.Reference;
 import net.dyeo.teleporter.blocks.BlockTeleporter;
 import net.dyeo.teleporter.blocks.BlockTeleporter.EnumType;
@@ -16,12 +16,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
 public class TileEntityTeleporter extends TileEntity implements IInventory, ITickable
@@ -92,7 +94,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 	/**
 	 * Removes some of the units from itemstack in the given slot, and returns as a separate itemstack
-	 * 
+	 *
 	 * @param slotIndex
 	 *            the slot number to remove the items from
 	 * @param count
@@ -174,11 +176,9 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 	// save item stacks and powered state
 	@Override
-	public void writeToNBT(NBTTagCompound parentNBTTagCompound)
+	public NBTTagCompound writeToNBT(NBTTagCompound parentNBTTagCompound)
 	{
-		super.writeToNBT(parentNBTTagCompound); // The super call is required to
-												// save and load the
-												// tileEntity's location
+		parentNBTTagCompound = super.writeToNBT(parentNBTTagCompound); // The super call is required to save and load the tileEntity's location
 
 		// to use an analogy with Java, this code generates an array of hashmaps
 		// The itemStack in each slot is converted to an NBTTagCompound, which
@@ -201,9 +201,10 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 		parentNBTTagCompound.setBoolean("powered", isPowered());
 
-		// the array of hashmaps is then inserted into the parent hashmap for
-		// the container
+		// the array of hashmaps is then inserted into the parent hashmap for the container
 		parentNBTTagCompound.setTag("items", dataForAllSlots);
+
+		return parentNBTTagCompound;
 	}
 
 	// This is where you load the data that you saved in writeToNBT
@@ -256,10 +257,9 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 	// standard code to look up what the human-readable name is
 	@Override
-	public IChatComponent getDisplayName()
+	public ITextComponent getDisplayName()
 	{
-		return this.hasCustomName() ? new ChatComponentText(this.getName())
-				: new ChatComponentTranslation(this.getName());
+		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
 	}
 
 	// -----------------------------------------------------------------------------------------------------------
@@ -280,7 +280,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 			TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, true);
 
-			int tileDim = worldObj.provider.getDimensionId();
+			int tileDim = worldObj.provider.getDimension();
 			TeleporterNode thisNode = netWrapper.getNode(this.pos, tileDim, true);
 			if (thisNode == null)
 			{
@@ -296,10 +296,10 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 				netWrapper.addNode(thisNode);
 			}
 
-			System.out.println("Node updated! (" 
-					+ thisNode.pos.getX() + "," 
+			System.out.println("Node updated! ("
+					+ thisNode.pos.getX() + ","
 					+ thisNode.pos.getY() + ","
-					+ thisNode.pos.getZ() + " @ dim " 
+					+ thisNode.pos.getZ() + " @ dim "
 					+ thisNode.dimension + ")"
 					);
 			markDirty();
@@ -323,6 +323,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 		return 0;
 	}
 
+	@Override
 	public BlockPos getPos()
 	{
 		return pos;
@@ -347,10 +348,10 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 	// call this when you want an entity to teleport to the next teleporter node
 	public TeleporterNode teleport(Entity entityIn)
 	{
-		Vec3 bounds = BlockTeleporter.getBounds();
+		Vec3f bounds = BlockTeleporter.getBounds();
 
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, false);
-		TeleporterNode source = netWrapper.getNode(pos, worldObj.provider.getDimensionId(), false);
+		TeleporterNode source = netWrapper.getNode(pos, worldObj.provider.getDimension(), false);
 		TeleporterNode destination = netWrapper.getNextNode(entityIn, itemStacks[0], source);
 
 		// teleport success variable
@@ -361,7 +362,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 		{
 			// don't allow cross-dimensional teleportation if the entity is a
 			// mount and the destination is another dimension
-			if (source.dimension != destination.dimension && entityIn.riddenByEntity != null)
+			if (source.dimension != destination.dimension && !entityIn.getPassengers().isEmpty())
 			{
 				return null;
 			}
@@ -370,16 +371,15 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 			// teleporter block
 			if (getBlockType() instanceof BlockTeleporter)
 			{
-				double x = destination.pos.getX() + (bounds.xCoord * 0.5f),
-						y = destination.pos.getY() + (float) bounds.yCoord,
-						z = destination.pos.getZ() + (bounds.zCoord * 0.5f);
+				double x = destination.pos.getX() + (bounds.x * 0.5f),
+						y = destination.pos.getY() + (float) bounds.y,
+						z = destination.pos.getZ() + (bounds.z * 0.5f);
 
 				float yaw = entityIn.rotationYaw, pitch = entityIn.rotationPitch;
 
 				if (getInterdimensional())
 				{
-					teleportSuccess = TeleporterUtility.transferToDimensionLocation(entityIn, destination.dimension, x,
-							y, z, yaw, pitch);
+					teleportSuccess = TeleporterUtility.transferToDimensionLocation(entityIn, destination.dimension, x, y, z, yaw, pitch);
 					// don't allow if the entity is a mount
 				}
 				else
@@ -391,17 +391,14 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 		if (teleportSuccess)
 		{
-			worldObj.playSoundEffect(source.pos.getX(), source.pos.getY(), source.pos.getZ(),
-					Reference.MODID.toLowerCase() + ":portalEnter", 0.9f, 1.0f);
-			worldObj.playSoundEffect(destination.pos.getX(), destination.pos.getY(), destination.pos.getZ(),
-					Reference.MODID.toLowerCase() + ":portalExit", 0.9f, 1.0f);
+			worldObj.playSound(source.pos.getX(), source.pos.getY(), source.pos.getZ(), new SoundEvent(new ResourceLocation( Reference.MODID.toLowerCase() + ":portalEnter")), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
+			worldObj.playSound(destination.pos.getX(), destination.pos.getY(), destination.pos.getZ(), new SoundEvent(new ResourceLocation( Reference.MODID.toLowerCase() + ":portalExit" )), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
 			System.out.println("Teleport successful.");
 			return destination;
 		}
 		else
 		{
-			worldObj.playSoundEffect(source.pos.getX(), source.pos.getY(), source.pos.getZ(),
-					Reference.MODID.toLowerCase() + ":portalError", 0.9f, 1.0f);
+			worldObj.playSound(source.pos.getX(), source.pos.getY(), source.pos.getZ(), new SoundEvent(new ResourceLocation( Reference.MODID.toLowerCase() + ":portalError" )), SoundCategory.BLOCKS, 0.9f, 1.0f, false);
 			System.out.println("Teleport unsuccessful.");
 			return source;
 		}
@@ -411,7 +408,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 	public void removeFromNetwork()
 	{
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, true);
-		netWrapper.removeNode(pos, worldObj.provider.getDimensionId());
+		netWrapper.removeNode(pos, worldObj.provider.getDimension());
 	}
 
 	@Override
@@ -426,7 +423,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory, ITic
 
 				TeleporterNetwork netWrapper = TeleporterNetwork.get(worldObj, true);
 
-				int tileDim = worldObj.provider.getDimensionId();
+				int tileDim = worldObj.provider.getDimension();
 				TeleporterNode thisNode = netWrapper.getNode(this.pos, tileDim, true);
 				if (thisNode == null)
 				{

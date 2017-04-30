@@ -25,7 +25,7 @@ public class EventTeleporter
 	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event)
 	{
-		Entity entityIn = event.entity;
+		Entity entityIn = event.getEntity();
 
 		if (entityIn != null && entityIn.hasCapability(CapabilityTeleporterEntity.INSTANCE, null))
 		{
@@ -40,10 +40,10 @@ public class EventTeleporter
 	@SubscribeEvent
 	public void onDeath(PlayerEvent.Clone event)
 	{
-		if (event.wasDeath)
+		if (event.isWasDeath())
 		{
-			ITeleporterEntity ite1 = event.entityPlayer.getCapability(CapabilityTeleporterEntity.INSTANCE, null);
-			ite1.copy(event.original.getCapability(CapabilityTeleporterEntity.INSTANCE, null));
+			ITeleporterEntity ite1 = event.getEntityPlayer().getCapability(CapabilityTeleporterEntity.INSTANCE, null);
+			ite1.copy(event.getOriginal().getCapability(CapabilityTeleporterEntity.INSTANCE, null));
 		}
 	}
 

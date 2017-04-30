@@ -2,20 +2,21 @@ package net.dyeo.teleporter.blocks;
 
 import java.util.List;
 import java.util.Random;
-
+import javax.annotation.Nullable;
+import com.sun.javafx.geom.Vec3f;
 import net.dyeo.teleporter.Reference;
 import net.dyeo.teleporter.Teleporter;
 import net.dyeo.teleporter.capabilities.CapabilityTeleporterEntity;
 import net.dyeo.teleporter.capabilities.ITeleporterEntity;
-import net.dyeo.teleporter.network.TeleporterNode;
 import net.dyeo.teleporter.entities.TileEntityTeleporter;
 import net.dyeo.teleporter.gui.GuiHandlerTeleporter;
+import net.dyeo.teleporter.network.TeleporterNode;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -28,14 +29,17 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -47,23 +51,15 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 	// constructs the block
 	public BlockTeleporter(String name)
 	{
-		// Set material to rock
-		super(Material.rock);
-		// Set the name of this block
-		this.setUnlocalizedName(name);
-		// Set transport tab for creative
-		this.setCreativeTab(CreativeTabs.tabTransport);
-		// resistance: 30
-		this.setResistance(30);
-		// hardness: 3.0
-		this.setHardness(3.0f);
-		// light level (emission): 0.5f
-		this.setLightLevel(0.5f);
-		// block bounds 0-1, 0-1, 0-1
-		this.setBlockBounds(0.0f, 0.0f, 0.0f, (float) getBounds().xCoord, (float) getBounds().yCoord,
-				(float) getBounds().zCoord);
-		// set the default metadata for this block (regular teleporter)
-		this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, EnumType.REGULAR));
+
+		super(Material.ROCK); // Set material to rock
+		this.setUnlocalizedName(name); // Set the name of this block
+		this.setCreativeTab(CreativeTabs.TRANSPORTATION); // Set transport tab for creative
+		this.setResistance(30); // resistance: 30
+		this.setHardness(3.0f); // hardness: 3.0
+		this.setLightLevel(0.5f); // light level (emission): 0.5f
+//		this.setBlockBounds(0.0f, 0.0f, 0.0f, (float) getBounds().xCoord, (float) getBounds().yCoord, (float) getBounds().zCoord); // block bounds 0-1, 0-1, 0-1
+		this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, EnumType.REGULAR)); // set the default metadata for this block (regular teleporter)
 	}
 
 	public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("type", BlockTeleporter.EnumType.class);
@@ -100,9 +96,9 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 	}
 
 	@Override
-	protected BlockState createBlockState()
+	protected BlockStateContainer createBlockState()
 	{
-		return new BlockState(this, new IProperty[] { TYPE });
+		return new BlockStateContainer(this, new IProperty[] { TYPE });
 	}
 
 	@Override
@@ -138,25 +134,30 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 	}
 
 	@Override
-	public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos)
+	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
 	{
 		return new ItemStack(Item.getItemFromBlock(this), 1, this.getMetaFromState(world.getBlockState(pos)));
 	}
 
 	// gets a human readable message to be used in the teleporter network
-	public ChatComponentTranslation GetMessage(String messageName)
+	public TextComponentTranslation GetMessage(String messageName)
 	{
-		return new ChatComponentTranslation(
-				"message." + Reference.MODID.toLowerCase() + '_' + this.getClass().getSimpleName() + '.' + messageName);
+		return new TextComponentTranslation("message." + Reference.MODID.toLowerCase() + '_' + this.getClass().getSimpleName() + '.' + messageName);
 	}
 
-	public static Vec3 getBounds()
+	public static Vec3f getBounds()
 	{
-		return new Vec3(1.0f, 0.9375f, 1.0f);
+		return new Vec3f(1.0f, 0.9375f, 1.0f);
 	}
 
-	// called when the block is placed or loaded client side to get the tile
-	// entity for the block
+    @Override
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
+    {
+        return new AxisAlignedBB(0.0F, 0.0F, 0.0F, getBounds().x, getBounds().y, getBounds().z);
+    }
+
+
+	// called when the block is placed or loaded client side to get the tile entity for the block
 	// should return a new instance of the tile entity for the block
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta)
@@ -166,18 +167,15 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 	}
 
 	// called when the block is right clicked
-	// in this case it's used to open the teleporter key gui when right-clicked
-	// by a player
+	// in this case it's used to open the teleporter key gui when right-clicked by a player
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		// Uses the gui handler registered to open the gui for the given gui id
 		// open on the server side only
 		if (!worldIn.isRemote && !playerIn.isSneaking())
 		{
-			playerIn.openGui(Teleporter.instance, GuiHandlerTeleporter.getGuiID(), worldIn, pos.getX(), pos.getY(),
-					pos.getZ());
+			playerIn.openGui(Teleporter.instance, GuiHandlerTeleporter.getGuiID(), worldIn, pos.getX(), pos.getY(), pos.getZ());
 		}
 
 		return true;
@@ -244,7 +242,7 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 	}
 
 	@Override
-	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighbourBlock)
+	public void neighborChanged(IBlockState state, World world, BlockPos pos, Block neighbourBlock)
 	{
 		// get the tile entity at this block's world pos
 		TileEntityTeleporter tileEntityTeleporter = TileEntityTeleporter.getTileEntityAt(world, pos);
@@ -258,11 +256,9 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 			// if block was not powered before but is now powered
 			if (oldPowered == false)
 			{
-				// there is no way in forge to determine who
-				// activated/deactivated the teleporter, so we simply get the
-				// closest player
+				// there is no way in forge to determine who activated/deactivated the teleporter, so we simply get the closest player
 				// works for _most_ cases
-				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16);
+				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, false);
 				if (player != null)
 				{
 					player.addChatMessage(GetMessage("teleporterLocked"));
@@ -280,7 +276,7 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 				// activated/deactivated the teleporter, so we simply get the
 				// closest player
 				// works for _most_ cases
-				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16);
+				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, false);
 				if (player != null)
 				{
 					player.addChatMessage(GetMessage("teleporterUnlocked"));
@@ -294,8 +290,7 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 	@Override
 	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
 	{
-		IInventory inventory = worldIn.getTileEntity(pos) instanceof IInventory
-				? (IInventory) worldIn.getTileEntity(pos) : null;
+		IInventory inventory = worldIn.getTileEntity(pos) instanceof IInventory ? (IInventory) worldIn.getTileEntity(pos) : null;
 
 		if (inventory != null)
 		{
@@ -342,27 +337,24 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 
 	// ---------------------------------------------------------
 
-	// the block will render in the CUTOUT layer (allows transparency of glass
-	// and such)
+	// the block will render in the CUTOUT layer (allows transparency of glass and such)
+	@Override
 	@SideOnly(Side.CLIENT)
-	public EnumWorldBlockLayer getBlockLayer()
+	public BlockRenderLayer getBlockLayer()
 	{
-		return EnumWorldBlockLayer.CUTOUT;
+		return BlockRenderLayer.CUTOUT;
 	}
 
 	// used by the renderer to control lighting and visibility of other blocks.
 	@Override
-	public boolean isOpaqueCube()
+	public boolean isOpaqueCube(IBlockState state)
 	{
 		return false;
 	}
 
-	// used by the renderer to control lighting and visibility of other blocks,
-	// also by
-	// (eg) wall or fence to control whether the fence joins itself to this
-	// block
+	// used by the renderer to control lighting and visibility of other blocks, also by (eg) wall or fence to control whether the fence joins itself to this block
 	@Override
-	public boolean isFullCube()
+	public boolean isFullCube(IBlockState state)
 	{
 		return true;
 	}
@@ -370,9 +362,9 @@ public class BlockTeleporter extends BlockContainer implements IMetaBlockName
 	// render using a BakedModel
 	// not strictly required because the default (super method) is 3.
 	@Override
-	public int getRenderType()
+	public EnumBlockRenderType getRenderType(IBlockState state)
 	{
-		return 3;
+		return EnumBlockRenderType.MODEL;
 	}
 
 }

@@ -60,20 +60,16 @@ public class CommonProxy implements ISidedProxy
 		// useCustomTexturesP.comment = "If true, allows the use of custom texture names, rather than the default minecraft textures.\nDefault is false";
 
 		// use diamonds in recipe
-		Property useDiamondsP = config.get(Configuration.CATEGORY_GENERAL, "useDiamonds", true);
-		useDiamondsP.comment = "If false, removes diamonds from the crafting recipe and replaces them with quartz blocks.\nDefault is true";
+		Property useDiamondsP = config.get(Configuration.CATEGORY_GENERAL, "useDiamonds", true, "If false, removes diamonds from the crafting recipe and replaces them with quartz blocks.\nDefault is true");
 
 		// number of teleporters from recipe
-		Property numTeleportersP = config.get(Configuration.CATEGORY_GENERAL, "numTeleporters", 1);
-		numTeleportersP.comment = "Specifies the number of teleporters created with a single recipe.\nDefault is 1";
+		Property numTeleportersP = config.get(Configuration.CATEGORY_GENERAL, "numTeleporters", 1, "Specifies the number of teleporters created with a single recipe.\nDefault is 1");
 
 		// teleport passive mobs
-		Property teleportPassiveMobsP = config.get(Configuration.CATEGORY_GENERAL, "teleportPassiveMobs", true);
-		teleportPassiveMobsP.comment = "Specifies whether or not passive mobs can go through teleporters.\nDefault is true";
+		Property teleportPassiveMobsP = config.get(Configuration.CATEGORY_GENERAL, "teleportPassiveMobs", true, "Specifies whether or not passive mobs can go through teleporters.\nDefault is true");
 
 		// teleport hostile mobs
-		Property teleportHostileMobsP = config.get(Configuration.CATEGORY_GENERAL, "teleportHostileMobs", true);
-		teleportHostileMobsP.comment = "Specifies whether or not hostile mobs can go through teleporters.\nDefault is true";
+		Property teleportHostileMobsP = config.get(Configuration.CATEGORY_GENERAL, "teleportHostileMobs", true, "Specifies whether or not hostile mobs can go through teleporters.\nDefault is true");
 
 		// Reference.useCustomTextures = useCustomTexturesP.getBoolean(false);
 		Reference.useDiamonds = useDiamondsP.getBoolean(true);
@@ -102,22 +98,22 @@ public class CommonProxy implements ISidedProxy
 		if (Reference.useDiamonds == true)
 		{
 			GameRegistry.addRecipe(new ItemStack(Teleporter.teleporterBlock, Reference.numTeleporters, 0),
-					new Object[] { "AAA", "DCD", "EBE", 'A', Blocks.glass, 'B', Items.ender_pearl, 'C',
-							Blocks.redstone_block, 'D', Blocks.iron_block, 'E', Items.diamond });
+					new Object[] { "AAA", "DCD", "EBE", 'A', Blocks.GLASS, 'B', Items.ENDER_PEARL, 'C',
+							Blocks.REDSTONE_BLOCK, 'D', Blocks.IRON_BLOCK, 'E', Items.DIAMOND });
 
 			GameRegistry.addRecipe(new ItemStack(Teleporter.teleporterBlock, Reference.numTeleporters, 1),
-					new Object[] { "AAA", "DCD", "EBE", 'A', Blocks.glass, 'B', Items.ender_eye, 'C', Blocks.glowstone,
-							'D', Blocks.obsidian, 'E', Items.diamond });
+					new Object[] { "AAA", "DCD", "EBE", 'A', Blocks.GLASS, 'B', Items.ENDER_EYE, 'C', Blocks.GLOWSTONE,
+							'D', Blocks.OBSIDIAN, 'E', Items.DIAMOND });
 		}
 		else
 		{
 			GameRegistry.addRecipe(new ItemStack(Teleporter.teleporterBlock, Reference.numTeleporters, 0),
-					new Object[] { "AAA", "DCD", "DBD", 'A', Blocks.glass, 'B', Items.ender_pearl, 'C',
-							Blocks.redstone_block, 'D', Blocks.iron_block });
+					new Object[] { "AAA", "DCD", "DBD", 'A', Blocks.GLASS, 'B', Items.ENDER_PEARL, 'C',
+							Blocks.REDSTONE_BLOCK, 'D', Blocks.IRON_BLOCK });
 
 			GameRegistry.addRecipe(new ItemStack(Teleporter.teleporterBlock, Reference.numTeleporters, 1),
-					new Object[] { "AAA", "DCD", "DBD", 'A', Blocks.glass, 'B', Items.ender_eye, 'C', Blocks.glowstone,
-							'D', Blocks.obsidian });
+					new Object[] { "AAA", "DCD", "DBD", 'A', Blocks.GLASS, 'B', Items.ENDER_EYE, 'C', Blocks.GLOWSTONE,
+							'D', Blocks.OBSIDIAN });
 		}
 	}
 

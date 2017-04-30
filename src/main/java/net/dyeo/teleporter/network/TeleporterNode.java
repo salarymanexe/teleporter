@@ -2,12 +2,12 @@ package net.dyeo.teleporter.network;
 
 import net.dyeo.teleporter.entities.TileEntityTeleporter;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 /*
- * TeleporterNode contains the members that must be saved to the world. 
+ * TeleporterNode contains the members that must be saved to the world.
  * It also contains methods to save and write and read the data to NBT.
  */
 public class TeleporterNode
@@ -53,7 +53,7 @@ public class TeleporterNode
 	// get tile entity associated with this node
 	public TileEntityTeleporter getTileEntity()
 	{
-		TileEntity result = MinecraftServer.getServer().worldServerForDimension(this.dimension).getTileEntity(this.pos);
+		TileEntity result = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(this.dimension).getTileEntity(this.pos);
 		if (result instanceof TileEntityTeleporter) return (TileEntityTeleporter) result;
 		else return null;
 	}

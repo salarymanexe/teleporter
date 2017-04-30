@@ -1,5 +1,6 @@
 package net.dyeo.teleporter.gui;
 
+import java.awt.Color;
 import net.dyeo.teleporter.Reference;
 import net.dyeo.teleporter.container.ContainerTeleporter;
 import net.dyeo.teleporter.entities.TileEntityTeleporter;
@@ -10,8 +11,6 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.awt.*;
 
 /*
  * GuiInventoryBasic is a simple gui that does nothing but draw a background image and a line of text on the screen.

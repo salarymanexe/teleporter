@@ -1,16 +1,15 @@
 package net.dyeo.teleporter.utilities;
 
 import com.google.common.base.Throwables;
-
 import net.dyeo.teleporter.capabilities.CapabilityTeleporterEntity;
 import net.dyeo.teleporter.capabilities.ITeleporterEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.server.S07PacketRespawn;
+import net.minecraft.network.play.server.SPacketRespawn;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.server.management.PlayerList;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -72,7 +71,7 @@ public class TeleporterUtility
 	{
 
 		// get the server configuration manager for the player
-		ServerConfigurationManager serverConfigurationManager = srcPlayer.mcServer.getConfigurationManager();
+		PlayerList serverConfigurationManager = srcPlayer.mcServer.getPlayerList();
 
 		// get the world server for the player's current dimension
 		WorldServer srcWorldServer = srcPlayer.mcServer.worldServerForDimension(srcPlayer.dimension);
@@ -91,12 +90,12 @@ public class TeleporterUtility
 		srcPlayer.dimension = dstDimension;
 
 		// send a player respawn packet to the destination dimension so the player respawns there
-		srcPlayer.playerNetServerHandler.sendPacket(
-				new S07PacketRespawn(
+		srcPlayer.connection.sendPacket(
+				new SPacketRespawn(
 						srcPlayer.dimension,
-						srcPlayer.worldObj.getDifficulty(), 
+						srcPlayer.worldObj.getDifficulty(),
 						srcPlayer.worldObj.getWorldInfo().getTerrainType(),
-						srcPlayer.theItemInWorldManager.getGameType()
+						srcPlayer.interactionManager.getGameType()
 						)
 				);
 
@@ -105,11 +104,12 @@ public class TeleporterUtility
 		// make sure the player isn't dead (removeEntity sets player as dead)
 		srcPlayer.isDead = false;
 
-		srcPlayer.mountEntity((Entity) null);
-		if (srcPlayer.riddenByEntity != null)
-		{
-			srcPlayer.riddenByEntity.mountEntity((Entity) null);
-		}
+		// TODO
+//		srcPlayer.mountEntity((Entity) null);
+//		if (srcPlayer.riddenByEntity != null)
+//		{
+//			srcPlayer.riddenByEntity.mountEntity((Entity) null);
+//		}
 
 		// spawn the player in the new world
 		dstWorldServer.spawnEntityInWorld(srcPlayer);
@@ -123,14 +123,14 @@ public class TeleporterUtility
 		serverConfigurationManager.preparePlayer(srcPlayer, srcWorldServer);
 
 		// set player's location (net server handler)
-		srcPlayer.playerNetServerHandler.setPlayerLocation(x, y, z, yaw, pitch);
+		srcPlayer.connection.setPlayerLocation(x, y, z, yaw, pitch);
 
 		// set item in world manager's world to the same as the player
-		srcPlayer.theItemInWorldManager.setWorld(dstWorldServer);
+		srcPlayer.interactionManager.setWorld(dstWorldServer);
 
 		// update time and weather for the player so that it's the same as the world
-		srcPlayer.mcServer.getConfigurationManager().updateTimeAndWeatherForPlayer(srcPlayer, dstWorldServer);
-		srcPlayer.mcServer.getConfigurationManager().syncPlayerInventory(srcPlayer);
+		srcPlayer.mcServer.getPlayerList().updateTimeAndWeatherForPlayer(srcPlayer, dstWorldServer);
+		srcPlayer.mcServer.getPlayerList().syncPlayerInventory(srcPlayer);
 
 		// add no experience (syncs experience)
 		srcPlayer.addExperience(0);
@@ -139,9 +139,9 @@ public class TeleporterUtility
 
 		// fire the dimension changed event so that minecraft swithces dimensions properly
 		FMLCommonHandler.instance().firePlayerChangedDimensionEvent(
-				srcPlayer, 
-				srcWorldServer.provider.getDimensionId(),
-				dstWorldServer.provider.getDimensionId()
+				srcPlayer,
+				srcWorldServer.provider.getDimension(),
+				dstWorldServer.provider.getDimension()
 				);
 
 		TeleporterUtility.transferToLocation(srcPlayer, x, y, z, srcPlayer.rotationYaw, srcPlayer.rotationPitch);
@@ -150,13 +150,13 @@ public class TeleporterUtility
 	}
 
 	// transfer entity to dimension. do not transfer player using this method! use _transferPlayerToDimension
-	static boolean _transferEntityToDimension(Entity srcEntity, int dstDimension, 
+	static boolean _transferEntityToDimension(Entity srcEntity, int dstDimension,
 			double x, double y, double z,
 			float yaw, float pitch)
 	{
-		int srcDimension = srcEntity.worldObj.provider.getDimensionId();
+		int srcDimension = srcEntity.worldObj.provider.getDimension();
 
-		MinecraftServer minecraftServer = MinecraftServer.getServer();
+		MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
 
 		WorldServer srcWorldServer = minecraftServer.worldServerForDimension(srcDimension);
 		WorldServer dstWorldServer = minecraftServer.worldServerForDimension(dstDimension);

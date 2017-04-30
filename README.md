@@ -1,3 +1,3 @@
 # Vanilla-Inspired Teleporters
 
-### A mod for Minecraft 1.8.9
+### A mod for Minecraft 1.9.4

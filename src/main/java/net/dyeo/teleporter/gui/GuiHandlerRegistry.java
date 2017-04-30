@@ -1,10 +1,9 @@
 package net.dyeo.teleporter.gui;
 
+import java.util.HashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
-
-import java.util.HashMap;
 
 /*
  * This class is used to create the client and server gui elements when a player opens a gui. There can only be one gui handler registered per mod,

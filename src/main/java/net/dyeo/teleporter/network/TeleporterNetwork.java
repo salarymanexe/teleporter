@@ -1,7 +1,6 @@
 package net.dyeo.teleporter.network;
 
 import java.util.ArrayList;
-
 import net.dyeo.teleporter.Reference;
 import net.dyeo.teleporter.entities.TileEntityTeleporter;
 import net.minecraft.block.Block;
@@ -11,15 +10,15 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 /*
- * TeleporterNetwork is the singleton responsible for saving the teleporter data onto the world file, and is 
+ * TeleporterNetwork is the singleton responsible for saving the teleporter data onto the world file, and is
  * responsible for retrieving destination and source nodes during teleportation.
  */
 public class TeleporterNetwork extends WorldSavedData
@@ -44,13 +43,10 @@ public class TeleporterNetwork extends WorldSavedData
 	}
 
 	// gets a human readable message to be used in the teleporter network
-	public ChatComponentTranslation GetMessage(String messageName)
+	public TextComponentTranslation GetMessage(String messageName)
 	{
-		return new ChatComponentTranslation(
-				"message." + Reference.MODID.toLowerCase() + '_' + this.getClass().getSimpleName() + '.' + messageName);
+		return new TextComponentTranslation("message." + Reference.MODID.toLowerCase() + '_' + this.getClass().getSimpleName() + '.' + messageName);
 	}
-
-	//
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
@@ -76,7 +72,7 @@ public class TeleporterNetwork extends WorldSavedData
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound nbt)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
 		NBTTagList netNBT = new NBTTagList();
 
@@ -91,6 +87,7 @@ public class TeleporterNetwork extends WorldSavedData
 		}
 
 		nbt.setTag("Network", netNBT);
+		return nbt;
 	}
 
 	private boolean isObstructed(World world, TeleporterNode node)
@@ -128,9 +125,9 @@ public class TeleporterNetwork extends WorldSavedData
 
 		// get the top-most entity (rider) for sending messages
 		Entity potentialPlayerEntity = entityIn;
-		while (potentialPlayerEntity.riddenByEntity != null)
+		while (!potentialPlayerEntity.getPassengers().isEmpty())
 		{
-			potentialPlayerEntity = potentialPlayerEntity.riddenByEntity;
+			potentialPlayerEntity = potentialPlayerEntity.getControllingPassenger();
 		}
 
 		int index = network.indexOf(source);
@@ -139,7 +136,7 @@ public class TeleporterNetwork extends WorldSavedData
 
 			TeleporterNode node = network.get(i % network.size());
 
-			WorldServer destinationWorld = MinecraftServer.getServer().worldServerForDimension(node.dimension);
+			WorldServer destinationWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(node.dimension);
 
 			if (destinationWorld != null)
 			{
@@ -190,7 +187,7 @@ public class TeleporterNetwork extends WorldSavedData
 					}
 
 					// both items are written books
-					if (stack.getItem() == Items.written_book && tEntDest.itemStacks[0].getItem() == Items.written_book)
+					if (stack.getItem() == Items.WRITTEN_BOOK && tEntDest.itemStacks[0].getItem() == Items.WRITTEN_BOOK)
 					{
 
 						// get author and title for A as "author:title"
@@ -205,8 +202,8 @@ public class TeleporterNetwork extends WorldSavedData
 							continue;
 						}
 					}
-					else if (stack.getItem() == Items.filled_map
-							&& tEntDest.itemStacks[0].getItem() == Items.filled_map)
+					else if (stack.getItem() == Items.FILLED_MAP
+							&& tEntDest.itemStacks[0].getItem() == Items.FILLED_MAP)
 					{
 						// compare map value (stored in item damage)
 						if (stack.getItemDamage() != tEntDest.itemStacks[0].getItemDamage())
@@ -333,8 +330,7 @@ public class TeleporterNetwork extends WorldSavedData
 	// get the network instance
 	public static TeleporterNetwork get(World world, boolean debug)
 	{
-		TeleporterNetwork data = (TeleporterNetwork) world.getMapStorage().loadData(TeleporterNetwork.class,
-				IDENTIFIER);
+		TeleporterNetwork data = (TeleporterNetwork) world.getMapStorage().getOrLoadData(TeleporterNetwork.class, IDENTIFIER);
 
 		if (data == null)
 		{
