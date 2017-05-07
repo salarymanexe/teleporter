@@ -1,65 +1,103 @@
 package net.dyeo.teleporter.utilities;
 
 import com.google.common.base.Throwables;
-import net.dyeo.teleporter.capabilities.CapabilityHandler;
-import net.dyeo.teleporter.capabilities.ITeleporterEntity;
+import net.dyeo.teleporter.block.BlockTeleporter;
+import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
+import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
+import net.dyeo.teleporter.capabilities.ITeleportHandler;
+import net.dyeo.teleporter.event.TeleportEvent;
+import net.dyeo.teleporter.init.ModSounds;
+import net.dyeo.teleporter.network.TeleporterNetwork;
+import net.dyeo.teleporter.network.TeleporterNode;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketRespawn;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 
 public class TeleporterUtility
 {
 
-	/**
-	 * transfers the entity to the selected location in the selected dimension
-	 */
-	public static boolean transferToDimensionLocation(Entity srcEntity, int dstDimension, double x, double y, double z, float yaw, float pitch)
+	public static TeleporterNode teleport(EntityLivingBase entityIn, BlockPos pos)
 	{
-		if (srcEntity != null)
+		boolean teleportSuccess = false;
+
+		TeleporterNetwork netWrapper = TeleporterNetwork.instance(entityIn.worldObj);
+		TeleporterNode sourceNode = netWrapper.getNode(pos, entityIn.worldObj.provider.getDimension());
+		TeleporterNode destinationNode = netWrapper.getNextNode(entityIn, sourceNode);
+
+		ITeleportHandler handler = entityIn.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
+
+		if (destinationNode != null)
 		{
-			// if the dimensions are the same, we can fall back to the transfer to location teleport
-			if (srcEntity.dimension == dstDimension)
+			double x = destinationNode.pos.getX() + (BlockTeleporter.TELEPORTER_AABB.maxX * 0.5D); // double x = destination.pos.getX() + (bounds.xCoord * 0.5f);
+			double y = destinationNode.pos.getY() + (BlockTeleporter.TELEPORTER_AABB.maxY); // double y = destination.pos.getY() + (float)bounds.yCoord;
+			double z = destinationNode.pos.getZ() + (BlockTeleporter.TELEPORTER_AABB.maxZ * 0.5D); // double z = destination.pos.getZ() + (bounds.zCoord * 0.5f);
+			float yaw = entityIn.rotationYaw;
+			float pitch = entityIn.rotationPitch;
+
+			System.out.println("teleport :: Setting teleportStatus to " + EnumTeleportStatus.IN_PROGRESS);
+			handler.setTeleportStatus(EnumTeleportStatus.IN_PROGRESS);
+
+
+			if (sourceNode.type == BlockTeleporter.EnumType.REGULAR || entityIn.dimension == destinationNode.dimension)
 			{
-				return TeleporterUtility.transferToLocation(srcEntity, x, y, z, yaw, pitch);
+				teleportSuccess = transferToLocation(entityIn, x, y, z, yaw, pitch);
 			}
 			else
 			{
-				if (srcEntity instanceof EntityPlayerMP)
+				// don't allow cross-dimensional teleportation if the entity is a mount and the destination is another dimension
+				if (!(sourceNode.dimension != destinationNode.dimension && !entityIn.getPassengers().isEmpty()))
 				{
-					System.out.println("EntityPlayerMP");
-					return transferPlayerToDimension((EntityPlayerMP) srcEntity, dstDimension, x, y, z, yaw, pitch);
-				}
-				else if (srcEntity instanceof EntityLivingBase)
-				{
-					System.out.println("EntityLivingBase");
-					return transferEntityToDimension(srcEntity, dstDimension, x, y, z, yaw, pitch);
+					if (entityIn instanceof EntityPlayerMP)
+					{
+						teleportSuccess = transferPlayerToDimension((EntityPlayerMP)entityIn, destinationNode.dimension, x, y, z, yaw, pitch);
+					}
+					else if (entityIn instanceof EntityLivingBase)
+					{
+						teleportSuccess = transferEntityToDimension(entityIn, destinationNode.dimension, x, y, z, yaw, pitch);
+					}
 				}
 			}
 		}
-		System.out.println("Non Entity");
-		return false;
+
+		if (teleportSuccess)
+		{
+			entityIn.worldObj.playSound(null, sourceNode.pos.getX(), sourceNode.pos.getY(), sourceNode.pos.getZ(), ModSounds.PORTAL_ENTER, SoundCategory.BLOCKS, 0.9f, 1.0f);
+			entityIn.worldObj.playSound(null, destinationNode.pos.getX(), destinationNode.pos.getY(), destinationNode.pos.getZ(), ModSounds.PORTAL_EXIT, SoundCategory.BLOCKS, 0.9f, 1.0f);
+		}
+		else
+		{
+			entityIn.worldObj.playSound(null, sourceNode.pos.getX(), sourceNode.pos.getY(), sourceNode.pos.getZ(), ModSounds.PORTAL_ERROR, SoundCategory.BLOCKS, 0.9f, 1.0f);
+
+			System.out.println("teleport :: Setting teleportStatus to " + EnumTeleportStatus.FAILED);
+			handler.setTeleportStatus(EnumTeleportStatus.FAILED);
+		}
+
+		MinecraftForge.EVENT_BUS.post(new TeleportEvent.EntityTeleportedEvent(entityIn));
+		return destinationNode;
 	}
 
 
 	/**
 	 * transfers entity to a location in the same dimension
 	 */
-	public static boolean transferToLocation(Entity srcEntity, double x, double y, double z, float yaw, float pitch)
+	private static boolean transferToLocation(EntityLivingBase srcEntity, double x, double y, double z, float yaw, float pitch)
 	{
 		try
 		{
+
 			srcEntity.setPositionAndUpdate(x, y, z);
 			srcEntity.rotationYaw = yaw;
 			srcEntity.rotationPitch = pitch;
+
 		}
 		catch (Exception e)
 		{
@@ -75,22 +113,14 @@ public class TeleporterUtility
 	 */
 	private static boolean transferPlayerToDimension(EntityPlayerMP srcPlayer, int dstDimension, double x, double y, double z, float yaw, float pitch)
 	{
-
-		// get the server configuration manager for the player
-		PlayerList serverConfigurationManager = srcPlayer.mcServer.getPlayerList();
-
-		// get the world server for the player's current dimension
 		WorldServer srcWorldServer = srcPlayer.mcServer.worldServerForDimension(srcPlayer.dimension);
-		// get the world server for the destination dimension
 		WorldServer dstWorldServer = srcPlayer.mcServer.worldServerForDimension(dstDimension);
 
 		// fire player change dimension event and check that action is valid before continuing
-		PlayerChangedDimensionEvent playerChangedDimensionEvent = new PlayerChangedDimensionEvent(srcPlayer,
-				srcPlayer.dimension, dstDimension);
-		if (MinecraftForge.EVENT_BUS.post(playerChangedDimensionEvent) == true)
-		{
-			return false;
-		}
+		if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(srcPlayer, dstDimension)) return false;
+
+//		PlayerChangedDimensionEvent playerChangedDimensionEvent = new PlayerChangedDimensionEvent(srcPlayer, srcPlayer.dimension, dstDimension);
+//		if (MinecraftForge.EVENT_BUS.post(playerChangedDimensionEvent)) return false;
 
 		// (hard) set the player's dimension to the destination dimension
 		srcPlayer.dimension = dstDimension;
@@ -105,6 +135,7 @@ public class TeleporterUtility
 			)
 		);
 
+
 		srcWorldServer.removeEntity(srcPlayer); // remove the original player entity
 		srcPlayer.isDead = false; // make sure the player isn't dead (removeEntity sets player as dead)
 
@@ -115,29 +146,19 @@ public class TeleporterUtility
 //			srcPlayer.riddenByEntity.mountEntity((Entity) null);
 //		}
 
-		// spawn the player in the new world
-		dstWorldServer.spawnEntityInWorld(srcPlayer);
-		// update the entity (do not force)
-		dstWorldServer.updateEntityWithOptionalForce(srcPlayer, false);
-		// set the player's world to the new world
-		srcPlayer.setWorld(dstWorldServer);
+		PlayerList serverConfigurationManager = srcPlayer.mcServer.getPlayerList();
 
+		dstWorldServer.spawnEntityInWorld(srcPlayer); // spawn the player in the new world
+		dstWorldServer.updateEntityWithOptionalForce(srcPlayer, false); // update the entity (do not force)
+		srcPlayer.setWorld(dstWorldServer); // set the player's world to the new world
 		serverConfigurationManager.preparePlayer(srcPlayer, srcWorldServer);
+		srcPlayer.connection.setPlayerLocation(x, y, z, yaw, pitch); // set player's location (net server handler)
+		srcPlayer.interactionManager.setWorld(dstWorldServer); // set item in world manager's world to the same as the player
+		serverConfigurationManager.updateTimeAndWeatherForPlayer(srcPlayer, dstWorldServer); // update time and weather for the player so that it's the same as the world
+		serverConfigurationManager.syncPlayerInventory(srcPlayer); // sync the player's inventory
+		srcPlayer.addExperience(0); // add no experience (syncs experience)
+		srcPlayer.setPlayerHealthUpdated(); // update player's health
 
-		// set player's location (net server handler)
-		srcPlayer.connection.setPlayerLocation(x, y, z, yaw, pitch);
-
-		// set item in world manager's world to the same as the player
-		srcPlayer.interactionManager.setWorld(dstWorldServer);
-
-		// update time and weather for the player so that it's the same as the world
-		srcPlayer.mcServer.getPlayerList().updateTimeAndWeatherForPlayer(srcPlayer, dstWorldServer);
-		srcPlayer.mcServer.getPlayerList().syncPlayerInventory(srcPlayer);
-
-		// add no experience (syncs experience)
-		srcPlayer.addExperience(0);
-		// update player's health
-		srcPlayer.setPlayerHealthUpdated();
 
 		// fire the dimension changed event so that minecraft swithces dimensions properly
 		FMLCommonHandler.instance().firePlayerChangedDimensionEvent(
@@ -146,17 +167,18 @@ public class TeleporterUtility
 			dstWorldServer.provider.getDimension()
 		);
 
-		TeleporterUtility.transferToLocation(srcPlayer, x, y, z, srcPlayer.rotationYaw, srcPlayer.rotationPitch);
-
 		return true;
 	}
 
 
 	/**
-	 * transfer entity to dimension. do not transfer player using this method! use _transferPlayerToDimension
+	 * transfer entity to dimension. do not transfer player using this method! use transferPlayerToDimension
 	 */
-	private static boolean transferEntityToDimension(Entity srcEntity, int dstDimension, double x, double y, double z, float yaw, float pitch)
+	private static boolean transferEntityToDimension(EntityLivingBase srcEntity, int dstDimension, double x, double y, double z, float yaw, float pitch)
 	{
+
+		ITeleportHandler handler = srcEntity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
+
 		int srcDimension = srcEntity.worldObj.provider.getDimension();
 
 		MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
@@ -166,27 +188,19 @@ public class TeleporterUtility
 
 		if (dstWorldServer != null)
 		{
-			NBTTagCompound tagCompound = new NBTTagCompound();
-
-			srcEntity.writeToNBT(tagCompound);
-
 			Class<? extends Entity> entityClass = srcEntity.getClass();
 
 			srcWorldServer.removeEntity(srcEntity);
 
 			try
 			{
-				Entity dstEntity = entityClass.getConstructor(World.class).newInstance((World) dstWorldServer);
+				EntityLivingBase dstEntity = (EntityLivingBase)(entityClass.getConstructor(World.class).newInstance((World) dstWorldServer));
 
-				TeleporterUtility.transferToLocation(dstEntity, x, y, z, yaw, pitch);
+				dstEntity.setPositionAndRotation(x, y, z, yaw, pitch);
 
 				dstEntity.forceSpawn = true;
 				dstWorldServer.spawnEntityInWorld(dstEntity);
 				dstEntity.forceSpawn = false;
-
-				ITeleporterEntity ite = dstEntity.getCapability(CapabilityHandler.TELEPORT_CAPABILITY, null);
-				ite.setOnTeleporter(true);
-				ite.setTeleported(true);
 
 				dstWorldServer.updateEntityWithOptionalForce(dstEntity, false);
 			}

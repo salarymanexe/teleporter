@@ -1,7 +1,7 @@
 package net.dyeo.teleporter.proxy;
 
 import net.dyeo.teleporter.TeleporterMod;
-import net.dyeo.teleporter.capabilities.CapabilityHandler;
+import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
 import net.dyeo.teleporter.common.network.GuiHandler;
 import net.dyeo.teleporter.init.ModBlocks;
 import net.dyeo.teleporter.init.ModSounds;
@@ -40,7 +40,7 @@ public class CommonProxy
 
 	private void registerCapabilities()
 	{
-		CapabilityHandler.registerCapabilities();
+		CapabilityTeleportHandler.registerCapabilities();
 	}
 
 	private void registerCraftingRecipes()
