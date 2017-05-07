@@ -1,6 +1,8 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.gui;
 
 import cpw.mods.fml.common.network.IGuiHandler;
+import net.dyeo.teleporter.container.ContainerTeleporter;
+import net.dyeo.teleporter.entities.TileEntityTeleporter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -14,6 +16,7 @@ public class GuiHandlerTeleporter implements IGuiHandler
 		return 30;
 	}
 
+	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
 	{
 		if (ID != getGuiID())
@@ -29,6 +32,7 @@ public class GuiHandlerTeleporter implements IGuiHandler
 		return null;
 	}
 
+	@Override
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
 	{
 		if (ID != getGuiID())

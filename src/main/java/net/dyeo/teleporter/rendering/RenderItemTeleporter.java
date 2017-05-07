@@ -1,4 +1,4 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.rendering;
 
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
@@ -23,16 +23,19 @@ public class RenderItemTeleporter implements IItemRenderer
 		this.mc = Minecraft.getMinecraft();
 	}
 
+	@Override
 	public boolean handleRenderType(ItemStack item, IItemRenderer.ItemRenderType type)
 	{
 		return true;
 	}
 
+	@Override
 	public boolean shouldUseRenderHelper(IItemRenderer.ItemRenderType type, ItemStack item, IItemRenderer.ItemRendererHelper helper)
 	{
 		return true;
 	}
 
+	@Override
 	public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data)
 	{
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);

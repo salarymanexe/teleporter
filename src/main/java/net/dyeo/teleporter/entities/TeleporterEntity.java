@@ -1,5 +1,8 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.entities;
 
+import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.network.TeleporterNetwork;
+import net.dyeo.teleporter.network.TeleporterNode;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
@@ -10,9 +13,29 @@ public class TeleporterEntity implements IExtendedEntityProperties
 {
 	public static final String EXT_PROP_NAME = "TeleporterEntity";
 	private final Entity entity;
-	boolean teleported;
-	boolean onTeleporter;
+	private boolean teleported;
+	private boolean onTeleporter;
 	int dimension;
+
+	public boolean getTeleported()
+	{
+		return this.teleported;
+	}
+
+	public void setTeleported(boolean teleported)
+	{
+		this.teleported = teleported;
+	}
+
+	public boolean getOnTeleporter()
+	{
+		return this.onTeleporter;
+	}
+
+	public void setOnTeleporter(boolean onTeleporter)
+	{
+		this.onTeleporter = onTeleporter;
+	}
 
 	public TeleporterEntity(Entity entity)
 	{
@@ -32,18 +55,27 @@ public class TeleporterEntity implements IExtendedEntityProperties
 	public void copy(TeleporterEntity old)
 	{
 		this.dimension = old.dimension;
-		this.teleported = old.teleported;
-		this.onTeleporter = old.onTeleporter;
+		this.setTeleported(old.getTeleported());
+		this.setOnTeleporter(old.getOnTeleporter());
 	}
 
+	@Override
 	public void saveNBTData(NBTTagCompound compound)
 	{
+		compound.setInteger("dimension", this.dimension);
+		compound.setBoolean("teleported", this.getTeleported());
+		compound.setBoolean("onTeleporter", this.getOnTeleporter());
 	}
 
+	@Override
 	public void loadNBTData(NBTTagCompound compound)
 	{
+		this.dimension = compound.getInteger("dimension");
+		this.setTeleported(compound.getBoolean("teleported"));
+		this.setOnTeleporter(compound.getBoolean("onTeleporter"));
 	}
 
+	@Override
 	public void init(Entity entity, World world)
 	{
 	}
@@ -61,12 +93,12 @@ public class TeleporterEntity implements IExtendedEntityProperties
 			TeleporterNode node = netWrapper.getNode(posx, posy, posz, this.entity.worldObj.provider.dimensionId, false);
 			if (node != null)
 			{
-				this.onTeleporter = true;
+				this.setOnTeleporter(true);
 			}
 			else
 			{
-				this.onTeleporter = false;
-				this.teleported = false;
+				this.setOnTeleporter(false);
+				this.setTeleported(false);
 			}
 		}
 	}

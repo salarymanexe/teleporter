@@ -4,11 +4,11 @@
 	"description": "Teleport with ease!",
 	"mcversion": "${mcversion}",
 	"version": "${version}",
-	"url": "",
+	"url": "https://github.com/crazysnailboy/VanillaTeleporter",
 	"updateUrl": "",
-	"authorList": ["DanYeomans"],
-	"credits": "Minecraft forum, for pressuring me into making this ;)",
-	"logoFile": "",
+	"authorList": ["DanYeomans","bronsonf1","crazysnailboy"],
+	"credits": "Originally programmed by DanYeomans, designed by bronsonf1",
+	"logoFile": "/vanillateleporter.png",
 	"screenshots": [],
 	"dependencies": []
 }]

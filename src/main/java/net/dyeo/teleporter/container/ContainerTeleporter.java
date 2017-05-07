@@ -1,5 +1,6 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.container;
 
+import net.dyeo.teleporter.entities.TileEntityTeleporter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -29,7 +30,7 @@ public class ContainerTeleporter extends Container
 		for (int x = 0; x < 9; x++)
 		{
 			int slotNumber = x;
-			addSlotToContainer(new Slot(invPlayer, slotNumber, 8 + 18 * x, 142));
+			this.addSlotToContainer(new Slot(invPlayer, slotNumber, 8 + 18 * x, 142));
 		}
 		int PLAYER_INVENTORY_XPOS = 8;
 		int PLAYER_INVENTORY_YPOS = 84;
@@ -40,7 +41,7 @@ public class ContainerTeleporter extends Container
 				int slotNumber = 9 + y * 9 + x;
 				int xpos = 8 + x * 18;
 				int ypos = 84 + y * 18;
-				addSlotToContainer(new Slot(invPlayer, slotNumber, xpos, ypos));
+				this.addSlotToContainer(new Slot(invPlayer, slotNumber, xpos, ypos));
 			}
 		}
 		if (1 != tileEntityTeleporter.getSizeInventory())
@@ -52,15 +53,17 @@ public class ContainerTeleporter extends Container
 		for (int x = 0; x < 1; x++)
 		{
 			int slotNumber = x;
-			addSlotToContainer(new Slot(tileEntityTeleporter, slotNumber, 79 + 18 * x, 35));
+			this.addSlotToContainer(new Slot(tileEntityTeleporter, slotNumber, 79 + 18 * x, 35));
 		}
 	}
 
+	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
 		return this.tileEntityTeleporter.isUseableByPlayer(player);
 	}
 
+	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int sourceSlotIndex)
 	{
 		Slot sourceSlot = (Slot)this.inventorySlots.get(sourceSlotIndex);
@@ -72,14 +75,14 @@ public class ContainerTeleporter extends Container
 		ItemStack copyOfSourceStack = sourceStack.copy();
 		if ((sourceSlotIndex >= 0) && (sourceSlotIndex < 36))
 		{
-			if (!mergeItemStack(sourceStack, 36, 37, false))
+			if (!this.mergeItemStack(sourceStack, 36, 37, false))
 			{
 				return null;
 			}
 		}
 		else if ((sourceSlotIndex >= 36) && (sourceSlotIndex < 37))
 		{
-			if (!mergeItemStack(sourceStack, 0, 36, false))
+			if (!this.mergeItemStack(sourceStack, 0, 36, false))
 			{
 				return null;
 			}
@@ -101,9 +104,10 @@ public class ContainerTeleporter extends Container
 		return copyOfSourceStack;
 	}
 
+	@Override
 	public void onContainerClosed(EntityPlayer playerIn)
 	{
 		super.onContainerClosed(playerIn);
-		this.tileEntityTeleporter.closeChest();
+		this.tileEntityTeleporter.closeInventory();
 	}
 }

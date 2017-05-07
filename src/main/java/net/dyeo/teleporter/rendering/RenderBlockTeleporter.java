@@ -1,4 +1,4 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.rendering;
 
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -13,17 +13,17 @@ public class RenderBlockTeleporter extends TileEntitySpecialRenderer
 	ResourceLocation objModelLocation;
 	public IModelCustom model;
 
-	public RenderBlockTeleporter()
+	public RenderBlockTeleporter(String texloc, String modloc)
 	{
-		this.texture = new ResourceLocation("teleporter", "textures/models/teleporterBlock.png");
-		this.objModelLocation = new ResourceLocation("teleporter", "models/teleporterBlock.obj");
+		this.texture = new ResourceLocation("teleporter".toLowerCase(), texloc);
+		this.objModelLocation = new ResourceLocation("teleporter".toLowerCase(), modloc);
 		this.model = AdvancedModelLoader.loadModel(this.objModelLocation);
 	}
 
+	@Override
 	public void renderTileEntityAt(TileEntity te, double posX, double posY, double posZ, float timeSinceLastTick)
 	{
-		TileEntityTeleporter te2 = (TileEntityTeleporter)te;
-		bindTexture(this.texture);
+		this.bindTexture(this.texture);
 
 		GL11.glPushMatrix();
 		GL11.glTranslated(posX + 0.5D, posY + 0.5D, posZ + 0.5D);

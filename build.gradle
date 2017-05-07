@@ -17,14 +17,16 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "1.7.10-1.0.3"
+version = "1.5.1-beta1"
 group = "net.dyeo.teleporter"
-archivesBaseName = "VanillaTeleporter"
+archivesBaseName = "VanillaTeleporter-1.7.10"
 
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"
     runDir = "run"
-    mappings = "stable_12"
+    
+    replace "\${version}", project.version
+    replaceIn "TeleporterMod.java"
 }
 
 dependencies {

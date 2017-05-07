@@ -1,4 +1,4 @@
-package net.dyeo.teleporter;
+package net.dyeo.teleporter.gui;
 
 import java.util.HashMap;
 import cpw.mods.fml.common.network.IGuiHandler;
@@ -20,6 +20,7 @@ public class GuiHandlerRegistry implements IGuiHandler
 	private HashMap<Integer, IGuiHandler> registeredHandlers = new HashMap();
 	private static GuiHandlerRegistry guiHandlerRegistry = new GuiHandlerRegistry();
 
+	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
 	{
 		IGuiHandler handler = (IGuiHandler)this.registeredHandlers.get(Integer.valueOf(ID));
@@ -30,6 +31,7 @@ public class GuiHandlerRegistry implements IGuiHandler
 		return null;
 	}
 
+	@Override
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
 	{
 		IGuiHandler handler = (IGuiHandler)this.registeredHandlers.get(Integer.valueOf(ID));
