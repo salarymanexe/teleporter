@@ -17,6 +17,8 @@ public final class ModConfiguration
 	public static boolean teleportPassiveMobs = true;
 	public static boolean teleportHostileMobs = true;
 
+	public static int transDimensionalCooldown = 300;
+
 
 	public static void preInit()
 	{
