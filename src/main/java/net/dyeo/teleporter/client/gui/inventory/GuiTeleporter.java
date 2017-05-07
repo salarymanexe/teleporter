@@ -24,7 +24,7 @@ public class GuiTeleporter extends GuiContainer
 	public GuiTeleporter(InventoryPlayer playerInventory, TileEntityTeleporter tileEntity)
 	{
 		super(new ContainerTeleporter(playerInventory, tileEntity));
-        this.playerInventory = playerInventory;
+		this.playerInventory = playerInventory;
 		this.tileEntity = tileEntity;
 		this.xSize = 176;
 		this.ySize = 166;
@@ -33,7 +33,7 @@ public class GuiTeleporter extends GuiContainer
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
 	{
-        this.fontRendererObj.drawString(this.tileEntity.getDisplayName().getUnformattedText(), 8, 6, 0x404040);
+		this.fontRendererObj.drawString(this.tileEntity.getDisplayName().getUnformattedText(), 8, 6, 0x404040);
 		this.fontRendererObj.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 0x404040);
 	}
 
