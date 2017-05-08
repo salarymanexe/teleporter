@@ -1,36 +1,38 @@
 package net.dyeo.teleporter.proxy;
 
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.client.registry.ClientRegistry;
+import net.dyeo.teleporter.client.renderer.ItemRendererTeleporter;
+import net.dyeo.teleporter.client.renderer.tileentity.RenderTeleporter;
+import net.dyeo.teleporter.init.ModBlocks;
+import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
+import net.minecraft.item.Item;
+import net.minecraftforge.client.MinecraftForgeClient;
 
-public class ClientProxy extends CommonProxy implements ISidedProxy
+public class ClientProxy extends CommonProxy
 {
 	@Override
-	public void preInit(FMLPreInitializationEvent event)
+	public void preInit()
 	{
-		super.preInit(event);
+		super.preInit();
 	}
 
 	@Override
-	public void init(FMLInitializationEvent event)
+	public void init()
 	{
-		super.init(event);
-
+		super.init();
 		this.registerRenderers();
 	}
 
 	@Override
-	public void load(FMLInitializationEvent event)
+	public void postInit()
 	{
-		super.load(event);
+		super.postInit();
 	}
 
-	void registerRenderers()
-	{
-//		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTeleporter.class, new RenderBlockTeleporter("textures/blocks/teleporterBlock.png", "textures/blocks/teleporterBlock.obj"));
-//		MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Teleporter.teleporterBlock), new RenderItemTeleporter());
 
-//		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTeleporter.class, new RenderBlockTeleporter("textures/blocks/teleporterBlock.png", "models/block/teleporterBlock.obj"));
-//		MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Teleporter.teleporterBlock), new RenderItemTeleporter());
+	private void registerRenderers()
+	{
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTeleporter.class, new RenderTeleporter());
+		MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlocks.teleporterBlock), new ItemRendererTeleporter());
 	}
 }

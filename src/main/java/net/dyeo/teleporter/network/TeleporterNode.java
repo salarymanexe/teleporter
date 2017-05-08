@@ -1,61 +1,72 @@
 package net.dyeo.teleporter.network;
 
-import net.dyeo.teleporter.entities.TileEntityTeleporter;
+import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 
 public class TeleporterNode
 {
-	public int posx;
-	public int posy;
-	public int posz;
+	public int x;
+	public int y;
+	public int z;
 	public int dimension;
-	public Type type;
+	public BlockTeleporter.EnumType type;
 
-	public static enum Type
-	{
-		teleporterBlock, enderTeleporterBlock;
-
-		private Type()
-		{
-		}
-	}
 
 	public TeleporterNode()
 	{
-		this.posx = 0;
-		this.posy = 0;
-		this.posz = 0;
+		this.x = 0;
+		this.y = 0;
+		this.z = 0;
 		this.dimension = 0;
-		this.type = Type.teleporterBlock;
+		type = BlockTeleporter.EnumType.REGULAR;
 	}
 
-	public void writeToNBT(NBTTagCompound nbt)
+	public TeleporterNode(NBTTagCompound compound)
 	{
-		nbt.setInteger("x", this.posx);
-		nbt.setInteger("y", this.posy);
-		nbt.setInteger("z", this.posz);
+		this.readFromNBT(compound);
+	}
+
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	{
+		nbt.setInteger("x", this.x);
+		nbt.setInteger("y", this.y);
+		nbt.setInteger("z", this.z);
 		nbt.setInteger("dim", this.dimension);
 		nbt.setInteger("type", this.type.ordinal());
+		return nbt;
 	}
 
 	public void readFromNBT(NBTTagCompound nbt)
 	{
-		this.posx = nbt.getInteger("x");
-		this.posy = nbt.getInteger("y");
-		this.posz = nbt.getInteger("z");
+		this.x = nbt.getInteger("x");
+		this.y = nbt.getInteger("y");
+		this.z = nbt.getInteger("z");
 		this.dimension = nbt.getInteger("dim");
-		this.type = Type.values()[nbt.getInteger("type")];
+		this.type = BlockTeleporter.EnumType.byMetadata(nbt.getInteger("type"));
 	}
 
 	public TileEntityTeleporter getTileEntity()
 	{
-		TileEntity result = MinecraftServer.getServer().worldServerForDimension(this.dimension).getTileEntity(this.posx, this.posy, this.posz);
+		TileEntity result = MinecraftServer.getServer().worldServerForDimension(this.dimension).getTileEntity(this.x, this.y, this.z);
 		if ((result instanceof TileEntityTeleporter))
 		{
 			return (TileEntityTeleporter)result;
 		}
 		return null;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "{ \"x\":" + this.x + ", \"y\":" + this.y + ", \"z\":" + this.z + ", \"dim\":" + this.dimension + ", \"type\":" + this.type + " }";
+	}
+
+	public boolean matches(int x, int y, int z, int dimension)
+	{
+		return this.x == x && this.y== y && this.z == z && this.dimension == dimension;
+	}
+
 }

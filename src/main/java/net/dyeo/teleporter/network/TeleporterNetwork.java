@@ -1,10 +1,13 @@
 package net.dyeo.teleporter.network;
 
 import java.util.ArrayList;
-import net.dyeo.teleporter.blocks.BlockTeleporterBase;
-import net.dyeo.teleporter.entities.TileEntityTeleporter;
+import net.dyeo.teleporter.TeleporterMod;
+import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
+import net.dyeo.teleporter.util.Vec3i;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -16,15 +19,21 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.Constants.NBT;
 
+/**
+ * TeleporterNetwork is the singleton responsible for saving the teleporter data onto the world file, and is
+ * responsible for retrieving destination and source nodes during teleportation.
+ *
+ */
 public class TeleporterNetwork extends WorldSavedData
 {
+
 	private ArrayList<TeleporterNode> network = new ArrayList();
-	private static final String IDENTIFIER = "teleporter".toLowerCase();
 
 	public TeleporterNetwork()
 	{
-		super(IDENTIFIER);
+		super(TeleporterMod.MODID);
 	}
 
 	public TeleporterNetwork(String identifier)
@@ -32,53 +41,213 @@ public class TeleporterNetwork extends WorldSavedData
 		super(identifier);
 	}
 
-	public ChatComponentTranslation GetMessage(String messageName)
+
+	public static TeleporterNetwork get(World world)
 	{
-		return new ChatComponentTranslation("message." + "teleporter".toLowerCase() + '_' + this.getClass().getSimpleName() + '.' + messageName, new Object[0]);
+		TeleporterNetwork instance = (TeleporterNetwork)world.loadItemData(TeleporterNetwork.class, TeleporterMod.MODID);
+		if (instance == null)
+		{
+			instance = new TeleporterNetwork();
+			world.setItemData(TeleporterMod.MODID, instance);
+			instance.markDirty();
+		}
+		return instance;
+	}
+
+
+	@Override
+	public void readFromNBT(NBTTagCompound compound)
+	{
+		NBTTagList nbtNetwork = compound.getTagList("Network", NBT.TAG_COMPOUND);
+		if (network.size() != 0) network.clear();
+
+		for (int i = 0; i < nbtNetwork.tagCount(); i++)
+		{
+			NBTTagCompound nbtNode = nbtNetwork.getCompoundTagAt(i);
+			TeleporterNode node = new TeleporterNode(nbtNode);
+			network.add(node);
+		}
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt)
+	public void writeToNBT(NBTTagCompound compound)
 	{
-		int NBT_TYPE = 10;
-		NBTTagList netNBT = nbt.getTagList("Network", 10);
-		if (this.network.size() != 0)
-		{
-			this.network.clear();
-		}
-		for (int i = 0; i < netNBT.tagCount(); i++)
-		{
-			TeleporterNode tempNode = new TeleporterNode();
-			NBTTagCompound nodeNBT = netNBT.getCompoundTagAt(i);
-			tempNode.readFromNBT(nodeNBT);
-			this.network.add(tempNode);
+		NBTTagList nbtNetwork = new NBTTagList();
 
-			System.out.println("Read worldData node " + i);
-		}
-	}
-
-	@Override
-	public void writeToNBT(NBTTagCompound nbt)
-	{
-		NBTTagList netNBT = new NBTTagList();
 		for (int i = 0; i < this.network.size(); i++)
 		{
-			TeleporterNode tempNode = (TeleporterNode)this.network.get(i);
-			NBTTagCompound nodeNBT = new NBTTagCompound();
-			tempNode.writeToNBT(nodeNBT);
-			netNBT.appendTag(nodeNBT);
-
-			System.out.println("Saved worldData node " + i);
+			TeleporterNode node = network.get(i);
+			NBTTagCompound nbtNode = node.writeToNBT(new NBTTagCompound());
+			nbtNetwork.appendTag(nbtNode);
 		}
-		nbt.setTag("Network", netNBT);
+
+		compound.setTag("Network", nbtNetwork);
+	}
+
+
+	public TeleporterNode getNode(int x, int y, int z, int dimension)
+	{
+		for (int i = 0; i < this.network.size(); i++)
+		{
+			TeleporterNode node = (TeleporterNode)this.network.get(i);
+			if (node.matches(x, y, z, dimension))
+			{
+				return node;
+			}
+		}
+
+		System.out.println("TeleportNetwork.getNode :: no node found at " + new Vec3i(x, y, z).toString());
+		return null;
+	}
+
+	public void addNode(TeleporterNode node)
+	{
+		this.network.add(node);
+		System.out.println("TeleportNetwork.addNode :: added node " + node.toString());
+		this.markDirty();
+	}
+
+	public boolean removeNode(int x, int y, int z, int dimension)
+	{
+		for (int i = 0; i < this.network.size(); i++)
+		{
+			TeleporterNode node = network.get(i);
+			if (node.matches(x, y, z, dimension))
+			{
+				this.network.remove(node);
+				this.markDirty();
+				System.out.println("TeleportNetwork.removeNode :: removed node " + node.toString());
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	/**
+	 * gets the next node that can be teleported to from the target teleporter
+	 *
+	 */
+	public TeleporterNode getNextNode(EntityLivingBase entity, TeleporterNode sourceNode)
+	{
+		TileEntityTeleporter sourceTileEntity = (TileEntityTeleporter)entity.worldObj.getTileEntity(sourceNode.x, sourceNode.y, sourceNode.z);
+		ItemStack sourceKey = sourceTileEntity.getStackInSlot(0);
+
+		TeleporterNode destinationNode = null;
+
+		// get the top-most entity (rider) for sending messages
+		Entity potentialPlayerEntity = entity;
+		while (potentialPlayerEntity.riddenByEntity != null)
+		{
+			potentialPlayerEntity = potentialPlayerEntity.riddenByEntity;
+		}
+
+
+		System.out.println("getNextNode :: network.size = " + this.network.size());
+
+		int index = this.network.indexOf(sourceNode);
+
+		System.out.println("getNextNode :: index = " + index);
+
+		for (int i = index + 1; i < this.network.size() + index; i++)
+		{
+			TeleporterNode node = this.network.get(i % this.network.size());
+
+			System.out.println("getNextNode :: node[" + i % this.network.size() + "] = " + (node == null ? "null" : node.toString()));
+
+
+			WorldServer destinationWorld = MinecraftServer.getServer().worldServerForDimension(node.dimension);
+			if (destinationWorld != null)
+			{
+				// if this node matches the source node, continue
+				if (node == sourceNode)
+				{
+					System.out.println("getNextNode :: node[" + i % this.network.size() + "] matches source node");
+					continue;
+				}
+
+				// if the teleporter types are different, continue
+				if (sourceNode.type != node.type)
+				{
+					System.out.println("getNextNode :: node[" + i % this.network.size() + "] type different from source node");
+					continue;
+				}
+
+				// if the teleporter isn't inter-dimensional and the dimensions are different, continue
+				if (sourceNode.type == BlockTeleporter.EnumType.REGULAR && sourceNode.dimension != node.dimension)
+				{
+					System.out.println("getNextNode :: node[" + i % this.network.size() + "] is for a different dimension");
+					continue;
+				}
+
+				// if a tile entity doesn't exist at the specified node location, continue
+				TileEntityTeleporter destinationTileEntity = (TileEntityTeleporter)destinationWorld.getTileEntity(node.x, node.y, node.z);
+				if (destinationTileEntity == null)
+				{
+					System.out.println("getNextNode :: node[" + i % this.network.size() + "] does not have a tile entity");
+					continue;
+				}
+
+				// if the key itemstacks are different, continue
+				ItemStack destinationKey = destinationTileEntity.getStackInSlot(0);
+				if (!doKeyStacksMatch(sourceKey, destinationKey))
+				{
+					System.out.println("getNextNode :: node[" + i % this.network.size() + "] keys differ");
+					continue;
+				}
+
+				// if the destination node is obstructed, continue
+				if (isObstructed(destinationWorld, node))
+				{
+					if (potentialPlayerEntity instanceof EntityPlayer)
+					{
+						EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
+						entityPlayer.addChatMessage(GetMessage("teleporterBlocked"));
+					}
+					continue;
+				}
+
+				// if the destination node is powered, continue
+				if (destinationTileEntity.isPowered() == true)
+				{
+					if (potentialPlayerEntity instanceof EntityPlayer)
+					{
+						EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
+						entityPlayer.addChatMessage(GetMessage("teleporterDisabled"));
+					}
+					continue;
+				}
+
+				// if all above conditions are met, we've found a valid destination node.
+				System.out.println("getNextNode :: destinationNode == node[" + i % this.network.size() + "]");
+				destinationNode = node;
+				break;
+
+			}
+			else
+			{
+				System.out.println("getNextNode :: destinationWorld is null");
+			}
+
+		}
+
+		if (destinationNode == null && potentialPlayerEntity instanceof EntityPlayer)
+		{
+			EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
+			entityPlayer.addChatMessage(this.GetMessage("teleporterNotFound"));
+		}
+
+		System.out.println("getNextNode :: destinationNode = " + destinationNode == null ? "null" : destinationNode.toString());
+
+		return destinationNode;
 	}
 
 	private boolean isObstructed(World world, TeleporterNode node)
 	{
-		int posx = node.posx;
-		int posy1 = node.posy + 1;
-		int posy2 = node.posy + 2;
-		int posz = node.posz;
+		int posx = node.x;
+		int posy1 = node.y + 1;
+		int posy2 = node.y + 2;
+		int posz = node.z;
 		Block bl1 = world.getBlock(posx, posy1, posz);
 		Block bl2 = world.getBlock(posx, posy2, posz);
 		if ((bl1 == null) && (bl2 == null))
@@ -92,187 +261,76 @@ public class TeleporterNetwork extends WorldSavedData
 		return true;
 	}
 
-	public TeleporterNode getNextNode(Entity entityIn, ItemStack stack, TeleporterNode source)
+	private boolean doKeyStacksMatch(ItemStack sourceKey, ItemStack destinationKey)
 	{
-		TileEntityTeleporter tileEntityTeleporterSource = TileEntityTeleporter.getTileEntityAt(entityIn.worldObj, source.posx, source.posy, source.posz);
-
-		TeleporterNode destinationNode = null;
-
-		Entity potentialPlayerEntity = entityIn;
-		while (potentialPlayerEntity.riddenByEntity != null)
+		// if keys are completely different
+		if (sourceKey == null && destinationKey != null)
 		{
-			potentialPlayerEntity = potentialPlayerEntity.riddenByEntity;
+			return false; // skip this destination
 		}
-		int index = this.network.indexOf(source);
-		for (int i = index + 1; i < this.network.size() + index; i++)
+		else if (sourceKey != null && destinationKey == null)
 		{
-			TeleporterNode node = (TeleporterNode)this.network.get(i % this.network.size());
+			return false; // skip this destination
+		}
 
-			WorldServer destinationWorld = MinecraftServer.getServer().worldServerForDimension(node.dimension);
-			if (destinationWorld != null)
+		if (sourceKey != null && destinationKey != null)
+		{
+			// check if keys are the same
+			if (sourceKey.getItem().getUnlocalizedName().equals(destinationKey.getItem().getUnlocalizedName()) == false)
 			{
-				TileEntityTeleporter tileEntityTeleporterDestination = TileEntityTeleporter.getTileEntityAt(destinationWorld, node.posx, node.posy, node.posz);
+				return false;
+			}
 
-				BlockTeleporterBase blockSource = (BlockTeleporterBase)tileEntityTeleporterSource.getBlockType();
-				BlockTeleporterBase blockDestination = (BlockTeleporterBase)tileEntityTeleporterDestination.getBlockType();
-				if ((blockSource != null) && (blockDestination != null))
+			// if both items are written books
+			if (sourceKey.getItem() == Items.written_book && destinationKey.getItem() == Items.written_book)
+			{
+				// check to see if the authors and titles match
+				String sourceAuthor = sourceKey.getTagCompound().getString("author") + ":" + sourceKey.getTagCompound().getString("title");
+				String destinationAuthor = destinationKey.getTagCompound().getString("author") + ":" + destinationKey.getTagCompound().getString("title");
+
+				if (!sourceAuthor.equals(destinationAuthor))
 				{
-					if (blockSource.getClass() == blockDestination.getClass())
-					{
-						if ((blockSource.getInterdimensional()) || (source.dimension == node.dimension))
-						{
-							if (node != source)
-							{
-								if ((stack != null) || (tileEntityTeleporterDestination.itemStacks[0] == null))
-								{
-									if ((stack == null) || (tileEntityTeleporterDestination.itemStacks[0] != null))
-									{
-										if ((stack != null) && (tileEntityTeleporterDestination.itemStacks[0] != null))
-										{
-											if (!stack.getItem().getUnlocalizedName().equals(tileEntityTeleporterDestination.itemStacks[0].getItem().getUnlocalizedName()))
-											{
-												continue;
-											}
-											if ((stack.getItem() == Items.written_book) && (tileEntityTeleporterDestination.itemStacks[0].getItem() == Items.written_book))
-											{
-												String author = stack.getTagCompound().getString("author");
-												author = author + ":" + stack.getTagCompound().getString("title");
-
-												String nodeAuthor = tileEntityTeleporterDestination.itemStacks[0].getTagCompound().getString("author");
-												nodeAuthor = nodeAuthor + ":" + tileEntityTeleporterDestination.itemStacks[0].getTagCompound().getString("title");
-												if (!author.equals(nodeAuthor))
-												{
-													continue;
-												}
-											}
-											else if ((stack.getItem() == Items.filled_map) && (tileEntityTeleporterDestination.itemStacks[0].getItem() == Items.filled_map))
-											{
-												if (stack.getItemDamage() != tileEntityTeleporterDestination.itemStacks[0].getItemDamage())
-												{
-													continue;
-												}
-											}
-											else
-											{
-												String name = "";
-												String nodeName = "";
-												if (stack.hasTagCompound())
-												{
-													NBTTagCompound display = (NBTTagCompound)stack.getTagCompound().getTag("display");
-													name = display.getString("Name");
-												}
-												if (tileEntityTeleporterDestination.itemStacks[0].hasTagCompound())
-												{
-													NBTTagCompound display = (NBTTagCompound)tileEntityTeleporterDestination.itemStacks[0].getTagCompound().getTag("display");
-													nodeName = display.getString("Name");
-												}
-												if (!name.equals(nodeName))
-												{
-													continue;
-												}
-											}
-										}
-										boolean obstructed = this.isObstructed(destinationWorld, node);
-										if (obstructed == true)
-										{
-											if ((potentialPlayerEntity instanceof EntityPlayer))
-											{
-												EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
-												entityPlayer.addChatMessage(this.GetMessage("teleporterBlocked"));
-											}
-										}
-										else if (tileEntityTeleporterDestination.isPowered() == true)
-										{
-											if ((potentialPlayerEntity instanceof EntityPlayer))
-											{
-												EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
-												entityPlayer.addChatMessage(this.GetMessage("teleporterDisabled"));
-											}
-										}
-										else
-										{
-											destinationNode = node;
-											break;
-										}
-									}
-								}
-							}
-						}
-					}
+					return false;
+				}
+			}
+			// if both items are filled maps
+			else if (sourceKey.getItem() == Items.filled_map && destinationKey.getItem() == Items.filled_map)
+			{
+				// check to see if the share a damage value (i.e. are duplicates of each other)
+				if (sourceKey.getItemDamage() != destinationKey.getItemDamage())
+				{
+					return false;
+				}
+			}
+			else
+			{
+				// item naming
+				String sourceName = "", destinationName = "";
+				// set item A name if first item has tag compound
+				if (sourceKey.hasTagCompound())
+				{
+					NBTTagCompound display = (NBTTagCompound)sourceKey.getTagCompound().getTag("display");
+					sourceName = display.getString("Name");
+				}
+				// set item B name if second item has tag compound
+				if ((destinationKey.hasTagCompound()))
+				{
+					NBTTagCompound display = (NBTTagCompound)destinationKey.getTagCompound().getTag("display");
+					destinationName = display.getString("Name");
+				}
+				// compare resulting names to see if they are a unique pair
+				if (!sourceName.equals(destinationName))
+				{
+					return false;
 				}
 			}
 		}
-		if ((destinationNode == null) && ((potentialPlayerEntity instanceof EntityPlayer)))
-		{
-			EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
-			entityPlayer.addChatMessage(this.GetMessage("teleporterNotFound"));
-			System.out.println("[Teleporter] Destination not found");
-		}
-		return destinationNode;
+		return true;
 	}
 
-	public TeleporterNode getNode(int posx, int posy, int posz, int dimension, boolean debug)
+	public ChatComponentTranslation GetMessage(String messageName)
 	{
-		for (int i = 0; i < this.network.size(); i++)
-		{
-			TeleporterNode node = (TeleporterNode)this.network.get(i);
-			if ((posx == node.posx) && (posy == node.posy) && (posz == node.posz) && (dimension == node.dimension))
-			{
-				if (debug)
-				{
-					System.out.println("Getting node at " + posx + "," + posy + "," + posz + " from network");
-				}
-				return node;
-			}
-		}
-		if (debug)
-		{
-			System.out.println("No node at " + posx + "," + posy + "," + posz + " found in network");
-		}
-		return null;
+		return new ChatComponentTranslation("message." + "teleporter".toLowerCase() + '_' + this.getClass().getSimpleName() + '.' + messageName, new Object[0]);
 	}
 
-	public void addNode(TeleporterNode node)
-	{
-		int index = this.network.size();
-		this.network.add(node);
-		this.markDirty();
-		System.out.println("Appending node at " + node.posx + "," + node.posy + "," + node.posz + " to network " + "[" + index + "]");
-	}
-
-	public boolean removeNode(int posx, int posy, int posz, int dimension)
-	{
-		for (int i = 0; i < this.network.size(); i++)
-		{
-			TeleporterNode node = (TeleporterNode)this.network.get(i);
-			if ((posx == node.posx) && (posy == node.posy) && (posz == node.posz) && (dimension == node.dimension))
-			{
-				this.network.remove(node);
-				System.out.println("Removing node at " + posx + "," + posy + "," + posz + " from network " + '[' + i + ']');
-				return true;
-			}
-		}
-		System.out.println("ERROR: No node at " + posx + "," + posy + "," + posz + " found in network");
-		return false;
-	}
-
-	public static TeleporterNetwork get(World world, boolean debug)
-	{
-		TeleporterNetwork data = (TeleporterNetwork)world.loadItemData(TeleporterNetwork.class, IDENTIFIER);
-		if (data == null)
-		{
-			if (debug)
-			{
-				System.out.println("New network created!");
-			}
-			data = new TeleporterNetwork();
-			world.setItemData(IDENTIFIER, data);
-		}
-		else if (debug)
-		{
-			System.out.println("Network loaded!");
-		}
-		data.markDirty();
-		return data;
-	}
 }

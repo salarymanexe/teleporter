@@ -1,6 +1,7 @@
-package net.dyeo.teleporter.rendering;
+package net.dyeo.teleporter.client.renderer;
 
 import org.lwjgl.opengl.GL11;
+import net.dyeo.teleporter.TeleporterMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -8,19 +9,21 @@ import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.model.AdvancedModelLoader;
 import net.minecraftforge.client.model.IModelCustom;
 
-public class RenderItemTeleporter implements IItemRenderer
+public class ItemRendererTeleporter implements IItemRenderer
 {
-	ResourceLocation texture;
-	ResourceLocation objModelLocation;
-	public IModelCustom model;
-	private final Minecraft mc;
 
-	public RenderItemTeleporter()
+	private static final IModelCustom model = AdvancedModelLoader.loadModel(new ResourceLocation(TeleporterMod.MODID, "models/block/teleporterBlock.obj"));
+
+	private static final ResourceLocation[] texture = new ResourceLocation[]
 	{
-		this.texture = new ResourceLocation("teleporter".toLowerCase(), "textures/models/teleporterBlock.png");
-		this.objModelLocation = new ResourceLocation("teleporter".toLowerCase(), "models/teleporterBlock.obj");
-		this.model = AdvancedModelLoader.loadModel(this.objModelLocation);
-		this.mc = Minecraft.getMinecraft();
+		new ResourceLocation(TeleporterMod.MODID, "textures/blocks/teleporterBlock.png"),
+		new ResourceLocation(TeleporterMod.MODID, "textures/blocks/enderTeleporterBlock.png")
+	};
+
+	private final Minecraft mc = Minecraft.getMinecraft();
+
+	public ItemRendererTeleporter()
+	{
 	}
 
 	@Override
@@ -40,16 +43,17 @@ public class RenderItemTeleporter implements IItemRenderer
 	{
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glPushMatrix();
+		GL11.glEnable(GL11.GL_CULL_FACE); // GL11.glEnable(2884);
 
-		GL11.glEnable(2884);
+		this.mc.renderEngine.bindTexture(this.texture[item.getItemDamage()]);
 
-		this.mc.renderEngine.bindTexture(this.texture);
 		if ((type == IItemRenderer.ItemRenderType.EQUIPPED_FIRST_PERSON) || (type == IItemRenderer.ItemRenderType.EQUIPPED))
 		{
 			GL11.glTranslatef(0.5F, 0.5F, 0.5F);
 		}
 		this.model.renderAll();
-		GL11.glDisable(2884);
+
+		GL11.glDisable(GL11.GL_CULL_FACE); // GL11.glDisable(2884);
 		GL11.glPopMatrix();
 	}
 }
