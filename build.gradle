@@ -12,15 +12,18 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.8.9-1.6.0"
+version = "1.6.1-beta2"
 group = "net.dyeo.teleporter"
-archivesBaseName = "VanillaTeleporter"
+archivesBaseName = "VanillaTeleporter-1.8.9"
 
 minecraft {
     version = "1.8.9-11.15.1.1902-1.8.9"
     runDir = "run"
     mappings = "stable_22"
     makeObfSourceJar = false
+    
+    replace "\${version}", project.version
+    replaceIn "TeleporterMod.java"
 }
 
 dependencies {
