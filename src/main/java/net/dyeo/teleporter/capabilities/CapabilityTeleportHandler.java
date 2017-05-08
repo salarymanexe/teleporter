@@ -25,10 +25,9 @@ public class CapabilityTeleportHandler
 
 	public static void registerCapabilities()
 	{
-		MinecraftForge.EVENT_BUS.register(new EventHandler());
 		CapabilityManager.INSTANCE.register(ITeleportHandler.class, new Storage(), TeleportHandler.class);
+		MinecraftForge.EVENT_BUS.register(new EventHandler());
 	}
-
 
 
 	public static class Provider implements ICapabilitySerializable<NBTBase>
@@ -61,7 +60,6 @@ public class CapabilityTeleportHandler
 			TELEPORT_CAPABILITY.getStorage().readNBT(TELEPORT_CAPABILITY, this.instance, null, nbt);
 		}
 	}
-
 
 
 	private static class Storage implements Capability.IStorage<ITeleportHandler>

@@ -8,9 +8,9 @@ import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
 import net.dyeo.teleporter.capabilities.ITeleportHandler;
 import net.dyeo.teleporter.common.config.ModConfiguration;
 import net.dyeo.teleporter.common.network.GuiHandler;
-import net.dyeo.teleporter.network.TeleporterNode;
+import net.dyeo.teleporter.teleport.TeleporterNode;
+import net.dyeo.teleporter.teleport.TeleporterUtility;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
-import net.dyeo.teleporter.utilities.TeleporterUtility;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -95,22 +95,21 @@ public class BlockTeleporter extends BlockContainer
 	{
 		if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
 		{
-			ITeleportHandler capability = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
+			ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
 			if (!world.isRemote)
 			{
-				if (capability.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
+				if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
 				{
-
 					boolean onTeleporter = world.getBlockState(entity.getPosition().down()).getBlock() instanceof BlockTeleporter;
 					int dimension = entity.dimension;
 
-					capability.setOnTeleporter(onTeleporter);
-					capability.setDimension(dimension);
+					handler.setOnTeleporter(onTeleporter);
+					handler.setDimension(dimension);
 
-					System.out.println("onEntityCollidedWithBlock :: onTeleporter = " + capability.getOnTeleporter());
-					System.out.println("onEntityCollidedWithBlock :: dimension = " + capability.getDimension());
+					System.out.println("onEntityCollidedWithBlock :: onTeleporter = " + handler.getOnTeleporter());
+					System.out.println("onEntityCollidedWithBlock :: dimension = " + handler.getDimension());
 
-					if (capability.getOnTeleporter())
+					if (handler.getOnTeleporter())
 					{
 						boolean isHostile = (entity instanceof EntityMob) || (entity instanceof EntityWolf && ((EntityWolf)entity).isAngry());
 						boolean isPassive = (entity instanceof EntityAnimal);
@@ -123,7 +122,7 @@ public class BlockTeleporter extends BlockContainer
 				}
 			}
 
-			if (capability.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
+			if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
 			{
 				double width = 0.25;
 				double height = 0.25;
@@ -197,7 +196,6 @@ public class BlockTeleporter extends BlockContainer
 	}
 
 
-
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta)
 	{
@@ -213,7 +211,7 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
-		return getDefaultState().withProperty(TYPE, meta == 0 ? EnumType.REGULAR : EnumType.ENDER);
+		return this.getDefaultState().withProperty(TYPE, meta == 0 ? EnumType.REGULAR : EnumType.ENDER);
 	}
 
 	@Override
@@ -225,7 +223,7 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public int damageDropped(IBlockState state)
 	{
-		return getMetaFromState(state);
+		return this.getMetaFromState(state);
 	}
 
 	@Override
@@ -255,6 +253,7 @@ public class BlockTeleporter extends BlockContainer
 	{
 		return TELEPORTER_AABB;
 	}
+
 
 	@Override
 	@SideOnly(Side.CLIENT)

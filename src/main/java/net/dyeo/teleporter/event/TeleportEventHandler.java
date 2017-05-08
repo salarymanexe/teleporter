@@ -26,11 +26,9 @@ public class TeleportEventHandler
 			if (!event.getEntity().getEntityWorld().isRemote && entities.contains(event.getEntityLiving()))
 			{
 				EntityLivingBase entity = event.getEntityLiving();
-
 				if (entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
 				{
 					ITeleportHandler handler = ((ITeleportHandler)entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null));
-
 					boolean onTeleporter = entity.getEntityWorld().getBlockState(entity.getPosition().down()).getBlock() instanceof BlockTeleporter;
 
 					if (handler.getTeleportStatus() == EnumTeleportStatus.IN_PROGRESS)
@@ -67,7 +65,6 @@ public class TeleportEventHandler
 	}
 
 	private static TeleportUpdateHandler updateHandler = new TeleportUpdateHandler();
-
 
 
 	@SubscribeEvent

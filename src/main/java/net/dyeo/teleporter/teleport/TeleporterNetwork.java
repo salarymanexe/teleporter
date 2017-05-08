@@ -1,4 +1,4 @@
-package net.dyeo.teleporter.network;
+package net.dyeo.teleporter.teleport;
 
 import java.util.ArrayList;
 import net.dyeo.teleporter.TeleporterMod;
@@ -6,6 +6,7 @@ import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -41,58 +42,55 @@ public class TeleporterNetwork extends WorldSavedData
 	}
 
 
-	public static TeleporterNetwork instance(World world)
+	public static TeleporterNetwork get(World world)
 	{
-		TeleporterNetwork data = (TeleporterNetwork)world.getMapStorage().getOrLoadData(TeleporterNetwork.class, TeleporterMod.MODID);
-		if (data == null)
+		TeleporterNetwork instance = (TeleporterNetwork)world.getMapStorage().getOrLoadData(TeleporterNetwork.class, TeleporterMod.MODID);
+		if (instance == null)
 		{
-			data = new TeleporterNetwork();
-			world.setItemData(TeleporterMod.MODID, data);
+			instance = new TeleporterNetwork();
+			world.setItemData(TeleporterMod.MODID, instance);
+			instance.markDirty();
 		}
-
-		data.markDirty();
-		return data;
+		return instance;
 	}
 
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt)
+	public void readFromNBT(NBTTagCompound compound)
 	{
-		NBTTagList netNBT = nbt.getTagList("Network", NBT.TAG_COMPOUND);
+		NBTTagList nbtNetwork = compound.getTagList("Network", NBT.TAG_COMPOUND);
+		if (this.network.size() != 0) this.network.clear();
 
-		if (network.size() != 0) network.clear();
-
-		for (int i = 0; i < netNBT.tagCount(); ++i)
+		for (int i = 0; i < nbtNetwork.tagCount(); ++i)
 		{
-			NBTTagCompound nodeNBT = netNBT.getCompoundTagAt(i);
-			TeleporterNode node = new TeleporterNode(nodeNBT);
-			network.add(node);
+			NBTTagCompound nbtNode = nbtNetwork.getCompoundTagAt(i);
+			TeleporterNode node = new TeleporterNode(nbtNode);
+			this.network.add(node);
 		}
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	public NBTTagCompound writeToNBT(NBTTagCompound compound)
 	{
-		NBTTagList netNBT = new NBTTagList();
+		NBTTagList nbtNetwork = new NBTTagList();
 
-		for (int i = 0; i < network.size(); ++i)
+		for (int i = 0; i < this.network.size(); ++i)
 		{
-			TeleporterNode node = network.get(i);
-			NBTTagCompound nodeNBT = node.writeToNBT(new NBTTagCompound());
-			netNBT.appendTag(nodeNBT);
+			TeleporterNode node = this.network.get(i);
+			NBTTagCompound nbtNode = node.writeToNBT(new NBTTagCompound());
+			nbtNetwork.appendTag(nbtNode);
 		}
 
-		nbt.setTag("Network", netNBT);
-		return nbt;
+		compound.setTag("Network", nbtNetwork);
+		return compound;
 	}
-
 
 
 	public TeleporterNode getNode(BlockPos pos, int dimension)
 	{
-		for (int i = 0; i < network.size(); ++i)
+		for (int i = 0; i < this.network.size(); ++i)
 		{
-			TeleporterNode node = network.get(i);
+			TeleporterNode node = this.network.get(i);
 			if (node.matches(pos, dimension))
 			{
 				return node;
@@ -101,21 +99,21 @@ public class TeleporterNetwork extends WorldSavedData
 		return null;
 	}
 
-
 	public void addNode(TeleporterNode node)
 	{
-		network.add(node);
-		markDirty();
+		this.network.add(node);
+		this.markDirty();
 	}
 
 	public boolean removeNode(BlockPos pos, int dimension)
 	{
-		for (int i = 0; i < network.size(); ++i)
+		for (int i = 0; i < this.network.size(); ++i)
 		{
-			TeleporterNode node = network.get(i);
+			TeleporterNode node = this.network.get(i);
 			if (node.matches(pos, dimension))
 			{
-				network.remove(node);
+				this.network.remove(node);
+				this.markDirty();
 				return true;
 			}
 		}
@@ -127,26 +125,26 @@ public class TeleporterNetwork extends WorldSavedData
 	 * gets the next node that can be teleported to from the target teleporter
 	 *
 	 */
-	public TeleporterNode getNextNode(Entity entityIn, TeleporterNode sourceNode)
+	public TeleporterNode getNextNode(EntityLivingBase entity, TeleporterNode sourceNode)
 	{
 
-		TileEntityTeleporter tEntSource = (TileEntityTeleporter)entityIn.worldObj.getTileEntity(sourceNode.pos);
+		TileEntityTeleporter tEntSource = (TileEntityTeleporter)entity.worldObj.getTileEntity(sourceNode.pos);
 		ItemStack sourceKey = tEntSource.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
 
 		TeleporterNode destinationNode = null;
 
 		// get the top-most entity (rider) for sending messages
-		Entity potentialPlayerEntity = entityIn;
+		Entity potentialPlayerEntity = entity;
 		while (!potentialPlayerEntity.getPassengers().isEmpty())
 		{
 			potentialPlayerEntity = potentialPlayerEntity.getControllingPassenger();
 		}
 
-		int index = network.indexOf(sourceNode);
-		for (int i = index + 1; i < network.size() + index; ++i)
+		int index = this.network.indexOf(sourceNode);
+		for (int i = index + 1; i < this.network.size() + index; ++i)
 		{
 
-			TeleporterNode node = network.get(i % network.size());
+			TeleporterNode node = this.network.get(i % this.network.size());
 
 			WorldServer destinationWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(node.dimension);
 			if (destinationWorld != null)
@@ -178,18 +176,18 @@ public class TeleporterNetwork extends WorldSavedData
 
 				// if the key itemstacks are different, continue
 				ItemStack destinationKey = tEntDest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
-				if (!doKeyStacksMatch(sourceKey, destinationKey))
+				if (!this.doKeyStacksMatch(sourceKey, destinationKey))
 				{
 					continue;
 				}
 
 				// if the destination node is obstructed, continue
-				if (isObstructed(destinationWorld, node))
+				if (this.isObstructed(destinationWorld, node))
 				{
 					if (potentialPlayerEntity instanceof EntityPlayer)
 					{
-						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-						entityPlayer.addChatMessage(getMessage("teleporterBlocked"));
+						EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
+						entityPlayer.addChatMessage(this.getMessage("teleporterBlocked"));
 					}
 					continue;
 				}
@@ -199,8 +197,8 @@ public class TeleporterNetwork extends WorldSavedData
 				{
 					if (potentialPlayerEntity instanceof EntityPlayer)
 					{
-						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-						entityPlayer.addChatMessage(getMessage("teleporterDisabled"));
+						EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
+						entityPlayer.addChatMessage(this.getMessage("teleporterDisabled"));
 					}
 					continue;
 				}
@@ -213,19 +211,11 @@ public class TeleporterNetwork extends WorldSavedData
 
 		if (destinationNode == null && potentialPlayerEntity instanceof EntityPlayer)
 		{
-			EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-			entityPlayer.addChatMessage(getMessage("teleporterNotFound"));
+			EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
+			entityPlayer.addChatMessage(this.getMessage("teleporterNotFound"));
 		}
 
 		return destinationNode;
-	}
-
-
-
-
-	private TextComponentTranslation getMessage(String messageName)
-	{
-		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + messageName);
 	}
 
 	private boolean isObstructed(World world, TeleporterNode node)
@@ -265,55 +255,56 @@ public class TeleporterNetwork extends WorldSavedData
 				return false;
 			}
 
-			// both items are written books
+			// if both items are written books
 			if (sourceKey.getItem() == Items.WRITTEN_BOOK && destinationKey.getItem() == Items.WRITTEN_BOOK)
 			{
+				// check to see if the authors and titles match
+				String sourceAuthor = sourceKey.getTagCompound().getString("author") + ":" + sourceKey.getTagCompound().getString("title");
+				String destinationAuthor = destinationKey.getTagCompound().getString("author") + ":" + destinationKey.getTagCompound().getString("title");
 
-				// get author and title for A as "author:title"
-				String author = sourceKey.getTagCompound().getString("author");
-				author += ":" + sourceKey.getTagCompound().getString("title");
-
-				// get author and title for B as "author:title"
-				String nodeAuthor = destinationKey.getTagCompound().getString("author");
-				nodeAuthor += ":" + destinationKey.getTagCompound().getString("title");
-				if (author.equals(nodeAuthor) == false)
+				if (!sourceAuthor.equals(destinationAuthor))
 				{
 					return false;
 				}
 			}
+			// if both items are filled maps
 			else if (sourceKey.getItem() == Items.FILLED_MAP && destinationKey.getItem() == Items.FILLED_MAP)
 			{
-				// compare map value (stored in item damage)
+				// check to see if the share a damage value (i.e. are duplicates of each other)
 				if (sourceKey.getItemDamage() != destinationKey.getItemDamage())
 				{
-					// skip this destination
 					return false;
 				}
 			}
 			else
 			{
 				// item naming
-				String name = "", nodeName = "";
+				String sourceName = "", destinationName = "";
 				// set item A name if first item has tag compound
 				if (sourceKey.hasTagCompound())
 				{
-					NBTTagCompound display = (NBTTagCompound) sourceKey.getTagCompound().getTag("display");
-					name = display.getString("Name");
+					NBTTagCompound display = (NBTTagCompound)sourceKey.getTagCompound().getTag("display");
+					sourceName = display.getString("Name");
 				}
 				// set item B name if second item has tag compound
 				if ((destinationKey.hasTagCompound()))
 				{
-					NBTTagCompound display = (NBTTagCompound) destinationKey.getTagCompound().getTag("display");
-					nodeName = display.getString("Name");
+					NBTTagCompound display = (NBTTagCompound)destinationKey.getTagCompound().getTag("display");
+					destinationName = display.getString("Name");
 				}
 				// compare resulting names to see if they are a unique pair
-				if (name.equals(nodeName) == false)
+				if (!sourceName.equals(destinationName))
 				{
 					return false;
 				}
 			}
 		}
 		return true;
+	}
+
+	private TextComponentTranslation getMessage(String messageName)
+	{
+		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + messageName);
 	}
 
 }

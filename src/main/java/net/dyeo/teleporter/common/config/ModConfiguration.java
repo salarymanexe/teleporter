@@ -8,16 +8,12 @@ import net.minecraftforge.fml.common.Loader;
 
 public final class ModConfiguration
 {
-
 	private static Configuration config = null;
-
 
 	public static boolean useDiamonds = true;
 	public static int numTeleporters = 1;
 	public static boolean teleportPassiveMobs = true;
 	public static boolean teleportHostileMobs = true;
-
-	public static int transDimensionalCooldown = 300;
 
 
 	public static void preInit()
@@ -44,6 +40,5 @@ public final class ModConfiguration
 
 		if (config.hasChanged()) config.save();
 	}
-
 
 }

@@ -1,8 +1,8 @@
 package net.dyeo.teleporter.tileentity;
 
 import net.dyeo.teleporter.block.BlockTeleporter;
-import net.dyeo.teleporter.network.TeleporterNetwork;
-import net.dyeo.teleporter.network.TeleporterNode;
+import net.dyeo.teleporter.teleport.TeleporterNetwork;
+import net.dyeo.teleporter.teleport.TeleporterNode;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -52,9 +52,9 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	public NBTTagCompound writeToNBT(NBTTagCompound compound)
 	{
 		compound = super.writeToNBT(compound);
-		compound.setBoolean("powered", isPowered());
+		compound.setBoolean("powered", this.isPowered());
 		if (this.hasCustomName()) compound.setString("CustomName", this.customName);
-		compound.setTag("Inventory", handler.serializeNBT());
+		compound.setTag("Inventory", this.handler.serializeNBT());
 		return compound;
 	}
 
@@ -63,15 +63,14 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	{
 		super.readFromNBT(compound);
 		if (compound.hasKey("CustomName", NBT.TAG_STRING)) this.customName = compound.getString("CustomName");
-		setPowered(compound.getBoolean("powered"));
+		this.setPowered(compound.getBoolean("powered"));
 		this.handler.deserializeNBT(compound.getCompoundTag("Inventory"));
 	}
 
 
-
 	public boolean isPowered()
 	{
-		return isPowered;
+		return this.isPowered;
 	}
 
 	public void setPowered(boolean isPowered)
@@ -81,7 +80,7 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 
 	public String getName()
 	{
-		String unlocalizedName = "tile." + getWorld().getBlockState(getPos()).getValue(BlockTeleporter.TYPE).getUnlocalizedName() + ".name";
+		String unlocalizedName = "tile." + this.getWorld().getBlockState(this.getPos()).getValue(BlockTeleporter.TYPE).getUnlocalizedName() + ".name";
 		return this.hasCustomName() ? this.customName : unlocalizedName;
 	}
 
@@ -101,7 +100,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	}
 
 
-
 	public boolean canInteractWith(EntityPlayer player)
 	{
 		if (this.worldObj.getTileEntity(this.pos) != this) return false;
@@ -109,40 +107,40 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 		final double Y_CENTRE_OFFSET = 0.5;
 		final double Z_CENTRE_OFFSET = 0.5;
 		final double MAXIMUM_DISTANCE_SQ = 8.0 * 8.0;
-		return player.getDistanceSq(pos.getX() + X_CENTRE_OFFSET, pos.getY() + Y_CENTRE_OFFSET, pos.getZ() + Z_CENTRE_OFFSET) < MAXIMUM_DISTANCE_SQ;
+		return player.getDistanceSq(this.pos.getX() + X_CENTRE_OFFSET, this.pos.getY() + Y_CENTRE_OFFSET, this.pos.getZ() + Z_CENTRE_OFFSET) < MAXIMUM_DISTANCE_SQ;
 	}
 
 
 	public void removeFromNetwork()
 	{
-		TeleporterNetwork netWrapper = TeleporterNetwork.instance(worldObj);
-		netWrapper.removeNode(pos, worldObj.provider.getDimension());
+		TeleporterNetwork netWrapper = TeleporterNetwork.get(this.worldObj);
+		netWrapper.removeNode(this.pos, this.worldObj.provider.getDimension());
 	}
 
 	@Override
 	public void update()
 	{
-		if (firstUpdate)
+		if (this.firstUpdate)
 		{
-			if (!worldObj.isRemote)
+			if (!this.worldObj.isRemote)
 			{
-				updateNode();
-				markDirty();
+				this.updateNode();
+				this.markDirty();
 			}
-			firstUpdate = false;
+			this.firstUpdate = false;
 		}
 	}
 
 
 	private void updateNode()
 	{
-		if (!worldObj.isRemote)
+		if (!this.worldObj.isRemote)
 		{
 			boolean isNewNode = false;
 
-			TeleporterNetwork netWrapper = TeleporterNetwork.instance(worldObj);
+			TeleporterNetwork netWrapper = TeleporterNetwork.get(this.worldObj);
 
-			int tileDim = worldObj.provider.getDimension();
+			int tileDim = this.worldObj.provider.getDimension();
 
 			TeleporterNode thisNode = netWrapper.getNode(this.pos, tileDim);
 			if (thisNode == null)
@@ -153,14 +151,12 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 
 			thisNode.pos = this.pos;
 			thisNode.dimension = tileDim;
-			thisNode.type = getWorld().getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
+			thisNode.type = this.getWorld().getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
 
 			if (isNewNode == true)
 			{
 				netWrapper.addNode(thisNode);
 			}
-
-//			System.out.println("Node updated :: " + thisNode.toString() );
 		}
 	}
 

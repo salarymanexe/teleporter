@@ -12,21 +12,21 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 
-public class ModCommand extends CommandBase
+public class CommandTeleportReset extends CommandBase
 {
 
 	private final List<String> aliases;
 
-	public ModCommand()
+	public CommandTeleportReset()
 	{
-		aliases = new ArrayList<String>();
-		aliases.add("teleport_capability_reset");
+		this.aliases = new ArrayList<String>();
+		this.aliases.add("teleport_reset");
 	}
 
 	@Override
 	public String getCommandName()
 	{
-		return "teleport_capability_reset";
+		return "teleport_reset";
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class ModCommand extends CommandBase
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender)
 	{
-		return sender.canCommandSenderUseCommand(2, getCommandName());
+		return sender.canCommandSenderUseCommand(2, this.getCommandName());
 	}
 
 	@Override
