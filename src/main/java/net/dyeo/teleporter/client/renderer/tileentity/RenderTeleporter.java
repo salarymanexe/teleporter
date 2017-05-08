@@ -23,13 +23,13 @@ public class RenderTeleporter extends TileEntitySpecialRenderer
 	public void renderTileEntityAt(TileEntity tileEntity, double posX, double posY, double posZ, float timeSinceLastTick)
 	{
 		int meta = tileEntity.getWorldObj().getBlockMetadata(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
-		this.bindTexture(this.texture[meta]);
+		this.bindTexture(RenderTeleporter.texture[meta]);
 
 		GL11.glPushMatrix();
 		GL11.glTranslated(posX + 0.5D, posY + 0.5D, posZ + 0.5D);
 		GL11.glPushMatrix();
 
-		this.model.renderAll();
+		RenderTeleporter.model.renderAll();
 
 		GL11.glPopMatrix();
 		GL11.glPopMatrix();

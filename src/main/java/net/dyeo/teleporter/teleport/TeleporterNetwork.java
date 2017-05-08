@@ -1,10 +1,9 @@
-package net.dyeo.teleporter.network;
+package net.dyeo.teleporter.teleport;
 
 import java.util.ArrayList;
 import net.dyeo.teleporter.TeleporterMod;
-import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
-import net.dyeo.teleporter.util.Vec3i;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -59,13 +58,13 @@ public class TeleporterNetwork extends WorldSavedData
 	public void readFromNBT(NBTTagCompound compound)
 	{
 		NBTTagList nbtNetwork = compound.getTagList("Network", NBT.TAG_COMPOUND);
-		if (network.size() != 0) network.clear();
+		if (this.network.size() != 0) this.network.clear();
 
 		for (int i = 0; i < nbtNetwork.tagCount(); i++)
 		{
 			NBTTagCompound nbtNode = nbtNetwork.getCompoundTagAt(i);
 			TeleporterNode node = new TeleporterNode(nbtNode);
-			network.add(node);
+			this.network.add(node);
 		}
 	}
 
@@ -76,7 +75,7 @@ public class TeleporterNetwork extends WorldSavedData
 
 		for (int i = 0; i < this.network.size(); i++)
 		{
-			TeleporterNode node = network.get(i);
+			TeleporterNode node = this.network.get(i);
 			NBTTagCompound nbtNode = node.writeToNBT(new NBTTagCompound());
 			nbtNetwork.appendTag(nbtNode);
 		}
@@ -95,15 +94,12 @@ public class TeleporterNetwork extends WorldSavedData
 				return node;
 			}
 		}
-
-		System.out.println("TeleportNetwork.getNode :: no node found at " + new Vec3i(x, y, z).toString());
 		return null;
 	}
 
 	public void addNode(TeleporterNode node)
 	{
 		this.network.add(node);
-		System.out.println("TeleportNetwork.addNode :: added node " + node.toString());
 		this.markDirty();
 	}
 
@@ -111,12 +107,11 @@ public class TeleporterNetwork extends WorldSavedData
 	{
 		for (int i = 0; i < this.network.size(); i++)
 		{
-			TeleporterNode node = network.get(i);
+			TeleporterNode node = this.network.get(i);
 			if (node.matches(x, y, z, dimension))
 			{
 				this.network.remove(node);
 				this.markDirty();
-				System.out.println("TeleportNetwork.removeNode :: removed node " + node.toString());
 				return true;
 			}
 		}
@@ -142,19 +137,11 @@ public class TeleporterNetwork extends WorldSavedData
 			potentialPlayerEntity = potentialPlayerEntity.riddenByEntity;
 		}
 
-
-		System.out.println("getNextNode :: network.size = " + this.network.size());
-
 		int index = this.network.indexOf(sourceNode);
-
-		System.out.println("getNextNode :: index = " + index);
-
 		for (int i = index + 1; i < this.network.size() + index; i++)
 		{
+
 			TeleporterNode node = this.network.get(i % this.network.size());
-
-			System.out.println("getNextNode :: node[" + i % this.network.size() + "] = " + (node == null ? "null" : node.toString()));
-
 
 			WorldServer destinationWorld = MinecraftServer.getServer().worldServerForDimension(node.dimension);
 			if (destinationWorld != null)
@@ -162,21 +149,18 @@ public class TeleporterNetwork extends WorldSavedData
 				// if this node matches the source node, continue
 				if (node == sourceNode)
 				{
-					System.out.println("getNextNode :: node[" + i % this.network.size() + "] matches source node");
 					continue;
 				}
 
 				// if the teleporter types are different, continue
 				if (sourceNode.type != node.type)
 				{
-					System.out.println("getNextNode :: node[" + i % this.network.size() + "] type different from source node");
 					continue;
 				}
 
 				// if the teleporter isn't inter-dimensional and the dimensions are different, continue
 				if (sourceNode.type == BlockTeleporter.EnumType.REGULAR && sourceNode.dimension != node.dimension)
 				{
-					System.out.println("getNextNode :: node[" + i % this.network.size() + "] is for a different dimension");
 					continue;
 				}
 
@@ -184,25 +168,23 @@ public class TeleporterNetwork extends WorldSavedData
 				TileEntityTeleporter destinationTileEntity = (TileEntityTeleporter)destinationWorld.getTileEntity(node.x, node.y, node.z);
 				if (destinationTileEntity == null)
 				{
-					System.out.println("getNextNode :: node[" + i % this.network.size() + "] does not have a tile entity");
 					continue;
 				}
 
 				// if the key itemstacks are different, continue
 				ItemStack destinationKey = destinationTileEntity.getStackInSlot(0);
-				if (!doKeyStacksMatch(sourceKey, destinationKey))
+				if (!this.doKeyStacksMatch(sourceKey, destinationKey))
 				{
-					System.out.println("getNextNode :: node[" + i % this.network.size() + "] keys differ");
 					continue;
 				}
 
 				// if the destination node is obstructed, continue
-				if (isObstructed(destinationWorld, node))
+				if (this.isObstructed(destinationWorld, node))
 				{
 					if (potentialPlayerEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
-						entityPlayer.addChatMessage(GetMessage("teleporterBlocked"));
+						entityPlayer.addChatMessage(this.GetMessage("teleporterBlocked"));
 					}
 					continue;
 				}
@@ -213,22 +195,15 @@ public class TeleporterNetwork extends WorldSavedData
 					if (potentialPlayerEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
-						entityPlayer.addChatMessage(GetMessage("teleporterDisabled"));
+						entityPlayer.addChatMessage(this.GetMessage("teleporterDisabled"));
 					}
 					continue;
 				}
 
 				// if all above conditions are met, we've found a valid destination node.
-				System.out.println("getNextNode :: destinationNode == node[" + i % this.network.size() + "]");
 				destinationNode = node;
 				break;
-
 			}
-			else
-			{
-				System.out.println("getNextNode :: destinationWorld is null");
-			}
-
 		}
 
 		if (destinationNode == null && potentialPlayerEntity instanceof EntityPlayer)
@@ -236,8 +211,6 @@ public class TeleporterNetwork extends WorldSavedData
 			EntityPlayer entityPlayer = (EntityPlayer)potentialPlayerEntity;
 			entityPlayer.addChatMessage(this.GetMessage("teleporterNotFound"));
 		}
-
-		System.out.println("getNextNode :: destinationNode = " + destinationNode == null ? "null" : destinationNode.toString());
 
 		return destinationNode;
 	}

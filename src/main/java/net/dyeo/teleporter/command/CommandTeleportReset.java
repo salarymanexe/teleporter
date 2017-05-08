@@ -15,8 +15,8 @@ public class CommandTeleportReset extends CommandBase
 
 	public CommandTeleportReset()
 	{
-		aliases = new ArrayList<String>();
-		aliases.add("teleport_reset");
+		this.aliases = new ArrayList<String>();
+		this.aliases.add("teleport_reset");
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class CommandTeleportReset extends CommandBase
 	@Override
 	public boolean canCommandSenderUseCommand(ICommandSender sender)
 	{
-		return sender.canCommandSenderUseCommand(2, getCommandName());
+		return sender.canCommandSenderUseCommand(2, this.getCommandName());
 	}
 
 	@Override

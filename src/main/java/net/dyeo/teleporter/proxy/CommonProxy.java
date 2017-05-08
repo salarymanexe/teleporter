@@ -12,15 +12,15 @@ public class CommonProxy
 {
 	public void preInit()
 	{
-		registerBlocks();
-		registerTileEntities();
+		this.registerBlocks();
+		this.registerTileEntities();
 	}
 
 	public void init()
 	{
-		registerExtendedEntityProperties();
-		registerCraftingRecipes();
-		registerGuiHandler();
+		this.registerExtendedEntityProperties();
+		this.registerCraftingRecipes();
+		this.registerGuiHandler();
 	}
 
 	public void postInit()

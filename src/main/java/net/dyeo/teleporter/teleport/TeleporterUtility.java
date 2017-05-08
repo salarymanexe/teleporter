@@ -1,13 +1,11 @@
-package net.dyeo.teleporter.utilities;
+package net.dyeo.teleporter.teleport;
 
 import com.google.common.base.Throwables;
 import net.dyeo.teleporter.TeleporterMod;
-import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.entityproperties.TeleportEntityProperty;
 import net.dyeo.teleporter.entityproperties.TeleportEntityProperty.EnumTeleportStatus;
 import net.dyeo.teleporter.event.TeleportEvent;
-import net.dyeo.teleporter.network.TeleporterNetwork;
-import net.dyeo.teleporter.network.TeleporterNode;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;

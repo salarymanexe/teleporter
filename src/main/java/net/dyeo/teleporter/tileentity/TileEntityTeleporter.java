@@ -1,8 +1,8 @@
 package net.dyeo.teleporter.tileentity;
 
-import net.dyeo.teleporter.blocks.BlockTeleporter;
-import net.dyeo.teleporter.network.TeleporterNetwork;
-import net.dyeo.teleporter.network.TeleporterNode;
+import net.dyeo.teleporter.block.BlockTeleporter;
+import net.dyeo.teleporter.teleport.TeleporterNetwork;
+import net.dyeo.teleporter.teleport.TeleporterNode;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -99,7 +99,7 @@ public class TileEntityTeleporter extends TileEntity implements IInventory
 
 	private void updateNode()
 	{
-		if (!worldObj.isRemote)
+		if (!this.worldObj.isRemote)
 		{
 			boolean isNewNode = false;
 

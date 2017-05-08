@@ -3,7 +3,7 @@ package net.dyeo.teleporter.event;
 import java.util.ArrayList;
 import java.util.List;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.entityproperties.TeleportEntityProperty;
 import net.dyeo.teleporter.entityproperties.TeleportEntityProperty.EnumTeleportStatus;
 import net.dyeo.teleporter.util.Vec3i;

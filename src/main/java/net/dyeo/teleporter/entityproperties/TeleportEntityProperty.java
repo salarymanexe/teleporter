@@ -71,7 +71,7 @@ public class TeleportEntityProperty implements IExtendedEntityProperties
 	public void loadNBTData(NBTTagCompound compound)
 	{
 		this.onTeleporter = compound.getBoolean("onTeleporter");
-		this.teleportStatus = teleportStatus.values()[compound.getInteger("teleportStatus")];
+		this.teleportStatus = EnumTeleportStatus.values()[compound.getInteger("teleportStatus")];
 		this.dimension = compound.getInteger("dimension");
 	}
 

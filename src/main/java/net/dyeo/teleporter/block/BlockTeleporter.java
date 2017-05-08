@@ -1,4 +1,4 @@
-package net.dyeo.teleporter.blocks;
+package net.dyeo.teleporter.block;
 
 import java.util.List;
 import cpw.mods.fml.relauncher.Side;
@@ -9,10 +9,10 @@ import net.dyeo.teleporter.common.network.GuiHandler;
 import net.dyeo.teleporter.entityproperties.TeleportEntityProperty;
 import net.dyeo.teleporter.entityproperties.TeleportEntityProperty.EnumTeleportStatus;
 import net.dyeo.teleporter.inventory.InventoryHelper;
-import net.dyeo.teleporter.network.TeleporterNode;
+import net.dyeo.teleporter.teleport.TeleporterNode;
+import net.dyeo.teleporter.teleport.TeleporterUtility;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.dyeo.teleporter.util.Vec3i;
-import net.dyeo.teleporter.utilities.TeleporterUtility;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;

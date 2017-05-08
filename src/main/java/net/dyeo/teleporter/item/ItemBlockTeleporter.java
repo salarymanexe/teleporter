@@ -1,6 +1,6 @@
 package net.dyeo.teleporter.item;
 
-import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.block.BlockTeleporter;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlockWithMetadata;
 import net.minecraft.item.ItemStack;

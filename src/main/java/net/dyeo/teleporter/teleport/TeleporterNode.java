@@ -1,6 +1,6 @@
-package net.dyeo.teleporter.network;
+package net.dyeo.teleporter.teleport;
 
-import net.dyeo.teleporter.blocks.BlockTeleporter;
+import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -21,7 +21,7 @@ public class TeleporterNode
 		this.y = 0;
 		this.z = 0;
 		this.dimension = 0;
-		type = BlockTeleporter.EnumType.REGULAR;
+		this.type = BlockTeleporter.EnumType.REGULAR;
 	}
 
 	public TeleporterNode(NBTTagCompound compound)
