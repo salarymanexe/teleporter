@@ -1,4 +1,4 @@
-package net.dyeo.teleporter.network;
+package net.dyeo.teleporter.teleport;
 
 import java.util.ArrayList;
 import net.dyeo.teleporter.TeleporterMod;
@@ -41,17 +41,16 @@ public class TeleporterNetwork extends WorldSavedData
 	}
 
 
-	public static TeleporterNetwork instance(World world)
+	public static TeleporterNetwork get(World world)
 	{
-		TeleporterNetwork data = (TeleporterNetwork)world.getMapStorage().getOrLoadData(TeleporterNetwork.class, TeleporterMod.MODID);
-		if (data == null)
+		TeleporterNetwork instance = (TeleporterNetwork)world.getMapStorage().getOrLoadData(TeleporterNetwork.class, TeleporterMod.MODID);
+		if (instance == null)
 		{
-			data = new TeleporterNetwork();
-			world.setData(TeleporterMod.MODID, data);
+			instance = new TeleporterNetwork();
+			world.setData(TeleporterMod.MODID, instance);
+			instance.markDirty();
 		}
-
-		data.markDirty();
-		return data;
+		return instance;
 	}
 
 
@@ -60,13 +59,13 @@ public class TeleporterNetwork extends WorldSavedData
 	{
 		NBTTagList netNBT = nbt.getTagList("Network", NBT.TAG_COMPOUND);
 
-		if (network.size() != 0) network.clear();
+		if (this.network.size() != 0) this.network.clear();
 
 		for (int i = 0; i < netNBT.tagCount(); ++i)
 		{
 			NBTTagCompound nodeNBT = netNBT.getCompoundTagAt(i);
 			TeleporterNode node = new TeleporterNode(nodeNBT);
-			network.add(node);
+			this.network.add(node);
 		}
 	}
 
@@ -75,9 +74,9 @@ public class TeleporterNetwork extends WorldSavedData
 	{
 		NBTTagList netNBT = new NBTTagList();
 
-		for (int i = 0; i < network.size(); ++i)
+		for (int i = 0; i < this.network.size(); ++i)
 		{
-			TeleporterNode node = network.get(i);
+			TeleporterNode node = this.network.get(i);
 			NBTTagCompound nodeNBT = node.writeToNBT(new NBTTagCompound());
 			netNBT.appendTag(nodeNBT);
 		}
@@ -90,9 +89,9 @@ public class TeleporterNetwork extends WorldSavedData
 
 	public TeleporterNode getNode(BlockPos pos, int dimension)
 	{
-		for (int i = 0; i < network.size(); ++i)
+		for (int i = 0; i < this.network.size(); ++i)
 		{
-			TeleporterNode node = network.get(i);
+			TeleporterNode node = this.network.get(i);
 			if (node.matches(pos, dimension))
 			{
 				return node;
@@ -104,18 +103,19 @@ public class TeleporterNetwork extends WorldSavedData
 
 	public void addNode(TeleporterNode node)
 	{
-		network.add(node);
-		markDirty();
+		this.network.add(node);
+		this.markDirty();
 	}
 
 	public boolean removeNode(BlockPos pos, int dimension)
 	{
-		for (int i = 0; i < network.size(); ++i)
+		for (int i = 0; i < this.network.size(); ++i)
 		{
-			TeleporterNode node = network.get(i);
+			TeleporterNode node = this.network.get(i);
 			if (node.matches(pos, dimension))
 			{
-				network.remove(node);
+				this.network.remove(node);
+				this.markDirty();
 				return true;
 			}
 		}
@@ -142,11 +142,11 @@ public class TeleporterNetwork extends WorldSavedData
 			potentialPlayerEntity = potentialPlayerEntity.getControllingPassenger();
 		}
 
-		int index = network.indexOf(sourceNode);
-		for (int i = index + 1; i < network.size() + index; ++i)
+		int index = this.network.indexOf(sourceNode);
+		for (int i = index + 1; i < this.network.size() + index; ++i)
 		{
 
-			TeleporterNode node = network.get(i % network.size());
+			TeleporterNode node = this.network.get(i % this.network.size());
 
 			WorldServer destinationWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(node.dimension);
 			if (destinationWorld != null)
@@ -178,18 +178,18 @@ public class TeleporterNetwork extends WorldSavedData
 
 				// if the key itemstacks are different, continue
 				ItemStack destinationKey = tEntDest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
-				if (!doKeyStacksMatch(sourceKey, destinationKey))
+				if (!this.doKeyStacksMatch(sourceKey, destinationKey))
 				{
 					continue;
 				}
 
 				// if the destination node is obstructed, continue
-				if (isObstructed(destinationWorld, node))
+				if (this.isObstructed(destinationWorld, node))
 				{
 					if (potentialPlayerEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-						entityPlayer.sendMessage(getMessage("teleporterBlocked"));
+						entityPlayer.sendMessage(this.getMessage("teleporterBlocked"));
 					}
 					continue;
 				}
@@ -200,7 +200,7 @@ public class TeleporterNetwork extends WorldSavedData
 					if (potentialPlayerEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-						entityPlayer.sendMessage(getMessage("teleporterDisabled"));
+						entityPlayer.sendMessage(this.getMessage("teleporterDisabled"));
 					}
 					continue;
 				}
@@ -214,7 +214,7 @@ public class TeleporterNetwork extends WorldSavedData
 		if (destinationNode == null && potentialPlayerEntity instanceof EntityPlayer)
 		{
 			EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-			entityPlayer.sendMessage(getMessage("teleporterNotFound"));
+			entityPlayer.sendMessage(this.getMessage("teleporterNotFound"));
 		}
 
 		return destinationNode;

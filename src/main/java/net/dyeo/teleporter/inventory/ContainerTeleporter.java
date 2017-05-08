@@ -23,7 +23,7 @@ public class ContainerTeleporter extends Container
 		IItemHandler itemHandler = this.tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 
 		// container slot
-		addSlotToContainer(new SlotItemHandler(itemHandler, 0, 79, 35));
+		this.addSlotToContainer(new SlotItemHandler(itemHandler, 0, 79, 35));
 
 		// player inventory slots
 		int offsetX = 8;
@@ -53,7 +53,7 @@ public class ContainerTeleporter extends Container
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return tileEntity.canInteractWith(player);
+		return this.tileEntity.canInteractWith(player);
 	}
 
 	@Override

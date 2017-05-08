@@ -1,4 +1,4 @@
-package net.dyeo.teleporter.utilities;
+package net.dyeo.teleporter.teleport;
 
 import com.google.common.base.Throwables;
 import net.dyeo.teleporter.block.BlockTeleporter;
@@ -7,8 +7,6 @@ import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
 import net.dyeo.teleporter.capabilities.ITeleportHandler;
 import net.dyeo.teleporter.event.TeleportEvent;
 import net.dyeo.teleporter.init.ModSounds;
-import net.dyeo.teleporter.network.TeleporterNetwork;
-import net.dyeo.teleporter.network.TeleporterNode;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -29,7 +27,7 @@ public class TeleporterUtility
 	{
 		boolean teleportSuccess = false;
 
-		TeleporterNetwork netWrapper = TeleporterNetwork.instance(entityIn.world);
+		TeleporterNetwork netWrapper = TeleporterNetwork.get(entityIn.world);
 		TeleporterNode sourceNode = netWrapper.getNode(pos, entityIn.world.provider.getDimension());
 		TeleporterNode destinationNode = netWrapper.getNextNode(entityIn, sourceNode);
 

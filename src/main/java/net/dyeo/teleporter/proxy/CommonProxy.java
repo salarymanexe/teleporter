@@ -14,16 +14,16 @@ public class CommonProxy
 
 	public void preInit()
 	{
-		registerBlocks();
-		registerSounds();
-		registerTileEntities();
+		this.registerBlocks();
+		this.registerSounds();
+		this.registerTileEntities();
 	}
 
 	public void init()
 	{
-		registerCapabilities();
-		registerCraftingRecipes();
-		registerGuiHandler();
+		this.registerCapabilities();
+		this.registerCraftingRecipes();
+		this.registerGuiHandler();
 	}
 
 	public void postInit()
