@@ -7,9 +7,9 @@ import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
 import net.dyeo.teleporter.capabilities.ITeleportHandler;
 import net.dyeo.teleporter.common.config.ModConfiguration;
 import net.dyeo.teleporter.common.network.GuiHandler;
-import net.dyeo.teleporter.network.TeleporterNode;
+import net.dyeo.teleporter.teleport.TeleporterNode;
+import net.dyeo.teleporter.teleport.TeleporterUtility;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
-import net.dyeo.teleporter.utilities.TeleporterUtility;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -213,7 +213,7 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
-		return getDefaultState().withProperty(TYPE, meta == 0 ? EnumType.REGULAR : EnumType.ENDER);
+		return this.getDefaultState().withProperty(TYPE, meta == 0 ? EnumType.REGULAR : EnumType.ENDER);
 	}
 
 	@Override
@@ -225,7 +225,7 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public int damageDropped(IBlockState state)
 	{
-		return getMetaFromState(state);
+		return this.getMetaFromState(state);
 	}
 
 	@Override

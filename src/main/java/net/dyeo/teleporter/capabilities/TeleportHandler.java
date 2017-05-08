@@ -15,7 +15,7 @@ public class TeleportHandler implements ITeleportHandler
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setBoolean("onTeleporter", this.onTeleporter);
-		nbt.setInteger("teleportStatus", teleportStatus.ordinal());
+		nbt.setInteger("teleportStatus", this.teleportStatus.ordinal());
 		nbt.setInteger("dimension", this.dimension);
 		return nbt;
 	}
@@ -24,7 +24,7 @@ public class TeleportHandler implements ITeleportHandler
 	public void deserializeNBT(NBTTagCompound nbt)
 	{
 		this.onTeleporter = nbt.getBoolean("onTeleporter");
-		this.teleportStatus = teleportStatus.values()[nbt.getInteger("teleportStatus")];
+		this.teleportStatus = EnumTeleportStatus.values()[nbt.getInteger("teleportStatus")];
 		this.dimension = nbt.getInteger("dimension");
 	}
 

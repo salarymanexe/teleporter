@@ -1,4 +1,4 @@
-package net.dyeo.teleporter.network;
+package net.dyeo.teleporter.teleport;
 
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
@@ -22,9 +22,9 @@ public class TeleporterNode
 
 	public TeleporterNode()
 	{
-		pos = new BlockPos(0, 0, 0);
-		dimension = 0;
-		type = BlockTeleporter.EnumType.REGULAR;
+		this.pos = new BlockPos(0, 0, 0);
+		this.dimension = 0;
+		this.type = BlockTeleporter.EnumType.REGULAR;
 	}
 
 //	public TeleporterNode(BlockPos pos, int dimension, BlockTeleporter.EnumType type)
@@ -42,11 +42,11 @@ public class TeleporterNode
 
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		nbt.setInteger("x", pos.getX());
-		nbt.setInteger("y", pos.getY());
-		nbt.setInteger("z", pos.getZ());
-		nbt.setInteger("dim", dimension);
-		nbt.setInteger("type", type.ordinal());
+		nbt.setInteger("x", this.pos.getX());
+		nbt.setInteger("y", this.pos.getY());
+		nbt.setInteger("z", this.pos.getZ());
+		nbt.setInteger("dim", this.dimension);
+		nbt.setInteger("type", this.type.ordinal());
 		return nbt;
 	}
 
@@ -55,9 +55,9 @@ public class TeleporterNode
 		int x = nbt.getInteger("x");
 		int y = nbt.getInteger("y");
 		int z = nbt.getInteger("z");
-		pos = new BlockPos(x, y, z);
-		dimension = nbt.getInteger("dim");
-		type = BlockTeleporter.EnumType.byMetadata(nbt.getInteger("type"));
+		this.pos = new BlockPos(x, y, z);
+		this.dimension = nbt.getInteger("dim");
+		this.type = BlockTeleporter.EnumType.byMetadata(nbt.getInteger("type"));
 	}
 
 	public TileEntityTeleporter getTileEntity()
