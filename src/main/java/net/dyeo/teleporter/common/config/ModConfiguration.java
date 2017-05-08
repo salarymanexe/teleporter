@@ -10,10 +10,16 @@ public class ModConfiguration
 {
 	private static Configuration config = null;
 
+	public static final String CATEGORY_UPDATES = "updates";
+
 	public static boolean useDiamonds = true;
 	public static int numTeleporters = 1;
 	public static boolean teleportPassiveMobs = true;
 	public static boolean teleportHostileMobs = true;
+
+	public static boolean checkForUpdates = true;
+	public static boolean promptForLatest = true;
+	public static boolean promptForRecommended = true;
 
 
 	public static void preInit()
@@ -32,11 +38,18 @@ public class ModConfiguration
 		Property propTeleportPassiveMobs = config.get(Configuration.CATEGORY_GENERAL, "teleportPassiveMobs", teleportPassiveMobs, "Specifies whether or not passive mobs can go through teleporters.\nDefault is true");
 		Property propTeleportHostileMobs = config.get(Configuration.CATEGORY_GENERAL, "teleportHostileMobs", teleportHostileMobs, "Specifies whether or not hostile mobs can go through teleporters.\nDefault is true");
 
+		Property propCheckForUpdates = config.get(ModConfiguration.CATEGORY_UPDATES, "checkForUpdates", checkForUpdates, "Should the mod check for updates on startup");
+		Property propPromptForLatest = config.get(ModConfiguration.CATEGORY_UPDATES, "promptForLatest", promptForLatest, "Alert the user when there is a new version");
+		Property propPromptForRecommended = config.get(ModConfiguration.CATEGORY_UPDATES, "promptForRecommended", promptForRecommended, "Alert the user when there is a new recommended version");
+
 		useDiamonds = propUseDiamonds.getBoolean();
 		numTeleporters = propNumTeleporters.getInt();
 		teleportPassiveMobs = propTeleportPassiveMobs.getBoolean();
 		teleportHostileMobs = propTeleportHostileMobs.getBoolean();
 
+		checkForUpdates = propCheckForUpdates.getBoolean();
+		promptForLatest = propPromptForLatest.getBoolean();
+		promptForRecommended = propPromptForRecommended.getBoolean();
 
 		if (config.hasChanged()) config.save();
 	}

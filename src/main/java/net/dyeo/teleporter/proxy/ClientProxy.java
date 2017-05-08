@@ -3,6 +3,7 @@ package net.dyeo.teleporter.proxy;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import net.dyeo.teleporter.client.renderer.ItemRendererTeleporter;
 import net.dyeo.teleporter.client.renderer.tileentity.RenderTeleporter;
+import net.dyeo.teleporter.client.update.VersionChecker;
 import net.dyeo.teleporter.init.ModBlocks;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.item.Item;
@@ -27,6 +28,7 @@ public class ClientProxy extends CommonProxy
 	public void postInit()
 	{
 		super.postInit();
+		this.registerVersionCheck();
 	}
 
 
@@ -34,5 +36,10 @@ public class ClientProxy extends CommonProxy
 	{
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTeleporter.class, new RenderTeleporter());
 		MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlocks.teleporterBlock), new ItemRendererTeleporter());
+	}
+
+	private void registerVersionCheck()
+	{
+		VersionChecker.register();
 	}
 }
