@@ -8,7 +8,6 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -217,21 +216,17 @@ public class TeleporterNetwork extends WorldSavedData
 
 	private boolean isObstructed(World world, TeleporterNode node)
 	{
-		int posx = node.x;
-		int posy1 = node.y + 1;
-		int posy2 = node.y + 2;
-		int posz = node.z;
-		Block bl1 = world.getBlock(posx, posy1, posz);
-		Block bl2 = world.getBlock(posx, posy2, posz);
-		if ((bl1 == null) && (bl2 == null))
+		Block block1 = world.getBlock(node.x, node.y + 1, node.z);
+		Block block2 = world.getBlock(node.x, node.y + 2, node.z);
+
+		if (!block1.getMaterial().blocksMovement() && !block2.getMaterial().blocksMovement())
 		{
 			return false;
 		}
-		if (((bl1 == Blocks.wall_sign) || (bl1 == Blocks.standing_sign) || (bl1 == Blocks.lever) || (bl1 == Blocks.vine) || (bl1 == Blocks.torch) || (bl1 == Blocks.air) || (bl1 == Blocks.redstone_torch) || (bl1 == Blocks.ladder)) && ((bl2 == Blocks.wall_sign) || (bl2 == Blocks.standing_sign) || (bl2 == Blocks.lever) || (bl2 == Blocks.vine) || (bl2 == Blocks.torch) || (bl2 == Blocks.air) || (bl2 == Blocks.redstone_torch) || (bl2 == Blocks.ladder)))
+		else
 		{
-			return false;
+			return true;
 		}
-		return true;
 	}
 
 	private boolean doKeyStacksMatch(ItemStack sourceKey, ItemStack destinationKey)
