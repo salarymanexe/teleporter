@@ -5,6 +5,7 @@ import net.dyeo.teleporter.init.ModBlocks;
 
 public class ClientProxy extends CommonProxy
 {
+
 	@Override
 	public void preInit()
 	{
