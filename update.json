@@ -1,40 +1,46 @@
 {
 	"homepage": "https://minecraft.curseforge.com/projects/vanilla-inspired-teleporters/files",
 	"promos": {
-		"1.11.2-latest": "1.6.1-beta2",
-		"1.11.2-recommended": "1.6.1-beta2",
-		"1.11-latest": "1.6.1-beta2",
-		"1.11-recommended": "1.6.1-beta2",
-		"1.10.2-latest": "1.6.1-beta2",
-		"1.10.2-recommended": "1.6.1-beta2",
-		"1.9.4-latest": "1.6.1-beta2",
-		"1.9.4-recommended": "1.6.1-beta2",
-		"1.8.9-latest": "1.6.1-beta2",
-		"1.8.9-recommended": "1.6.1-beta2",
-		"1.7.10-latest": "1.6.1-beta2",
-		"1.7.10-recommended": "1.6.1-beta2"
+		"1.11.2-latest": "1.6.1-beta3",
+		"1.11.2-recommended": "1.6.1-beta3",
+		"1.11-latest": "1.6.1-beta3",
+		"1.11-recommended": "1.6.1-beta3",
+		"1.10.2-latest": "1.6.1-beta3",
+		"1.10.2-recommended": "1.6.1-beta3",
+		"1.9.4-latest": "1.6.1-beta3",
+		"1.9.4-recommended": "1.6.1-beta3",
+		"1.8.9-latest": "1.6.1-beta3",
+		"1.8.9-recommended": "1.6.1-beta3",
+		"1.7.10-latest": "1.6.1-beta3",
+		"1.7.10-recommended": "1.6.1-beta3"
 	},
 	"1.11.2": {
+		"1.6.1-beta3": "Sound effects are now configurable",
 		"1.6.1-beta2": "lots of small changes, fixed trans-dimensional travel",
 		"1.6.1-beta1": "Initial release by crazysnailboy"
 	},
 	"1.11": {
+		"1.6.1-beta3": "Sound effects are now configurable",
 		"1.6.1-beta2": "lots of small changes, fixed trans-dimensional travel",
 		"1.6.1-beta1": "Initial release by crazysnailboy"
 	},
 	"1.10.2": {
+		"1.6.1-beta3": "Sound effects are now configurable",
 		"1.6.1-beta2": "lots of small changes, fixed trans-dimensional travel",
 		"1.6.1-beta1": "Initial release by crazysnailboy"
 	},
 	"1.9.4": {
+		"1.6.1-beta3": "Sound effects are now configurable",
 		"1.6.1-beta2": "lots of small changes, fixed trans-dimensional travel",
 		"1.6.1-beta1": "Initial release by crazysnailboy"
 	},
 	"1.8.9": {
+		"1.6.1-beta3": "Sound effects are now configurable",
 		"1.6.1-beta2": "lots of small changes, fixed trans-dimensional travel",
 		"1.6.1-beta1": "Initial release by crazysnailboy"
 	},
 	"1.7.10": {
+		"1.6.1-beta3": "Sound effects are now configurable, some bug fixes",
 		"1.6.1-beta2": "lots of small changes, fixed trans-dimensional travel",
 		"1.6.1-beta1": "Initial release by crazysnailboy"
 	}
