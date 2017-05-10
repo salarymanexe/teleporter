@@ -1,12 +1,12 @@
 package net.dyeo.teleporter.teleport;
 
 import com.google.common.base.Throwables;
-import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
 import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
 import net.dyeo.teleporter.capabilities.ITeleportHandler;
 import net.dyeo.teleporter.event.TeleportEvent;
+import net.dyeo.teleporter.init.ModSounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -66,12 +66,12 @@ public class TeleporterUtility
 
 		if (teleportSuccess)
 		{
-			entity.worldObj.playSoundEffect(sourceNode.pos.getX(), sourceNode.pos.getY(), sourceNode.pos.getZ(), TeleporterMod.MODID + ":portalEnter", 0.9f, 1.0f);
-			entity.worldObj.playSoundEffect(destinationNode.pos.getX(), destinationNode.pos.getY(), destinationNode.pos.getZ(), TeleporterMod.MODID + ":portalExit", 0.9f, 1.0f);
+			entity.worldObj.playSoundEffect(sourceNode.pos.getX(), sourceNode.pos.getY(), sourceNode.pos.getZ(), ModSounds.PORTAL_ENTER, 0.9f, 1.0f);
+			entity.worldObj.playSoundEffect(destinationNode.pos.getX(), destinationNode.pos.getY(), destinationNode.pos.getZ(), ModSounds.PORTAL_EXIT, 0.9f, 1.0f);
 		}
 		else
 		{
-			entity.worldObj.playSoundEffect(sourceNode.pos.getX(), sourceNode.pos.getY(), sourceNode.pos.getZ(), TeleporterMod.MODID + ":portalError", 0.9f, 1.0f);
+			entity.worldObj.playSoundEffect(sourceNode.pos.getX(), sourceNode.pos.getY(), sourceNode.pos.getZ(), ModSounds.PORTAL_ERROR, 0.9f, 1.0f);
 			handler.setTeleportStatus(EnumTeleportStatus.FAILED);
 		}
 

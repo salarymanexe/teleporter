@@ -1,31 +1,5 @@
 {
-    "portalEnter": {
-        "category": "block",
-        "sounds": [
-            {
-                "name": "portalEnter",
-                "stream": false
-            }
-        ]
-    },
-    
-    "portalExit": {
-        "category": "block",
-        "sounds": [
-            {
-                "name": "portalExit",
-                "stream": false
-            }
-        ]
-    },
-    
-    "portalError": {
-        "category": "block",
-        "sounds": [
-            {
-                "name": "portalError",
-                "stream": false
-            }
-        ]
-    }
+    "portal_enter": {"category": "block", "sounds": [{"name": "portal_enter","stream": false}]},
+    "portal_exit": {"category": "block", "sounds": [{"name": "portal_exit","stream": false}]},
+    "portal_error": {"category": "block", "sounds": [{"name": "portal_error","stream": false}]}
 }
