@@ -2,6 +2,8 @@ package net.dyeo.teleporter.init;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.client.renderer.ItemRendererTeleporter;
@@ -43,6 +45,7 @@ public class ModBlocks
 		}
 	}
 
+	@SideOnly(Side.CLIENT)
 	public static void registerRenderers()
 	{
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTeleporter.class, new RenderTeleporter());
