@@ -74,8 +74,6 @@ public class TeleporterUtility
 		else
 		{
 			entityIn.world.playSound(null, sourceNode.pos.getX(), sourceNode.pos.getY(), sourceNode.pos.getZ(), ModSounds.PORTAL_ERROR, SoundCategory.BLOCKS, 0.9f, 1.0f);
-
-			System.out.println("teleport :: Setting teleportStatus to " + EnumTeleportStatus.FAILED);
 			handler.setTeleportStatus(EnumTeleportStatus.FAILED);
 		}
 
