@@ -97,20 +97,8 @@ public class BlockTeleporter extends BlockContainer
 			{
 				if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
 				{
-					BlockPos entityPos = new BlockPos(entity);
-
-					System.out.println("entityPos: " + entityPos.toString());
-					System.out.println("blockPos: " + pos.toString());
-
-
-					boolean onTeleporter = world.getBlockState(entity.getPosition().down()).getBlock() instanceof BlockTeleporter;
-					int dimension = entity.dimension;
-
-					handler.setOnTeleporter(onTeleporter);
-					handler.setDimension(dimension);
-
-					System.out.println("onEntityCollidedWithBlock :: onTeleporter = " + handler.getOnTeleporter());
-					System.out.println("onEntityCollidedWithBlock :: dimension = " + handler.getDimension());
+					handler.setOnTeleporter(entity.getPosition().distanceSq(pos) <= 1);
+					handler.setDimension(entity.dimension);
 
 					if (handler.getOnTeleporter())
 					{
