@@ -1,6 +1,6 @@
 package net.dyeo.teleporter.teleport;
 
-import com.google.common.base.Throwables;
+import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
 import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
@@ -156,47 +156,34 @@ public class TeleporterUtility
 	/**
 	 * transfer entity to dimension. do not transfer player using this method! use transferPlayerToDimension
 	 */
-	private static boolean transferEntityToDimension(EntityLivingBase entity, double posX, double posY, double posZ, float yaw, float pitch, int dimensionId)
+	private static boolean transferEntityToDimension(EntityLivingBase srcEntity, double posX, double posY, double posZ, float yaw, float pitch, int dstDimension)
 	{
-		int srcDimension = entity.worldObj.provider.getDimension();
+		int srcDimension = srcEntity.worldObj.provider.getDimension();
 
 		MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
 		WorldServer srcWorldServer = minecraftServer.worldServerForDimension(srcDimension);
-		WorldServer dstWorldServer = minecraftServer.worldServerForDimension(dimensionId);
+		WorldServer dstWorldServer = minecraftServer.worldServerForDimension(dstDimension);
 
 		if (dstWorldServer != null)
 		{
-			Class<? extends Entity> entityClass = entity.getClass();
-
-			srcWorldServer.removeEntity(entity);
-
+			Class<? extends Entity> entityClass = srcEntity.getClass();
+			srcWorldServer.removeEntity(srcEntity);
 			try
 			{
-				EntityLivingBase dstEntity = (EntityLivingBase)(entityClass.getConstructor(World.class).newInstance((World) dstWorldServer));
+				EntityLivingBase dstEntity = (EntityLivingBase)(entityClass.getConstructor(World.class).newInstance((World)dstWorldServer));
 
 				dstEntity.setPositionAndRotation(posX, posY, posZ, yaw, pitch);
-
 				dstEntity.forceSpawn = true;
 				dstWorldServer.spawnEntityInWorld(dstEntity);
 				dstEntity.forceSpawn = false;
-
 				dstWorldServer.updateEntityWithOptionalForce(dstEntity, false);
-			}
-			catch (Exception e)
-			{
-				// teleport unsuccessful
-				Throwables.propagate(e);
-				return false;
-			}
 
-			// teleport successful
-			return true;
+				return true;
+			}
+			catch (Exception ex){ TeleporterMod.LOGGER.catching(ex); }
 		}
-		else
-		{
-			// teleport unsuccessful
-			System.out.println("Destination world server does not exist.");
-			return false;
-		}
+
+		return false;
 	}
+
 }
