@@ -42,16 +42,6 @@ public class TeleportEntityProperty implements IExtendedEntityProperties
 
 	public TeleportEntityProperty()
 	{
-		this(null);
-	}
-
-	@Deprecated
-	private final Entity entity;
-
-	@Deprecated
-	public TeleportEntityProperty(Entity entity)
-	{
-		this.entity = entity;
 	}
 
 	@Override

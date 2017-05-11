@@ -1,6 +1,6 @@
 package net.dyeo.teleporter.teleport;
 
-import com.google.common.base.Throwables;
+import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.entityproperties.TeleportEntityProperty;
 import net.dyeo.teleporter.entityproperties.TeleportEntityProperty.EnumTeleportStatus;
@@ -9,7 +9,6 @@ import net.dyeo.teleporter.init.ModSounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -90,16 +89,16 @@ public class TeleporterUtility
 	/**
 	 * transfer player to dimension, retaining all information and not dying
 	 */
-	private static boolean transferPlayerToDimension(EntityPlayerMP entity, double posX, double posY, double posZ, float yaw, float pitch, int dimensionId)
+	private static boolean transferPlayerToDimension(EntityPlayerMP entity, double posX, double posY, double posZ, float yaw, float pitch, int dstDimension)
 	{
 		int sourceDimension = entity.worldObj.provider.dimensionId;
 
-		WorldServer destinationWorldServer = MinecraftServer.getServer().worldServerForDimension(dimensionId);
+		WorldServer destinationWorldServer = MinecraftServer.getServer().worldServerForDimension(dstDimension);
 		if (destinationWorldServer != null)
 		{
 			entity.addExperienceLevel(0);
 
-			MinecraftServer.getServer().getConfigurationManager().transferPlayerToDimension(entity, dimensionId);
+			MinecraftServer.getServer().getConfigurationManager().transferPlayerToDimension(entity, dstDimension);
 			if (sourceDimension == 1)
 			{
 				entity.setLocationAndAngles(posX, posY, posZ, yaw, pitch);
@@ -118,45 +117,35 @@ public class TeleporterUtility
 	/**
 	 * transfer entity to dimension. do not transfer player using this method! use transferPlayerToDimension
 	 */
-	private static boolean transferEntityToDimension(EntityLivingBase entity, double posX, double posY, double posZ, float yaw, float pitch, int dimensionId)
+	private static boolean transferEntityToDimension(EntityLivingBase srcEntity, double posX, double posY, double posZ, float yaw, float pitch, int dstDimension)
 	{
-		int sourceDimension = entity.worldObj.provider.dimensionId;
+		int sourceDimension = srcEntity.worldObj.provider.dimensionId;
 
 		MinecraftServer minecraftServer = MinecraftServer.getServer();
+		WorldServer srcWorldServer = minecraftServer.worldServerForDimension(sourceDimension);
+		WorldServer dstWorldServer = minecraftServer.worldServerForDimension(dstDimension);
 
-		WorldServer sourceWorldServer = minecraftServer.worldServerForDimension(sourceDimension);
-		WorldServer destinationWorldServer = minecraftServer.worldServerForDimension(dimensionId);
-		if (destinationWorldServer != null)
+		if (dstWorldServer != null)
 		{
-			NBTTagCompound tagCompound = new NBTTagCompound();
+			Class<? extends Entity> entityClass = srcEntity.getClass();
+			srcWorldServer.removeEntity(srcEntity);
 
-			entity.writeToNBT(tagCompound);
-
-			Class<? extends Entity> entityClass = entity.getClass();
-
-			sourceWorldServer.removeEntity(entity);
 			try
 			{
-				EntityLivingBase destinationEntity = (EntityLivingBase)entityClass.getConstructor(new Class[] { World.class }).newInstance(new Object[] { destinationWorldServer });
+				Entity dstEntity = entityClass.getConstructor(World.class).newInstance((World)dstWorldServer);
 
-				entity.setPosition(posX, posY, posZ);
-				entity.rotationYaw = yaw;
-				entity.rotationPitch = pitch;
+				dstEntity.setPositionAndRotation(posX, posY, posZ, yaw, pitch);
+				dstEntity.forceSpawn = true;
+				dstWorldServer.spawnEntityInWorld(dstEntity);
+				dstEntity.forceSpawn = false;
+				dstWorldServer.updateEntityWithOptionalForce(dstEntity, false);
 
-				destinationEntity.forceSpawn = true;
-				destinationWorldServer.spawnEntityInWorld(destinationEntity);
-				destinationEntity.forceSpawn = false;
-
-				destinationWorldServer.updateEntityWithOptionalForce(destinationEntity, false);
+				return true;
 			}
-			catch (Exception e)
-			{
-				Throwables.propagate(e);
-				return false;
-			}
-			return true;
+			catch (Exception ex){ TeleporterMod.LOGGER.catching(ex); }
 		}
-		System.out.println("Destination world server does not exist.");
+
 		return false;
 	}
+
 }

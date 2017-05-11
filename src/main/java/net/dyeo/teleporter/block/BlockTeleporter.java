@@ -67,11 +67,8 @@ public class BlockTeleporter extends BlockContainer
 				{
 					if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
 					{
-						boolean onTeleporter = new Vec3i(entity).distanceSq(posX, posY, posZ) == 0;
-						int dimension = entity.dimension;
-
-						handler.setOnTeleporter(onTeleporter);
-						handler.setDimension(dimension);
+						handler.setOnTeleporter(new Vec3i(entity).distanceSq(posX, posY + 0.5D, posZ) <= 1);
+						handler.setDimension(entity.dimension);
 
 						if (handler.getOnTeleporter())
 						{
