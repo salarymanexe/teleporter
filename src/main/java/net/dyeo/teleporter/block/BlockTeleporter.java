@@ -95,22 +95,15 @@ public class BlockTeleporter extends BlockContainer
 	{
 		if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
 		{
-			ITeleportHandler capability = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
+			ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
 			if (!world.isRemote)
 			{
-				if (capability.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
+				if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
 				{
+					handler.setOnTeleporter(entity.getPosition().distanceSq(pos) <= 1);
+					handler.setDimension(entity.dimension);
 
-					boolean onTeleporter = world.getBlockState(entity.getPosition().down()).getBlock() instanceof BlockTeleporter;
-					int dimension = entity.dimension;
-
-					capability.setOnTeleporter(onTeleporter);
-					capability.setDimension(dimension);
-
-					System.out.println("onEntityCollidedWithBlock :: onTeleporter = " + capability.getOnTeleporter());
-					System.out.println("onEntityCollidedWithBlock :: dimension = " + capability.getDimension());
-
-					if (capability.getOnTeleporter())
+					if (handler.getOnTeleporter())
 					{
 						boolean isHostile = (entity instanceof EntityMob) || (entity instanceof EntityWolf && ((EntityWolf)entity).isAngry());
 						boolean isPassive = (entity instanceof EntityAnimal);
@@ -123,7 +116,7 @@ public class BlockTeleporter extends BlockContainer
 				}
 			}
 
-			if (capability.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
+			if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
 			{
 				double width = 0.25;
 				double height = 0.25;
