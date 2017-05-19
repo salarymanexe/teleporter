@@ -273,7 +273,9 @@ public class BlockTeleporter extends BlockContainer
 	public static enum EnumType implements IStringSerializable
 	{
 		REGULAR(0, "regular", "teleporter", "teleporter"),
-		ENDER(1, "ender", "enderTeleporter", "ender_teleporter");
+		ENDER(1, "ender", "enderTeleporter", "ender_teleporter"),
+		RECALL(2, "recall", "recallTeleporter", "recall_teleporter"),
+		RECALL_ENDER(3, "recall_ender", "recallEnderTeleporter", "recall_ender_teleporter");
 
 		private final int meta;
 		private final String name;
@@ -291,6 +293,16 @@ public class BlockTeleporter extends BlockContainer
 		public int getMetadata()
 		{
 			return this.meta;
+		}
+		
+		public boolean isEnder()
+		{
+			return (this.meta & 1) == 1;
+		}
+		
+		public boolean isRecall()
+		{
+			return (this.meta & 2) == 2;
 		}
 
 		public String getUnlocalizedName()
