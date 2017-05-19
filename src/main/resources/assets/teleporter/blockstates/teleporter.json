@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"type=regular": {
+			"model": "teleporter:teleporter"
+		},
+		"type=ender": {
+			"model": "teleporter:ender_teleporter"
+		}
+	}
+}

@@ -1,0 +1,84 @@
+{
+	"parent": "block/block",
+    "ambientocclusion": false,
+    "textures": {
+        "glass": "blocks/glass",
+        "side": "blocks/iron_block",
+        "diode": "blocks/redstone_block",
+        "particle": "blocks/quartz_block_top"
+    },
+    "elements": [
+        {
+            "type": "cube",
+            "from": [0,0,0],
+            "to": [16,8,16],
+            "faces": {
+                "up": {
+                    "texture": "#side"
+                },
+                "down": {
+                    "texture": "#side"
+                },
+                "west": {
+                    "texture": "#side"
+                },
+                "east": {
+                    "uv": [0,8,16,16],
+                    "texture": "#side"
+                },
+                "north": {
+                    "texture": "#side"
+                },
+                "south": {
+                    "texture": "#side"
+                }
+            }
+        },
+        {
+            "type": "cube",
+            "from": [4,8,4],
+            "to": [12,12,12],
+            "faces": {
+                "up": {
+                    "uv": [4,4,12,12],
+                    "texture": "#diode"
+                },
+                "west": {
+                    "texture": "#diode"
+                },
+                "east": {
+                    "texture": "#diode"
+                },
+                "north": {
+                    "texture": "#diode"
+                },
+                "south": {
+                    "texture": "#diode"
+                }
+            }
+        },
+        {
+            "type": "cube",
+            "from": [0,8,0],
+            "to": [16,16,16],
+            "shade": false,
+            "faces": {
+                "up": {
+                    "texture": "#glass"
+                },
+                "west": {
+                    "texture": "#glass"
+                },
+                "east": {
+                    "texture": "#glass"
+                },
+                "north": {
+                    "texture": "#glass"
+                },
+                "south": {
+                    "texture": "#glass"
+                }
+            }
+        }
+    ]
+}

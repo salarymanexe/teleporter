@@ -1,24 +1,23 @@
 < fr_FR.lang - French (France) localization file for Vanilla-Inspired Teleporters (teleporter) >
-# fr_FR.lang - Français (France) fichier de localisation de la Vanille-Inspiré des Téléporteurs (teleporter)
+# fr_FR.lang - Franï¿½ais (France) fichier de localisation de la Vanille-Inspirï¿½ des Tï¿½lï¿½porteurs (teleporter)
 # NOTE: I used BabelXL for this!
 
-# teleporter block name
-tile.teleporter_teleporterBlock.regular.name=Teleporter
+tile.teleporter.name=Teleporter
+tile.enderTeleporter.name=Ender Teleporter
 
-# ender teleporter block name
-tile.teleporter_teleporterBlock.ender.name=Ender Teleporter
+container.teleporter=Teleporter
 
 # message that displays when the user attempts to go to a blocked teleporter
-message.teleporter_TeleporterNetwork.teleporterBlocked=Téléporteur est bloqué; sauter...
+message.teleporter_TeleporterNetwork.teleporterBlocked=TÃ©lÃ©porteur est bloquÃ©; sauter...
 
 # message that displays when the user attempts to go to a locked (disabled) teleporter
-message.teleporter_TeleporterNetwork.teleporterDisabled=Téléporteur est désactivé; sauter...
+message.teleporter_TeleporterNetwork.teleporterDisabled=TÃ©lÃ©porteur est dÃ©sactivÃ©; sauter...
 
 # message that displays when there are no teleporters that can be teleported to
-message.teleporter_TeleporterNetwork.teleporterNotFound=Pas de téléporteurs trouvé qui correspondent à vos clés.
+message.teleporter_TeleporterNetwork.teleporterNotFound=Pas de tÃ©lÃ©porteurs trouvÃ© qui correspondent Ã  vos clÃ©s.
 
 # message that displays when a teleporter is locked by the player
-message.teleporter_BlockTeleporter.teleporterLocked=Téléporteur verrouillé: peut quitter seul.
+message.teleporter_BlockTeleporter.teleporterLocked=TÃ©lÃ©porteur verrouillÃ©: peut quitter seul.
 
 # message that displays when a teleporter is unlocked by the player
-message.teleporter_BlockTeleporter.teleporterUnlocked=Téléporteur déverrouillé: pouvez entrer et de sortir.
+message.teleporter_BlockTeleporter.teleporterUnlocked=TÃ©lÃ©porteur dÃ©verrouillÃ©: pouvez entrer et de sortir.

@@ -1,16 +1,14 @@
-[
-{
-  "modid": "teleporter",
-  "name": "Vanilla-Inspired Teleporters",
-  "description": "Teleport with ease!",
-  "mcversion": "${mcversion}",
-  "version": "${version}",
-  "url": "https://github.com/dyeo/vanillateleporter",
-  "updateUrl": "",
-  "authorList": ["DanYeomans","bronsonf1"],
-  "credits": "Programmed by DanYeomans, designed by bronsonf1",
-  "logoFile": "/vanillateleporter.png",
-  "screenshots": [],
-  "dependencies": [ "mod_MinecraftForge" ]
-}
-]
+[{
+	"modid": "teleporter",
+	"name": "Vanilla-Inspired Teleporters",
+	"description": "Teleport with ease!",
+	"mcversion": "${mcversion}",
+	"version": "${version}",
+	"url": "https://minecraft.curseforge.com/projects/vanilla-inspired-teleporters",
+	"updateUrl": "",
+	"authorList": ["DanYeomans","bronsonf1","crazysnailboy"],
+	"credits": "Originally programmed by DanYeomans, designed by bronsonf1",
+	"logoFile": "",
+	"screenshots": [],
+	"dependencies": []
+}]
