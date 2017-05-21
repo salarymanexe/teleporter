@@ -30,13 +30,12 @@ public class TeleportEventHandler
 				if (handler != null)
 				{
 					Vec3i entityPos = new Vec3i(entity);
-					boolean onTeleporter = event.entityLiving.worldObj.getBlock(entityPos.getX(), entityPos.getY(), entityPos.getZ()) instanceof BlockTeleporter;
+					boolean onTeleporter = event.entityLiving.worldObj.getBlock(entityPos.getX(), entityPos.getY() - 1, entityPos.getZ()) instanceof BlockTeleporter;
 
 					if (handler.getTeleportStatus() == EnumTeleportStatus.IN_PROGRESS)
 					{
 						if (onTeleporter)
 						{
-							System.out.println("onLivingUpdate :: Setting teleportStatus = " + EnumTeleportStatus.SUCCEEDED);
 							handler.setTeleportStatus(EnumTeleportStatus.SUCCEEDED);
 						}
 						else return;
@@ -46,16 +45,12 @@ public class TeleportEventHandler
 					{
 						if (!onTeleporter)
 						{
-							System.out.println("onLivingUpdate :: Setting onTeleporter = " + false);
-							System.out.println("onLivingUpdate :: Setting teleportStatus = " + EnumTeleportStatus.INACTIVE);
-
 							handler.setOnTeleporter(false);
 							handler.setTeleportStatus(EnumTeleportStatus.INACTIVE);
 
 							entities.remove(entity);
 							if (entities.size() == 0)
 							{
-								System.out.println("onLivingUpdate :: unregistering for updates");
 								MinecraftForge.EVENT_BUS.unregister(updateHandler);
 							}
 						}
@@ -71,15 +66,12 @@ public class TeleportEventHandler
 	@SubscribeEvent
 	public void onEntityTeleported(TeleportEvent.EntityTeleportedEvent event)
 	{
-		System.out.println("onEntityTeleported");
-
 		if (!entities.contains(event.entityLiving))
 		{
 			entities.add(event.entityLiving);
 		}
 		if (entities.size() == 1)
 		{
-			System.out.println("onEntityTeleported :: registering for updates");
 			MinecraftForge.EVENT_BUS.register(updateHandler);
 		}
 	}
@@ -91,11 +83,24 @@ public class TeleportEventHandler
 		{
 			EntityLivingBase entity = (EntityLivingBase)event.entity;
 			TeleportEntityProperty handler = TeleportEntityProperty.get(entity);
-
-			if (handler != null && handler.getTeleportStatus() != EnumTeleportStatus.IN_PROGRESS)
+			if (handler != null)
 			{
-				handler.setOnTeleporter(false);
-				handler.setTeleportStatus(EnumTeleportStatus.INACTIVE);
+				if (handler.getTeleportStatus() == EnumTeleportStatus.IN_PROGRESS)
+				{
+					if (!entities.contains(entity))
+					{
+						entities.add(entity);
+					}
+					if (entities.size() == 1)
+					{
+						MinecraftForge.EVENT_BUS.register(updateHandler);
+					}
+				}
+				else
+				{
+					handler.setOnTeleporter(false);
+					handler.setTeleportStatus(EnumTeleportStatus.INACTIVE);
+				}
 			}
 		}
 	}

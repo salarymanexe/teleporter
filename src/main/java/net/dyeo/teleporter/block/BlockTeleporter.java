@@ -32,8 +32,9 @@ import net.minecraft.world.World;
 
 public class BlockTeleporter extends BlockContainer
 {
-	public static final AxisAlignedBB TELEPORTER_AABB = AxisAlignedBB.getBoundingBox(0.0D, 0.0D, 0.0D, 1.0D, 0.9375D, 1.0D);
-	private boolean interdimensional = false;
+
+	public static final AxisAlignedBB TELEPORTER_AABB = AxisAlignedBB.getBoundingBox(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
+
 
 	public BlockTeleporter()
 	{
@@ -42,7 +43,7 @@ public class BlockTeleporter extends BlockContainer
 		this.setResistance(30.0F);
 		this.setHardness(3.0F);
 		this.setLightLevel(0.5F);
-		this.setBlockBounds(0.0f, 0.0f, 0.0f, (float)TELEPORTER_AABB.maxX, (float)TELEPORTER_AABB.maxY, (float)TELEPORTER_AABB.maxZ);
+		this.setBlockBounds(0.0F, 0.0F, 0.0F, (float)TELEPORTER_AABB.maxX, (float)TELEPORTER_AABB.maxY, (float)TELEPORTER_AABB.maxZ);
 	}
 
 	@Override
@@ -56,12 +57,12 @@ public class BlockTeleporter extends BlockContainer
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, int posX, int posY, int posZ, Entity entity)
+	public void onEntityWalking(World world, int posX, int posY, int posZ, Entity entity)
 	{
 		if (entity instanceof EntityLivingBase)
 		{
 			TeleportEntityProperty handler = TeleportEntityProperty.get(entity);
-			if (TeleportEntityProperty.get(entity) != null)
+			if (handler != null)
 			{
 				if (!world.isRemote)
 				{
@@ -100,6 +101,12 @@ public class BlockTeleporter extends BlockContainer
 				}
 			}
 		}
+	}
+
+	@Override
+	public void onFallenUpon(World world, int posX, int posY, int posZ, Entity entity, float fallDistance)
+	{
+		this.onEntityWalking(world, posX, posY, posZ, entity);
 	}
 
 	@Override
