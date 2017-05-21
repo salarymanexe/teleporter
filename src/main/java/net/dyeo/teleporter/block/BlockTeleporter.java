@@ -50,7 +50,7 @@ import net.minecraftforge.items.IItemHandler;
 public class BlockTeleporter extends BlockContainer
 {
 
-	public static final AxisAlignedBB TELEPORTER_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.9375D, 1.0D);
+	public static final AxisAlignedBB TELEPORTER_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
 	public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("type", BlockTeleporter.EnumType.class);
 
 
@@ -91,7 +91,7 @@ public class BlockTeleporter extends BlockContainer
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
+	public void onEntityWalk(World world, BlockPos pos, Entity entity)
 	{
 		if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
 		{
@@ -131,8 +131,14 @@ public class BlockTeleporter extends BlockContainer
 					pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
 				);
 			}
-
 		}
+	}
+
+	@Override
+	public void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance)
+	{
+		super.onFallenUpon(world, pos, entity, fallDistance);
+		this.onEntityWalk(world, pos, entity);
 	}
 
 	@Override

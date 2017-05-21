@@ -35,7 +35,6 @@ public class TeleportEventHandler
 					{
 						if (onTeleporter)
 						{
-							System.out.println("onLivingUpdate :: Setting teleportStatus = " + EnumTeleportStatus.SUCCEEDED);
 							handler.setTeleportStatus(EnumTeleportStatus.SUCCEEDED);
 						}
 						else return;
@@ -45,16 +44,12 @@ public class TeleportEventHandler
 					{
 						if (!onTeleporter)
 						{
-							System.out.println("onLivingUpdate :: Setting onTeleporter = " + false);
-							System.out.println("onLivingUpdate :: Setting teleportStatus = " + EnumTeleportStatus.INACTIVE);
-
 							handler.setOnTeleporter(false);
 							handler.setTeleportStatus(EnumTeleportStatus.INACTIVE);
 
 							entities.remove(entity);
 							if (entities.size() == 0)
 							{
-								System.out.println("onLivingUpdate :: unregistering for updates");
 								MinecraftForge.EVENT_BUS.unregister(updateHandler);
 							}
 						}
@@ -70,15 +65,12 @@ public class TeleportEventHandler
 	@SubscribeEvent
 	public void onEntityTeleported(TeleportEvent.EntityTeleportedEvent event)
 	{
-		System.out.println("onEntityTeleported");
-
 		if (!entities.contains(event.getEntityLiving()))
 		{
 			entities.add(event.getEntityLiving());
 		}
 		if (entities.size() == 1)
 		{
-			System.out.println("onEntityTeleported :: registering for updates");
 			MinecraftForge.EVENT_BUS.register(updateHandler);
 		}
 	}
@@ -92,7 +84,18 @@ public class TeleportEventHandler
 			if (entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
 			{
 				ITeleportHandler handler = ((ITeleportHandler)entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null));
-				if (handler.getTeleportStatus() != EnumTeleportStatus.IN_PROGRESS)
+				if (handler.getTeleportStatus() == EnumTeleportStatus.IN_PROGRESS)
+				{
+					if (!entities.contains(entity))
+					{
+						entities.add(entity);
+					}
+					if (entities.size() == 1)
+					{
+						MinecraftForge.EVENT_BUS.register(updateHandler);
+					}
+				}
+				else
 				{
 					handler.setOnTeleporter(false);
 					handler.setTeleportStatus(EnumTeleportStatus.INACTIVE);
@@ -100,20 +103,5 @@ public class TeleportEventHandler
 			}
 		}
 	}
-
-
-//	@SubscribeEvent
-//	public void onEntityTravelledToDimension(EntityTravelToDimensionEvent event)
-//	{
-//		System.out.println("onEntityTravelledToDimension");
-//	}
-//
-//	@SubscribeEvent
-//	public void onPlayerChangedDimension(PlayerChangedDimensionEvent event)
-//	{
-//		System.out.println("onPlayerChangedDimension");
-//	}
-
-
 
 }
