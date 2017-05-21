@@ -158,13 +158,13 @@ public class TeleporterNetwork extends WorldSavedData
 				}
 
 				// if the teleporter types are different, continue
-				if (sourceNode.type != node.type)
+				if (sourceNode.type.isEnder() != node.type.isEnder())
 				{
 					continue;
 				}
 
 				// if the teleporter isn't inter-dimensional and the dimensions are different, continue
-				if (sourceNode.type == BlockTeleporter.EnumType.REGULAR && sourceNode.dimension != node.dimension)
+				if (!sourceNode.type.isEnder() && sourceNode.dimension != node.dimension)
 				{
 					continue;
 				}

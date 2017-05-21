@@ -43,7 +43,7 @@ public class TeleporterUtility
 			float yaw = entity.rotationYaw;
 			float pitch = entity.rotationPitch;
 
-			if (sourceNode.type == BlockTeleporter.EnumType.REGULAR || entity.dimension == destinationNode.dimension)
+			if (sourceNode.type.isEnder() == destinationNode.type.isEnder() || entity.dimension == destinationNode.dimension)
 			{
 				teleportSuccess = transferToLocation(entity, x, y, z, yaw, pitch);
 			}

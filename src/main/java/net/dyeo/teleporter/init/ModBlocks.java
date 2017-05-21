@@ -31,9 +31,12 @@ public class ModBlocks
 
 	public static void registerBlockVariants()
 	{
-		ModelBakery.registerItemVariants(Item.getItemFromBlock(ModBlocks.TELEPORTER),
+		ModelBakery.registerItemVariants(
+			Item.getItemFromBlock(ModBlocks.TELEPORTER),
 			new ResourceLocation(TeleporterMod.MODID, EnumType.REGULAR.getRegistryName()),
-			new ResourceLocation(TeleporterMod.MODID, EnumType.ENDER.getRegistryName())
+			new ResourceLocation(TeleporterMod.MODID, EnumType.ENDER.getRegistryName()),
+			new ResourceLocation(TeleporterMod.MODID, EnumType.RECALL.getRegistryName()),
+			new ResourceLocation(TeleporterMod.MODID, EnumType.RECALL_ENDER.getRegistryName())
 		);
 	}
 
@@ -51,24 +54,72 @@ public class ModBlocks
 	{
 		if (ModConfiguration.useDiamonds == true)
 		{
+			// teleporter (diamonds)
 			GameRegistry.addRecipe(new ItemStack(ModBlocks.TELEPORTER, ModConfiguration.numTeleporters, 0),
-					new Object[] { "AAA", "DCD", "EBE", 'A', Blocks.GLASS, 'B', Items.ENDER_PEARL, 'C',
-							Blocks.REDSTONE_BLOCK, 'D', Blocks.IRON_BLOCK, 'E', Items.DIAMOND });
+					new Object[] { "AAA", 
+								   "DCD", 
+								   "EBE", 
+								   'A', Blocks.GLASS, 
+								   'B', Items.ENDER_PEARL, 
+								   'C', Blocks.REDSTONE_BLOCK, 
+								   'D', Blocks.IRON_BLOCK, 
+								   'E', Items.DIAMOND });
 
+			// ender teleporter (diamonds)
 			GameRegistry.addRecipe(new ItemStack(ModBlocks.TELEPORTER, ModConfiguration.numTeleporters, 1),
-					new Object[] { "AAA", "DCD", "EBE", 'A', Blocks.GLASS, 'B', Items.ENDER_EYE, 'C', Blocks.GLOWSTONE,
-							'D', Blocks.OBSIDIAN, 'E', Items.DIAMOND });
+					new Object[] { "AAA", 
+								   "DCD", 
+								   "EBE", 
+								   'A', Blocks.GLASS, 
+								   'B', Items.ENDER_EYE, 
+								   'C', Blocks.GLOWSTONE,
+								   'D', Blocks.OBSIDIAN, 
+								   'E', Items.DIAMOND });
 		}
 		else
 		{
+			// teleporter (no diamonds)
 			GameRegistry.addRecipe(new ItemStack(ModBlocks.TELEPORTER, ModConfiguration.numTeleporters, 0),
-					new Object[] { "AAA", "DCD", "DBD", 'A', Blocks.GLASS, 'B', Items.ENDER_PEARL, 'C',
-							Blocks.REDSTONE_BLOCK, 'D', Blocks.IRON_BLOCK });
+					new Object[] { "AAA", 
+								   "DCD", 
+								   "DBD", 
+								   'A', Blocks.GLASS, 
+								   'B', Items.ENDER_PEARL, 
+								   'C',	Blocks.REDSTONE_BLOCK, 
+								   'D', Blocks.IRON_BLOCK });
 
+			// ender teleporter (no diamonds)
 			GameRegistry.addRecipe(new ItemStack(ModBlocks.TELEPORTER, ModConfiguration.numTeleporters, 1),
-					new Object[] { "AAA", "DCD", "DBD", 'A', Blocks.GLASS, 'B', Items.ENDER_EYE, 'C', Blocks.GLOWSTONE,
-							'D', Blocks.OBSIDIAN });
+					new Object[] { "AAA", 
+								   "DCD", 
+								   "DBD", 
+								   'A', Blocks.GLASS, 
+								   'B', Items.ENDER_EYE, 
+								   'C', Blocks.GLOWSTONE,
+								   'D', Blocks.OBSIDIAN });
 		}
+		
+		// recall teleporter
+		GameRegistry.addRecipe(new ItemStack(ModBlocks.TELEPORTER, ModConfiguration.numTeleporters, 2),
+				new Object[] { "AAA", 
+							   "ECE", 
+							   "DBD", 
+							   'A', ItemStack.EMPTY, 
+							   'B', Items.ENDER_PEARL, 
+							   'C',	Blocks.REDSTONE_BLOCK, 
+							   'D', Blocks.IRON_BLOCK,
+							   'E', Blocks.GLASS });
+
+		// recall ender teleporter
+		GameRegistry.addRecipe(new ItemStack(ModBlocks.TELEPORTER, ModConfiguration.numTeleporters, 3),
+				new Object[] { "AAA", 
+							   "ECE", 
+							   "DBD", 
+							   'A', ItemStack.EMPTY,
+							   'B', Items.ENDER_EYE, 
+							   'C', Blocks.GLOWSTONE,
+							   'D', Blocks.OBSIDIAN,
+							   'E', Blocks.GLASS });
 	}
 
 
