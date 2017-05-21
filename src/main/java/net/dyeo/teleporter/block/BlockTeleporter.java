@@ -46,7 +46,7 @@ import net.minecraftforge.items.IItemHandler;
 public class BlockTeleporter extends BlockContainer
 {
 
-	public static final AxisAlignedBB TELEPORTER_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.9375D, 1.0D);
+	public static final AxisAlignedBB TELEPORTER_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
 	public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("type", BlockTeleporter.EnumType.class);
 
 
@@ -57,7 +57,7 @@ public class BlockTeleporter extends BlockContainer
 		this.setResistance(30);
 		this.setHardness(3.0f);
 		this.setLightLevel(0.5f);
-		this.setBlockBounds(0.0f, 0.0f, 0.0f, (float)TELEPORTER_AABB.maxX, (float)TELEPORTER_AABB.maxY, (float)TELEPORTER_AABB.maxZ);
+		this.setBlockBounds(0.0F, 0.0F, 0.0F, (float)TELEPORTER_AABB.maxX, (float)TELEPORTER_AABB.maxY, (float)TELEPORTER_AABB.maxZ);
 		this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, EnumType.REGULAR));
 	}
 
@@ -88,7 +88,7 @@ public class BlockTeleporter extends BlockContainer
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity)
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity)
 	{
 		if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
 		{
@@ -131,6 +131,14 @@ public class BlockTeleporter extends BlockContainer
 			}
 		}
 	}
+
+	@Override
+	public void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance)
+	{
+		super.onFallenUpon(world, pos, entity, fallDistance);
+		this.onEntityCollidedWithBlock(world, pos, entity);
+	}
+
 
 	@Override
 	public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighbourBlock)
