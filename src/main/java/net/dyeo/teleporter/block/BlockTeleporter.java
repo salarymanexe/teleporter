@@ -8,6 +8,7 @@ import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
 import net.dyeo.teleporter.capabilities.ITeleportHandler;
 import net.dyeo.teleporter.common.config.ModConfiguration;
 import net.dyeo.teleporter.common.network.GuiHandler;
+import net.dyeo.teleporter.init.ModBlocks;
 import net.dyeo.teleporter.teleport.TeleporterNode;
 import net.dyeo.teleporter.teleport.TeleporterUtility;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
@@ -25,6 +26,7 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -51,6 +53,8 @@ public class BlockTeleporter extends BlockContainer
 {
 
 	public static final AxisAlignedBB TELEPORTER_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
+	public static final AxisAlignedBB RECALL_TELEPORTER_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
+
 	public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("type", BlockTeleporter.EnumType.class);
 
 
@@ -93,6 +97,7 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public void onEntityWalk(World world, BlockPos pos, Entity entity)
 	{
+		TeleporterNode destinationNode = null;
 		if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
 		{
 			ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
@@ -110,7 +115,7 @@ public class BlockTeleporter extends BlockContainer
 
 						if ((isHostile == false || isHostile == ModConfiguration.teleportHostileMobs) && (isPassive == false || isPassive == ModConfiguration.teleportPassiveMobs))
 						{
-							TeleporterNode destinationNode = TeleporterUtility.teleport((EntityLivingBase)entity, pos);
+							destinationNode = TeleporterUtility.teleport((EntityLivingBase)entity, pos);
 						}
 					}
 				}
@@ -130,6 +135,13 @@ public class BlockTeleporter extends BlockContainer
 					pos.getY() + 1.5 + world.rand.nextFloat() * height,
 					pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
 				);
+			}
+
+			IBlockState state = world.getBlockState(pos);
+			EnumType type = EnumType.byMetadata(getMetaFromState(state));
+			if (type.isRecall() && entity instanceof EntityPlayerMP && destinationNode != null)
+			{
+				breakBlockRecall(world, pos, destinationNode.pos, state, (EntityPlayerMP)entity);
 			}
 		}
 	}
@@ -195,7 +207,31 @@ public class BlockTeleporter extends BlockContainer
 		super.breakBlock(world, pos, state);
 	}
 
+	public void breakBlockRecall(World world, BlockPos pos, BlockPos nextPos, IBlockState state, EntityPlayerMP player)
+	{
+		TileEntityTeleporter tileEntityTeleporter = (TileEntityTeleporter)world.getTileEntity(pos);
+		if (tileEntityTeleporter != null)
+		{
+			tileEntityTeleporter.removeFromNetwork();
 
+			if (tileEntityTeleporter.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null))
+			{
+				IItemHandler handler = tileEntityTeleporter.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+				ItemStack stack = handler.getStackInSlot(0);
+				if (stack != null)
+				{
+					InventoryHelper.spawnItemStack(world, nextPos.getX(), nextPos.getY() + 1, nextPos.getZ(), stack);
+				}
+			}
+		}
+
+		world.setBlockToAir(pos);
+		InventoryHelper.spawnItemStack(world, nextPos.getX(), nextPos.getY() + 1, nextPos.getZ(), new ItemStack(ModBlocks.TELEPORTER, 1, getMetaFromState(state)));
+		while (world.getTileEntity(pos) != null)
+		{
+			world.removeTileEntity(pos);
+		}
+	}
 
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta)
@@ -212,7 +248,7 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
-		return this.getDefaultState().withProperty(TYPE, meta == 0 ? EnumType.REGULAR : EnumType.ENDER);
+		return this.getDefaultState().withProperty(TYPE, EnumType.byMetadata(meta));
 	}
 
 	@Override
@@ -245,14 +281,16 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
 	{
-		return TELEPORTER_AABB; //new AxisAlignedBB(0.0F, 0.0F, 0.0F, getBounds().xCoord, getBounds().yCoord, getBounds().zCoord);
+		EnumType type = EnumType.byMetadata(getMetaFromState(state));
+		return type.isRecall() ? RECALL_TELEPORTER_AABB : TELEPORTER_AABB;
 	}
 
 	@Override
 	@Nullable
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos)
+	public AxisAlignedBB getCollisionBoundingBox(IBlockState state, World world, BlockPos pos)
 	{
-		return TELEPORTER_AABB;
+		EnumType type = EnumType.byMetadata(getMetaFromState(state));
+		return type.isRecall() ? RECALL_TELEPORTER_AABB : TELEPORTER_AABB;
 	}
 
 	@Override
@@ -274,12 +312,20 @@ public class BlockTeleporter extends BlockContainer
 		return false;
 	}
 
+	@Override
+	public boolean isFullBlock(IBlockState state)
+	{
+		EnumType type = EnumType.byMetadata(getMetaFromState(state));
+		return !type.isRecall();
+	}
 
 
 	public static enum EnumType implements IStringSerializable
 	{
 		REGULAR(0, "regular", "teleporter", "teleporter"),
-		ENDER(1, "ender", "enderTeleporter", "ender_teleporter");
+		ENDER(1, "ender", "enderTeleporter", "ender_teleporter"),
+		RECALL(2, "recall", "recallTeleporter", "recall_teleporter"),
+		RECALL_ENDER(3, "recall_ender", "recallEnderTeleporter", "recall_ender_teleporter");
 
 		private final int meta;
 		private final String name;
@@ -297,6 +343,16 @@ public class BlockTeleporter extends BlockContainer
 		public int getMetadata()
 		{
 			return this.meta;
+		}
+
+		public boolean isEnder()
+		{
+			return (this.meta & 1) == 1;
+		}
+
+		public boolean isRecall()
+		{
+			return (this.meta & 2) == 2;
 		}
 
 		public String getUnlocalizedName()

@@ -5,6 +5,12 @@
 		},
 		"type=ender": {
 			"model": "teleporter:ender_teleporter"
-		}
+		},
+        "type=recall": {
+            "model": "teleporter:recall_teleporter"
+        },
+        "type=recall_ender": {
+            "model": "teleporter:recall_ender_teleporter"
+        }
 	}
 }
