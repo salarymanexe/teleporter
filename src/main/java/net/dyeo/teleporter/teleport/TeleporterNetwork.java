@@ -1,8 +1,8 @@
 package net.dyeo.teleporter.teleport;
 
 import java.util.ArrayList;
+
 import net.dyeo.teleporter.TeleporterMod;
-import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
@@ -27,7 +27,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
  */
 public class TeleporterNetwork extends WorldSavedData
 {
-
+	
 	private ArrayList<TeleporterNode> network = new ArrayList<TeleporterNode>();
 
 	public TeleporterNetwork()
@@ -39,7 +39,6 @@ public class TeleporterNetwork extends WorldSavedData
 	{
 		super(identifier);
 	}
-
 
 	public static TeleporterNetwork get(World world)
 	{
@@ -131,15 +130,14 @@ public class TeleporterNetwork extends WorldSavedData
 	{
 
 		TileEntityTeleporter tEntSource = (TileEntityTeleporter)entityIn.world.getTileEntity(sourceNode.pos);
-		ItemStack sourceKey = tEntSource.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
 
 		TeleporterNode destinationNode = null;
 
 		// get the top-most entity (rider) for sending messages
-		Entity potentialPlayerEntity = entityIn;
-		while (!potentialPlayerEntity.getPassengers().isEmpty())
+		Entity livingEntity = entityIn;
+		while (!livingEntity.getPassengers().isEmpty())
 		{
-			potentialPlayerEntity = potentialPlayerEntity.getControllingPassenger();
+			livingEntity = livingEntity.getControllingPassenger();
 		}
 
 		int index = this.network.indexOf(sourceNode);
@@ -176,9 +174,11 @@ public class TeleporterNetwork extends WorldSavedData
 					continue;
 				}
 
-				// if the key itemstacks are different, continue
+				ItemStack sourceKey = tEntSource.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
 				ItemStack destinationKey = tEntDest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
-				if (!this.doKeyStacksMatch(sourceKey, destinationKey))
+				
+				// if the key itemstacks are different, continue
+				if (!getItemKey(sourceKey).equals(getItemKey(destinationKey)))
 				{
 					continue;
 				}
@@ -186,9 +186,9 @@ public class TeleporterNetwork extends WorldSavedData
 				// if the destination node is obstructed, continue
 				if (this.isObstructed(destinationWorld, node))
 				{
-					if (potentialPlayerEntity instanceof EntityPlayer)
+					if (livingEntity instanceof EntityPlayer)
 					{
-						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
+						EntityPlayer entityPlayer = (EntityPlayer) livingEntity;
 						entityPlayer.sendMessage(this.getMessage("teleporterBlocked"));
 					}
 					continue;
@@ -197,9 +197,9 @@ public class TeleporterNetwork extends WorldSavedData
 				// if the destination node is powered, continue
 				if (tEntDest.isPowered() == true)
 				{
-					if (potentialPlayerEntity instanceof EntityPlayer)
+					if (livingEntity instanceof EntityPlayer)
 					{
-						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
+						EntityPlayer entityPlayer = (EntityPlayer) livingEntity;
 						entityPlayer.sendMessage(this.getMessage("teleporterDisabled"));
 					}
 					continue;
@@ -211,18 +211,15 @@ public class TeleporterNetwork extends WorldSavedData
 			}
 		}
 
-		if (destinationNode == null && potentialPlayerEntity instanceof EntityPlayer)
+		if (destinationNode == null && livingEntity instanceof EntityPlayer)
 		{
-			EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
+			EntityPlayer entityPlayer = (EntityPlayer) livingEntity;
 			entityPlayer.sendMessage(this.getMessage("teleporterNotFound"));
 		}
 
 		return destinationNode;
 	}
-
-
-
-
+	
 	private TextComponentTranslation getMessage(String messageName)
 	{
 		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + messageName);
@@ -245,75 +242,29 @@ public class TeleporterNetwork extends WorldSavedData
 		}
 	}
 
-	private boolean doKeyStacksMatch(ItemStack sourceKey, ItemStack destinationKey)
-	{
-		// if keys are completely different
-		if (sourceKey.isEmpty() && !destinationKey.isEmpty())
+	private String getItemKey(ItemStack stack)
+	{		
+		String key = stack.getUnlocalizedName();
+		
+		if(!stack.isEmpty())
 		{
-			return false; // skip this destination
-		}
-		else if (!sourceKey.isEmpty() && destinationKey.isEmpty())
-		{
-			return false; // skip this destination
-		}
-
-		if (!sourceKey.isEmpty() && !destinationKey.isEmpty())
-		{
-			// check if keys are the same
-			if (sourceKey.getItem().getUnlocalizedName().equals(destinationKey.getItem().getUnlocalizedName()) == false)
+			key += ":" + stack.getItemDamage();
+			
+			if(stack.hasTagCompound())
 			{
-				return false;
-			}
-
-			// both items are written books
-			if (sourceKey.getItem() == Items.WRITTEN_BOOK && destinationKey.getItem() == Items.WRITTEN_BOOK)
-			{
-
-				// get author and title for A as "author:title"
-				String author = sourceKey.getTagCompound().getString("author");
-				author += ":" + sourceKey.getTagCompound().getString("title");
-
-				// get author and title for B as "author:title"
-				String nodeAuthor = destinationKey.getTagCompound().getString("author");
-				nodeAuthor += ":" + destinationKey.getTagCompound().getString("title");
-				if (author.equals(nodeAuthor) == false)
+				if(stack.getItem() == Items.WRITTEN_BOOK)
 				{
-					return false;
+					key += ":" + stack.getTagCompound().getString("author");
+					key += ":" + stack.getTagCompound().getString("title");
 				}
-			}
-			else if (sourceKey.getItem() == Items.FILLED_MAP && destinationKey.getItem() == Items.FILLED_MAP)
-			{
-				// compare map value (stored in item damage)
-				if (sourceKey.getItemDamage() != destinationKey.getItemDamage())
+				else
 				{
-					// skip this destination
-					return false;
-				}
-			}
-			else
-			{
-				// item naming
-				String name = "", nodeName = "";
-				// set item A name if first item has tag compound
-				if (sourceKey.hasTagCompound())
-				{
-					NBTTagCompound display = (NBTTagCompound) sourceKey.getTagCompound().getTag("display");
-					name = display.getString("Name");
-				}
-				// set item B name if second item has tag compound
-				if ((destinationKey.hasTagCompound()))
-				{
-					NBTTagCompound display = (NBTTagCompound) destinationKey.getTagCompound().getTag("display");
-					nodeName = display.getString("Name");
-				}
-				// compare resulting names to see if they are a unique pair
-				if (name.equals(nodeName) == false)
-				{
-					return false;
+					key += ":" + stack.getTagCompound().toString();
 				}
 			}
 		}
-		return true;
+		
+		return key;
 	}
 
 }
