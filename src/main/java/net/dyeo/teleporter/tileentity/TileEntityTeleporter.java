@@ -4,6 +4,7 @@ import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.teleport.TeleporterNetwork;
 import net.dyeo.teleporter.teleport.TeleporterNode;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -20,7 +21,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 {
 
 	private String customName = null;
-	private boolean firstUpdate = true;
 	private boolean isPowered = false;
 
 	private ItemStackHandler handler = new ItemStackHandler(1)
@@ -28,7 +28,7 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 		@Override
 		protected void onContentsChanged(int slot)
 		{
-			TileEntityTeleporter.this.updateNode();
+			TileEntityTeleporter.this.update();
 			TileEntityTeleporter.this.markDirty();
 		}
 	};
@@ -44,7 +44,7 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing)
 	{
-		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return (T)this.handler;
+		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.<T>cast(this.handler);
 		return super.getCapability(capability, facing);
 	}
 
@@ -117,25 +117,12 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	public void removeFromNetwork()
 	{
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(this.world);
-		netWrapper.removeNode(this.pos, this.world.provider.getDimension());
+		ItemStack key = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
+		netWrapper.removeNode(this.pos, this.world.provider.getDimension(), key);
 	}
 
 	@Override
 	public void update()
-	{
-		if (this.firstUpdate)
-		{
-			if (!this.world.isRemote)
-			{
-				this.updateNode();
-				this.markDirty();
-			}
-			this.firstUpdate = false;
-		}
-	}
-
-
-	private void updateNode()
 	{
 		if (!this.world.isRemote)
 		{
@@ -156,9 +143,14 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 			thisNode.dimension = tileDim;
 			thisNode.type = this.getWorld().getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
 
-			if (isNewNode == true)
+			if (isNewNode == true || netWrapper.runtimeRebuild == true)
 			{
-				netWrapper.addNode(thisNode);
+				netWrapper.addNode(thisNode);				
+				this.markDirty();
+			}
+			else
+			{
+				netWrapper.updateNode(thisNode);
 			}
 
 //			System.out.println("Node updated :: " + thisNode.toString() );

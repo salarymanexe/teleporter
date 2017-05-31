@@ -1,7 +1,5 @@
 package net.dyeo.teleporter.block;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
@@ -173,8 +171,9 @@ public class BlockTeleporter extends BlockContainer
 						TextComponentTranslation message = new TextComponentTranslation(translationKey);
 						player.sendMessage(message);
 					}
-					tileentity.markDirty();
 				}
+				
+				tileentity.markDirty();
 			}
 		}
 	}

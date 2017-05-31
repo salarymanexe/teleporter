@@ -68,8 +68,12 @@ public class TeleporterNode
 	public TileEntityTeleporter getTileEntity()
 	{
 		TileEntity result = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(this.dimension).getTileEntity(this.pos);
-		if (result instanceof TileEntityTeleporter) return (TileEntityTeleporter) result;
-		else return null;
+		if (result instanceof TileEntityTeleporter) {
+			return (TileEntityTeleporter) result;
+		}
+		else {
+			return null;
+		}
 	}
 
 
