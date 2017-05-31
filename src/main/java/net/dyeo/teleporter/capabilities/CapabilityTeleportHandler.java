@@ -1,6 +1,7 @@
 package net.dyeo.teleporter.capabilities;
 
 import net.dyeo.teleporter.TeleporterMod;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -42,7 +43,6 @@ public class CapabilityTeleportHandler
 			return capability == CapabilityTeleportHandler.TELEPORT_CAPABILITY;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public <T> T getCapability(Capability<T> capability, EnumFacing facing)
 		{
@@ -85,9 +85,9 @@ public class CapabilityTeleportHandler
 	{
 
 		@SubscribeEvent
-		public void onAttachCapability(AttachCapabilitiesEvent.Entity event)
+		public void onAttachCapability(final AttachCapabilitiesEvent<Entity> event)
 		{
-			if (event.getEntity() instanceof EntityLivingBase)
+			if (event.getObject() instanceof EntityLivingBase)
 			{
 				event.addCapability(new ResourceLocation(TeleporterMod.MODID, "entity"), new CapabilityTeleportHandler.Provider());
 			}

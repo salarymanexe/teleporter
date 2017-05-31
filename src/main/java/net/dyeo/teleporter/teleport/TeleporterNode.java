@@ -2,6 +2,7 @@ package net.dyeo.teleporter.teleport;
 
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -19,12 +20,14 @@ public class TeleporterNode
 	public BlockPos pos;
 	public int dimension;
 	public BlockTeleporter.EnumType type;
+	public String key;
 
 	public TeleporterNode()
 	{
 		this.pos = new BlockPos(0, 0, 0);
 		this.dimension = 0;
 		this.type = BlockTeleporter.EnumType.REGULAR;
+		this.key = Blocks.AIR.getUnlocalizedName();
 	}
 
 //	public TeleporterNode(BlockPos pos, int dimension, BlockTeleporter.EnumType type)
@@ -47,6 +50,7 @@ public class TeleporterNode
 		nbt.setInteger("z", this.pos.getZ());
 		nbt.setInteger("dim", this.dimension);
 		nbt.setInteger("type", this.type.ordinal());
+		nbt.setString("key", this.key);
 		return nbt;
 	}
 
@@ -58,20 +62,25 @@ public class TeleporterNode
 		this.pos = new BlockPos(x, y, z);
 		this.dimension = nbt.getInteger("dim");
 		this.type = BlockTeleporter.EnumType.byMetadata(nbt.getInteger("type"));
+		this.key = nbt.getString("key");
 	}
 
 	public TileEntityTeleporter getTileEntity()
 	{
 		TileEntity result = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(this.dimension).getTileEntity(this.pos);
-		if (result instanceof TileEntityTeleporter) return (TileEntityTeleporter) result;
-		else return null;
+		if (result instanceof TileEntityTeleporter) {
+			return (TileEntityTeleporter) result;
+		}
+		else {
+			return null;
+		}
 	}
 
 
 	@Override
 	public String toString()
 	{
-		return "{ \"x\":" + this.pos.getX() + ", \"y\":" + this.pos.getY() + ", \"z\":" + this.pos.getZ() + ", \"dim\":" + this.dimension + ", \"type\":" + this.type + " }";
+		return "{ \"x\":" + this.pos.getX() + ", \"y\":" + this.pos.getY() + ", \"z\":" + this.pos.getZ() + ", \"dim\":" + this.dimension + ", \"type\":" + this.type + ", \"key\":" + this.key + " }";
 	}
 
 	public boolean matches(BlockPos pos, int dimension)

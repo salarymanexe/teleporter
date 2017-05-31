@@ -177,8 +177,8 @@ public class BlockTeleporter extends BlockContainer
 						TextComponentTranslation message = new TextComponentTranslation(translationKey);
 						player.sendMessage(message);
 					}
-					tileentity.markDirty();
 				}
+				tileentity.markDirty();
 			}
 		}
 	}

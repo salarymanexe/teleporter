@@ -1,6 +1,8 @@
 package net.dyeo.teleporter.teleport;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
@@ -26,8 +28,14 @@ import net.minecraftforge.items.CapabilityItemHandler;
  */
 public class TeleporterNetwork extends WorldSavedData
 {
+	public boolean runtimeRebuild = false;
 
-	private ArrayList<TeleporterNode> network = new ArrayList<TeleporterNode>();
+	private final int VERSION_MAJOR = 2;
+	private final int VERSION_MINOR = 0;
+
+	//private ArrayList<TeleporterNode> network = new ArrayList<TeleporterNode>();
+
+	private HashMap<String, ArrayList<TeleporterNode>> newNetwork = new HashMap<String, ArrayList<TeleporterNode>>();
 
 	public TeleporterNetwork()
 	{
@@ -38,7 +46,6 @@ public class TeleporterNetwork extends WorldSavedData
 	{
 		super(identifier);
 	}
-
 
 	public static TeleporterNetwork get(World world)
 	{
@@ -52,7 +59,7 @@ public class TeleporterNetwork extends WorldSavedData
 		return instance;
 	}
 
-
+	/*
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
@@ -83,69 +90,249 @@ public class TeleporterNetwork extends WorldSavedData
 		nbt.setTag("Network", netNBT);
 		return nbt;
 	}
+	*/
 
-
-
-	public TeleporterNode getNode(BlockPos pos, int dimension)
+	@Override
+	public void readFromNBT(NBTTagCompound nbt)
 	{
-		for (int i = 0; i < this.network.size(); ++i)
+		NBTTagCompound networkTag = nbt.getCompoundTag("Network");
+
+		int versionMajor = networkTag.getInteger("VersionMajor");
+		int versionMinor = networkTag.getInteger("VersionMinor");
+
+		if (versionMajor < VERSION_MAJOR || (versionMajor == VERSION_MAJOR && versionMinor < VERSION_MINOR))
 		{
-			TeleporterNode node = this.network.get(i);
-			if (node.matches(pos, dimension))
+			this.runtimeRebuild = true;
+		}
+		else
+		{
+			this.runtimeRebuild = false;
+		}
+
+		if (!this.newNetwork.isEmpty()) this.newNetwork.clear();
+
+		Iterator<String> st = networkTag.getKeySet().iterator();
+		while (st.hasNext())
+		{
+			String key = st.next();
+
+			ArrayList<TeleporterNode> subnetList = new ArrayList<TeleporterNode>();
+			this.newNetwork.put(key, subnetList);
+
+			NBTTagList listTag = networkTag.getTagList(key, NBT.TAG_COMPOUND);
+
+			for (int i = 0; i < listTag.tagCount(); ++i)
 			{
-				return node;
+				NBTTagCompound nodeNBT = listTag.getCompoundTagAt(i);
+				TeleporterNode node = new TeleporterNode(nodeNBT);
+				subnetList.add(node);
 			}
 		}
+	}
+
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	{
+		NBTTagCompound networkTag = new NBTTagCompound();
+
+		for (HashMap.Entry<String, ArrayList<TeleporterNode>> entry : newNetwork.entrySet())
+		{
+			String itemKey = entry.getKey();
+			ArrayList<TeleporterNode> list = entry.getValue();
+			Iterator<TeleporterNode> it = list.iterator();
+
+			NBTTagList listTag = new NBTTagList();
+
+			while (it.hasNext())
+			{
+				NBTTagCompound nodeNBT = it.next().writeToNBT(new NBTTagCompound());
+				listTag.appendTag(nodeNBT);
+			}
+
+			networkTag.setTag(itemKey, listTag);
+		}
+
+		networkTag.setInteger("VersionMajor", VERSION_MAJOR);
+		networkTag.setInteger("VersionMinor", VERSION_MINOR);
+		nbt.setTag("Network", networkTag);
+		return nbt;
+	}
+
+	/**
+	 * Gets a node from the network
+	 * @param pos The world position
+	 * @param dimension The dimension id
+	 * @return The node, or null if no node is found
+	 */
+	public TeleporterNode getNode(BlockPos pos, int dimension)
+	{
+		Iterator<ArrayList<TeleporterNode>> mit = newNetwork.values().iterator();
+		while (mit.hasNext())
+		{
+
+			Iterator<TeleporterNode> lit = mit.next().iterator();
+			while (lit.hasNext())
+			{
+				TeleporterNode node = lit.next();
+				if (node.matches(pos, dimension))
+				{
+					return node;
+				}
+			}
+
+		}
+
 		return null;
 	}
 
+	public TeleporterNode getNode(BlockPos pos, int dimension, ItemStack key)
+	{
+		String itemKey = getItemKey(key);
+		if (newNetwork.containsKey(itemKey))
+		{
+			Iterator<TeleporterNode> lit = newNetwork.get(itemKey).iterator();
+			while (lit.hasNext())
+			{
+				TeleporterNode node = lit.next();
+				if (node.matches(pos, dimension))
+				{
+					return node;
+				}
+			}
 
+		}
+
+		return null;
+	}
+
+	/**
+	 * Adds a node to the network
+	 * @param node The node to be added
+	 */
 	public void addNode(TeleporterNode node)
 	{
-		this.network.add(node);
+		if (newNetwork.containsKey(node.key))
+		{
+			newNetwork.get(node.key).add(node);
+		}
+		else
+		{
+			ArrayList<TeleporterNode> nodeList = new ArrayList<TeleporterNode>();
+			nodeList.add(node);
+			newNetwork.put(node.key, nodeList);
+		}
 		this.markDirty();
 	}
 
+	/**
+	 * Update's a node's item key, and reassigns it in the network if necessary
+	 * @param node The node to be updated
+	 */
+	public void updateNode(TeleporterNode node)
+	{
+		ItemStack stack = node.getTileEntity().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
+		String newKey = getItemKey(stack);
+		if (!node.key.equals(newKey))
+		{
+			// remove node from network
+			removeNode(node);
+			// set new key
+			node.key = newKey;
+			// add node back to network
+			addNode(node);
+			// update nbt data
+			this.markDirty();
+		}
+	}
+
+	/**
+	 * Removes a node from the network
+	 * @param pos The node's position
+	 * @param dimension The node's dimension id
+	 * @return True if remove was successful, false otherwise
+	 */
 	public boolean removeNode(BlockPos pos, int dimension)
 	{
-		for (int i = 0; i < this.network.size(); ++i)
+		Iterator<ArrayList<TeleporterNode>> mit = newNetwork.values().iterator();
+		while (mit.hasNext())
 		{
-			TeleporterNode node = this.network.get(i);
-			if (node.matches(pos, dimension))
+
+			Iterator<TeleporterNode> lit = mit.next().iterator();
+			while (lit.hasNext())
 			{
-				this.network.remove(node);
-				this.markDirty();
-				return true;
+				TeleporterNode node = lit.next();
+				if (node.matches(pos, dimension))
+				{
+					lit.remove();
+					this.markDirty();
+					return true;
+				}
 			}
+
+		}
+
+		return false;
+	}
+
+	public boolean removeNode(BlockPos pos, int dimension, ItemStack key)
+	{
+		String itemKey = getItemKey(key);
+		if (newNetwork.containsKey(itemKey))
+		{
+			Iterator<TeleporterNode> lit = newNetwork.get(itemKey).iterator();
+			while (lit.hasNext())
+			{
+				TeleporterNode node = lit.next();
+				if (node.matches(pos, dimension))
+				{
+					lit.remove();
+					this.markDirty();
+					return true;
+				}
+			}
+
+		}
+
+		return false;
+	}
+
+	public boolean removeNode(TeleporterNode node)
+	{
+		if (newNetwork.containsKey(node.key))
+		{
+			return newNetwork.get(node.key).remove(node);
 		}
 		return false;
 	}
 
-
 	/**
-	 * gets the next node that can be teleported to from the target teleporter
-	 *
+	 * Gets the next node that can be teleported to from the target teleporter
+	 * @param entityIn The entity being teleported (for messaging purposes)
+	 * @param sourceNode The beginning node
+	 * @return A valid node if one exists, or null otherwise
 	 */
 	public TeleporterNode getNextNode(Entity entityIn, TeleporterNode sourceNode)
 	{
 
 		TileEntityTeleporter tEntSource = (TileEntityTeleporter)entityIn.world.getTileEntity(sourceNode.pos);
-		ItemStack sourceKey = tEntSource.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
 
 		TeleporterNode destinationNode = null;
 
 		// get the top-most entity (rider) for sending messages
-		Entity potentialPlayerEntity = entityIn;
-		while (!potentialPlayerEntity.getPassengers().isEmpty())
+		Entity livingEntity = entityIn;
+		while (!livingEntity.getPassengers().isEmpty())
 		{
-			potentialPlayerEntity = potentialPlayerEntity.getControllingPassenger();
+			livingEntity = livingEntity.getControllingPassenger();
 		}
 
-		int index = this.network.indexOf(sourceNode);
-		for (int i = index + 1; i < this.network.size() + index; ++i)
-		{
+		ArrayList<TeleporterNode> subnet = this.newNetwork.get(sourceNode.key);
 
-			TeleporterNode node = this.network.get(i % this.network.size());
+		System.out.println("Checking teleporter subnet " + sourceNode.key);
+
+		int index = subnet.indexOf(sourceNode);
+		for (int i = index + 1; i < subnet.size() + index; ++i)
+		{
+			TeleporterNode node = subnet.get(i % subnet.size());
 
 			WorldServer destinationWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(node.dimension);
 			if (destinationWorld != null)
@@ -175,19 +362,24 @@ public class TeleporterNetwork extends WorldSavedData
 					continue;
 				}
 
-				// if the key itemstacks are different, continue
+				ItemStack sourceKey = tEntSource.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
 				ItemStack destinationKey = tEntDest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
-				if (!this.doKeyStacksMatch(sourceKey, destinationKey))
+
+				// if the key itemstacks are different, continue
+				if (!getItemKey(sourceKey).equals(getItemKey(destinationKey)))
 				{
+					System.out.print("FAILED\n");
 					continue;
 				}
+
+				System.out.print("SUCCESS\n");
 
 				// if the destination node is obstructed, continue
 				if (this.isObstructed(destinationWorld, node))
 				{
-					if (potentialPlayerEntity instanceof EntityPlayer)
+					if (livingEntity instanceof EntityPlayer)
 					{
-						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
+						EntityPlayer entityPlayer = (EntityPlayer)livingEntity;
 						entityPlayer.sendMessage(this.getMessage("teleporterBlocked"));
 					}
 					continue;
@@ -196,9 +388,9 @@ public class TeleporterNetwork extends WorldSavedData
 				// if the destination node is powered, continue
 				if (tEntDest.isPowered() == true)
 				{
-					if (potentialPlayerEntity instanceof EntityPlayer)
+					if (livingEntity instanceof EntityPlayer)
 					{
-						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
+						EntityPlayer entityPlayer = (EntityPlayer)livingEntity;
 						entityPlayer.sendMessage(this.getMessage("teleporterDisabled"));
 					}
 					continue;
@@ -210,23 +402,31 @@ public class TeleporterNetwork extends WorldSavedData
 			}
 		}
 
-		if (destinationNode == null && potentialPlayerEntity instanceof EntityPlayer)
+		if (destinationNode == null && livingEntity instanceof EntityPlayer)
 		{
-			EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
+			EntityPlayer entityPlayer = (EntityPlayer)livingEntity;
 			entityPlayer.sendMessage(this.getMessage("teleporterNotFound"));
 		}
 
 		return destinationNode;
 	}
 
-
-
-
+	/**
+	 * Gets a chat message for the player, given a string id
+	 * @param messageName The unlocalized message name
+	 * @return The message to be sent to the player
+	 */
 	private TextComponentTranslation getMessage(String messageName)
 	{
 		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + messageName);
 	}
 
+	/**
+	 * Determines whether the teleporter block is being obstructed for purposes of teleporting
+	 * @param world
+	 * @param node
+	 * @return True if the teleporter is obstructed, false otherwise
+	 */
 	private boolean isObstructed(World world, TeleporterNode node)
 	{
 		BlockPos blockPos1 = new BlockPos(node.pos.getX(), node.pos.getY() + 1, node.pos.getZ());
@@ -244,75 +444,34 @@ public class TeleporterNetwork extends WorldSavedData
 		}
 	}
 
-	private boolean doKeyStacksMatch(ItemStack sourceKey, ItemStack destinationKey)
+	/**
+	 * Generates a unique item key pertaining to an item stack. Takes into account all unique values except for stack size. The return of this function is guaranteed to produce the same key for two identical items, and takes into account NBT tags, damage, and the unlocalized name. Mods which implement two different blocks/items with the same unlocalized name will be treated as the same.
+	 * @param stack The item stack to generate a key from
+	 * @return The unique key
+	 */
+	private String getItemKey(ItemStack stack)
 	{
-		// if keys are completely different
-		if (sourceKey == null && destinationKey != null)
+		String key = stack.getUnlocalizedName();
+
+		if (stack != null)
 		{
-			return false; // skip this destination
-		}
-		else if (sourceKey != null && destinationKey == null)
-		{
-			return false; // skip this destination
-		}
+			key += ":" + stack.getItemDamage();
 
-		if (sourceKey != null && destinationKey != null)
-		{
-			// check if keys are the same
-			if (sourceKey.getItem().getUnlocalizedName().equals(destinationKey.getItem().getUnlocalizedName()) == false)
+			if (stack.hasTagCompound())
 			{
-				return false;
-			}
-
-			// both items are written books
-			if (sourceKey.getItem() == Items.WRITTEN_BOOK && destinationKey.getItem() == Items.WRITTEN_BOOK)
-			{
-
-				// get author and title for A as "author:title"
-				String author = sourceKey.getTagCompound().getString("author");
-				author += ":" + sourceKey.getTagCompound().getString("title");
-
-				// get author and title for B as "author:title"
-				String nodeAuthor = destinationKey.getTagCompound().getString("author");
-				nodeAuthor += ":" + destinationKey.getTagCompound().getString("title");
-				if (author.equals(nodeAuthor) == false)
+				if (stack.getItem() == Items.WRITTEN_BOOK)
 				{
-					return false;
+					key += ":" + stack.getTagCompound().getString("author");
+					key += ":" + stack.getTagCompound().getString("title");
 				}
-			}
-			else if (sourceKey.getItem() == Items.FILLED_MAP && destinationKey.getItem() == Items.FILLED_MAP)
-			{
-				// compare map value (stored in item damage)
-				if (sourceKey.getItemDamage() != destinationKey.getItemDamage())
+				else
 				{
-					// skip this destination
-					return false;
-				}
-			}
-			else
-			{
-				// item naming
-				String name = "", nodeName = "";
-				// set item A name if first item has tag compound
-				if (sourceKey.hasTagCompound())
-				{
-					NBTTagCompound display = (NBTTagCompound) sourceKey.getTagCompound().getTag("display");
-					name = display.getString("Name");
-				}
-				// set item B name if second item has tag compound
-				if ((destinationKey.hasTagCompound()))
-				{
-					NBTTagCompound display = (NBTTagCompound) destinationKey.getTagCompound().getTag("display");
-					nodeName = display.getString("Name");
-				}
-				// compare resulting names to see if they are a unique pair
-				if (name.equals(nodeName) == false)
-				{
-					return false;
+					key += ":" + stack.getTagCompound().toString();
 				}
 			}
 		}
-		return true;
+
+		return key;
 	}
 
 }
