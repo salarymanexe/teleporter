@@ -3,6 +3,7 @@ package net.dyeo.teleporter.teleport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
@@ -31,12 +32,35 @@ public class TeleporterNetwork extends WorldSavedData
 {
 	public boolean runtimeRebuild = false;
 	
+	/*
+	 * These versions pertain solely to the teleporter network. As new changes are made to the network, old network versions will require every teleporter to re-register within the network, to prevent older worlds from breaking.	
+	 */
+	/**
+	 * Teleporter Network Versioning Major (x.0)
+	 */
 	private final int VERSION_MAJOR = 2;
+	/**
+	 * Teleporter Network Versioning Minor (0.x)
+	 */
 	private final int VERSION_MINOR = 0;
 	
 	//private ArrayList<TeleporterNode> network = new ArrayList<TeleporterNode>();
 	
-	private HashMap<String, ArrayList<TeleporterNode>> newNetwork = new HashMap<String, ArrayList<TeleporterNode>>();
+	private HashMap<String, ArrayList<TeleporterNode>> network = new HashMap<String, ArrayList<TeleporterNode>>();
+	
+	public Set<String> getSubnets()
+	{
+		return network.keySet();
+	}
+	
+	public int getSubnetSize(String subnetKey)
+	{
+		if(network.containsKey(subnetKey))
+		{
+			return network.get(subnetKey).size();
+		}
+		return 0;
+	}
 
 	public TeleporterNetwork()
 	{
@@ -60,49 +84,19 @@ public class TeleporterNetwork extends WorldSavedData
 		return instance;
 	}
 
-	/*
-	@Override
-	public void readFromNBT(NBTTagCompound nbt)
-	{
-		NBTTagList netNBT = nbt.getTagList("Network", NBT.TAG_COMPOUND);
-
-		if (this.network.size() != 0) this.network.clear();
-
-		for (int i = 0; i < netNBT.tagCount(); ++i)
-		{
-			NBTTagCompound nodeNBT = netNBT.getCompoundTagAt(i);
-			TeleporterNode node = new TeleporterNode(nodeNBT);
-			this.network.add(node);
-		}
-	}
-
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
-	{
-		NBTTagList netNBT = new NBTTagList();
-
-		for (int i = 0; i < this.network.size(); ++i)
-		{
-			TeleporterNode node = this.network.get(i);
-			NBTTagCompound nodeNBT = node.writeToNBT(new NBTTagCompound());
-			netNBT.appendTag(nodeNBT);
-		}
-
-		nbt.setTag("Network", netNBT);
-		return nbt;
-	}
-	*/
-
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
 		NBTTagCompound networkTag = nbt.getCompoundTag("Network");
 		
-		int versionMajor = networkTag.getInteger("VersionMajor");
-		int versionMinor = networkTag.getInteger("VersionMinor");
+		int versionMajor = nbt.getInteger("NetworkVersionMajor");
+		int versionMinor = nbt.getInteger("NetworkVersionMinor");
+
+		if(!this.network.isEmpty()) this.network.clear();
 		
 		if(versionMajor < VERSION_MAJOR || (versionMajor == VERSION_MAJOR && versionMinor < VERSION_MINOR))
 		{
+			nbt.removeTag("Network");
 			this.runtimeRebuild = true;
 		}
 		else
@@ -110,15 +104,13 @@ public class TeleporterNetwork extends WorldSavedData
 			this.runtimeRebuild = false;
 		}
 
-		if(!this.newNetwork.isEmpty()) this.newNetwork.clear();
-
 		Iterator<String> st = networkTag.getKeySet().iterator();
 		while(st.hasNext())
 		{
 			String key = st.next();
 			
 			ArrayList<TeleporterNode> subnetList = new ArrayList<TeleporterNode>();
-			this.newNetwork.put(key, subnetList);
+			this.network.put(key, subnetList);
 			
 			NBTTagList listTag = networkTag.getTagList(key, NBT.TAG_COMPOUND);
 			
@@ -136,25 +128,28 @@ public class TeleporterNetwork extends WorldSavedData
 	{
 		NBTTagCompound networkTag = new NBTTagCompound();
 		
-		for(HashMap.Entry<String,ArrayList<TeleporterNode>> entry : newNetwork.entrySet())
+		for(HashMap.Entry<String,ArrayList<TeleporterNode>> entry : network.entrySet())
 		{
 			String itemKey = entry.getKey();
 			ArrayList<TeleporterNode> list = entry.getValue();
 			Iterator<TeleporterNode> it = list.iterator();
 			
-			NBTTagList listTag = new NBTTagList();
-			
-			while(it.hasNext())
+			if(!list.isEmpty())
 			{
-				NBTTagCompound nodeNBT = it.next().writeToNBT(new NBTTagCompound());
-				listTag.appendTag(nodeNBT);				
-			}
+				NBTTagList listTag = new NBTTagList();
 			
-			networkTag.setTag(itemKey, listTag);
+				while(it.hasNext())
+				{
+					NBTTagCompound nodeNBT = it.next().writeToNBT(new NBTTagCompound());
+					listTag.appendTag(nodeNBT);				
+				}
+			
+				networkTag.setTag(itemKey, listTag);
+			}
 		}
 		
-		networkTag.setInteger("VersionMajor", VERSION_MAJOR);
-		networkTag.setInteger("VersionMinor", VERSION_MINOR);
+		nbt.setInteger("NetworkVersionMajor", VERSION_MAJOR);
+		nbt.setInteger("NetworkVersionMinor", VERSION_MINOR);
 		nbt.setTag("Network", networkTag);
 		return nbt;
 	}
@@ -167,7 +162,7 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public TeleporterNode getNode(BlockPos pos, int dimension)
 	{
-		Iterator<ArrayList<TeleporterNode>> mit = newNetwork.values().iterator();
+		Iterator<ArrayList<TeleporterNode>> mit = network.values().iterator();
 		while(mit.hasNext())
 		{
 			
@@ -189,9 +184,9 @@ public class TeleporterNetwork extends WorldSavedData
 	public TeleporterNode getNode(BlockPos pos, int dimension, ItemStack key)
 	{
 		String itemKey = getItemKey(key);
-		if(newNetwork.containsKey(itemKey))
+		if(network.containsKey(itemKey))
 		{			
-			Iterator<TeleporterNode> lit = newNetwork.get(itemKey).iterator();
+			Iterator<TeleporterNode> lit = network.get(itemKey).iterator();
 			while(lit.hasNext())
 			{
 				TeleporterNode node = lit.next();
@@ -212,15 +207,15 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public void addNode(TeleporterNode node)
 	{
-		if(newNetwork.containsKey(node.key))
+		if(network.containsKey(node.key))
 		{
-			newNetwork.get(node.key).add(node);
+			network.get(node.key).add(node);
 		}
 		else
 		{
 			ArrayList<TeleporterNode> nodeList = new ArrayList<TeleporterNode>();
 			nodeList.add(node);
-			newNetwork.put(node.key, nodeList);
+			network.put(node.key, nodeList);
 		}
 		this.markDirty();
 	}
@@ -250,43 +245,25 @@ public class TeleporterNetwork extends WorldSavedData
 	 * Removes a node from the network
 	 * @param pos The node's position
 	 * @param dimension The node's dimension id
+	 * @param key The node's key
 	 * @return True if remove was successful, false otherwise
 	 */
-	public boolean removeNode(BlockPos pos, int dimension)
-	{
-		Iterator<ArrayList<TeleporterNode>> mit = newNetwork.values().iterator();
-		while(mit.hasNext())
-		{
-			
-			Iterator<TeleporterNode> lit = mit.next().iterator();
-			while(lit.hasNext())
-			{
-				TeleporterNode node = lit.next();
-				if(node.matches(pos, dimension))
-				{
-					lit.remove();
-					this.markDirty();
-					return true;
-				}
-			}
-			
-		}
-		
-		return false;
-	}
-
 	public boolean removeNode(BlockPos pos, int dimension, ItemStack key)
 	{
 		String itemKey = getItemKey(key);
-		if(newNetwork.containsKey(itemKey))
+		if(network.containsKey(itemKey))
 		{			
-			Iterator<TeleporterNode> lit = newNetwork.get(itemKey).iterator();
+			Iterator<TeleporterNode> lit = network.get(itemKey).iterator();
 			while(lit.hasNext())
 			{
 				TeleporterNode node = lit.next();
 				if(node.matches(pos, dimension))
 				{
 					lit.remove();
+					if(network.get(node.key).isEmpty())
+					{
+						network.remove(node.key);
+					}
 					this.markDirty();
 					return true;
 				}
@@ -299,9 +276,14 @@ public class TeleporterNetwork extends WorldSavedData
 	
 	public boolean removeNode(TeleporterNode node)
 	{
-		if(newNetwork.containsKey(node.key))
+		if(network.containsKey(node.key))
 		{
-			return newNetwork.get(node.key).remove(node);	
+			boolean res = network.get(node.key).remove(node);
+			if(network.get(node.key).isEmpty())
+			{
+				network.remove(node.key);
+			}
+			return res;
 		}
 		return false;
 	}
@@ -314,11 +296,6 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public TeleporterNode getNextNode(Entity entityIn, TeleporterNode sourceNode)
 	{
-
-		TileEntityTeleporter tEntSource = (TileEntityTeleporter)entityIn.world.getTileEntity(sourceNode.pos);
-
-		TeleporterNode destinationNode = null;
-
 		// get the top-most entity (rider) for sending messages
 		Entity livingEntity = entityIn;
 		while (!livingEntity.getPassengers().isEmpty())
@@ -326,57 +303,43 @@ public class TeleporterNetwork extends WorldSavedData
 			livingEntity = livingEntity.getControllingPassenger();
 		}
 
-		ArrayList<TeleporterNode> subnet = this.newNetwork.get(sourceNode.key);
+		ArrayList<TeleporterNode> subnet = this.network.get(sourceNode.key);
 		
 		System.out.println("Checking teleporter subnet " + sourceNode.key);
-		
-		int index = subnet.indexOf(sourceNode);
-		for (int i = index + 1; i < subnet.size() + index; ++i)
-		{
-			TeleporterNode node = subnet.get(i % subnet.size());
 
-			WorldServer destinationWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(node.dimension);
+		TeleporterNode destinationNode = null;
+		
+		int sourceIndex = subnet.indexOf(sourceNode);
+		for (int i = (sourceIndex+1)%subnet.size(); i != sourceIndex; i = (i+1)%subnet.size())
+		{
+			TeleporterNode currentNode = subnet.get(i);
+
+			WorldServer destinationWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(currentNode.dimension);
 			if (destinationWorld != null)
 			{
-				// if this node matches the source node, continue
-				if (node == sourceNode)
+				// if a tile entity doesn't exist at the specified node location, remove the node and continue
+				TileEntityTeleporter tEntDest = currentNode.getTileEntity();
+				if (tEntDest == null)
 				{
+					System.out.println("Invalid node found! Deleting...");
+					removeNode(currentNode);
 					continue;
 				}
 
 				// if the teleporter types are different, continue
-				if (sourceNode.type.isEnder() != node.type.isEnder())
+				if (sourceNode.type.isEnder() != currentNode.type.isEnder())
 				{
 					continue;
 				}
 
 				// if the teleporter isn't inter-dimensional and the dimensions are different, continue
-				if (!sourceNode.type.isEnder() && sourceNode.dimension != node.dimension)
+				if (!sourceNode.type.isEnder() && sourceNode.dimension != currentNode.dimension)
 				{
 					continue;
 				}
-
-				// if a tile entity doesn't exist at the specified node location, continue
-				TileEntityTeleporter tEntDest = (TileEntityTeleporter)destinationWorld.getTileEntity(node.pos);
-				if (tEntDest == null)
-				{
-					continue;
-				}
-
-				ItemStack sourceKey = tEntSource.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
-				ItemStack destinationKey = tEntDest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
-								
-				// if the key itemstacks are different, continue
-				if (!getItemKey(sourceKey).equals(getItemKey(destinationKey)))
-				{
-					System.out.print("FAILED\n");
-					continue;
-				}
-				
-				System.out.print("SUCCESS\n");
 
 				// if the destination node is obstructed, continue
-				if (this.isObstructed(destinationWorld, node))
+				if (isObstructed(destinationWorld, currentNode))
 				{
 					if (livingEntity instanceof EntityPlayer)
 					{
@@ -398,7 +361,7 @@ public class TeleporterNetwork extends WorldSavedData
 				}
 
 				// if all above conditions are met, we've found a valid destination node.
-				destinationNode = node;
+				destinationNode = currentNode;
 				break;
 			}
 		}
@@ -428,7 +391,7 @@ public class TeleporterNetwork extends WorldSavedData
 	 * @param node
 	 * @return True if the teleporter is obstructed, false otherwise
 	 */
-	private boolean isObstructed(World world, TeleporterNode node)
+	public static boolean isObstructed(World world, TeleporterNode node)
 	{
 		BlockPos blockPos1 = new BlockPos(node.pos.getX(), node.pos.getY() + 1, node.pos.getZ());
 		BlockPos blockPos2 = new BlockPos(node.pos.getX(), node.pos.getY() + 2, node.pos.getZ());
@@ -450,7 +413,7 @@ public class TeleporterNetwork extends WorldSavedData
 	 * @param stack The item stack to generate a key from
 	 * @return The unique key
 	 */
-	private String getItemKey(ItemStack stack)
+	public static String getItemKey(ItemStack stack)
 	{		
 		String key = stack.getUnlocalizedName();
 		
