@@ -1,9 +1,6 @@
 package net.dyeo.teleporter.tileentity;
 
 import net.dyeo.teleporter.block.BlockTeleporter;
-import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
-import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
-import net.dyeo.teleporter.capabilities.ITeleportHandler;
 import net.dyeo.teleporter.teleport.TeleporterNetwork;
 import net.dyeo.teleporter.teleport.TeleporterNode;
 import net.minecraft.entity.player.EntityPlayer;
