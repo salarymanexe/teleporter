@@ -8,7 +8,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
@@ -101,7 +100,9 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	{
 		return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
 	}
-	
+
+
+
 	public boolean canInteractWith(EntityPlayer player)
 	{
 		if (this.world.getTileEntity(this.pos) != this) return false;
@@ -112,27 +113,12 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 		return player.getDistanceSq(this.pos.getX() + X_CENTRE_OFFSET, this.pos.getY() + Y_CENTRE_OFFSET, this.pos.getZ() + Z_CENTRE_OFFSET) < MAXIMUM_DISTANCE_SQ;
 	}
 
+
 	public void removeFromNetwork()
 	{
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(this.world);
 		ItemStack key = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
 		netWrapper.removeNode(this.pos, this.world.provider.getDimension(), key);
-	}
-	
-	public void spawnParticles()
-	{
-		double width = 0.25;
-		double height = 0.25;
-
-		double mx = world.rand.nextGaussian() * 0.2d;
-		double my = world.rand.nextGaussian() * 0.2d;
-		double mz = world.rand.nextGaussian() * 0.2d;
-
-		world.spawnParticle(EnumParticleTypes.PORTAL,
-			pos.getX() + 0.5 + world.rand.nextFloat() * width * 2.0F - width,
-			pos.getY() + 1.5 + world.rand.nextFloat() * height,
-			pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
-		);
 	}
 
 	@Override
@@ -140,28 +126,32 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	{
 		if (!this.world.isRemote)
 		{
+			boolean isNewNode = false;
+
 			TeleporterNetwork netWrapper = TeleporterNetwork.get(this.world);
 
 			int tileDim = this.world.provider.getDimension();
 
-			TeleporterNode thisNode = netWrapper.getNode(this.pos, tileDim);			
-
-			if (thisNode == null || netWrapper.runtimeRebuild == true)
+			TeleporterNode thisNode = netWrapper.getNode(this.pos, tileDim);
+			if (thisNode == null)
 			{
 				thisNode = new TeleporterNode();
-				thisNode.pos = this.pos;
-				thisNode.dimension = tileDim;
-				thisNode.type = this.getWorld().getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
-				thisNode.key = TeleporterNetwork.getItemKey(getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0));
-				netWrapper.addNode(thisNode);				
+				isNewNode = true;
+			}
+
+			thisNode.pos = this.pos;
+			thisNode.dimension = tileDim;
+			thisNode.type = this.getWorld().getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
+
+			if (isNewNode == true || netWrapper.runtimeRebuild == true)
+			{
+				netWrapper.addNode(thisNode);
 				this.markDirty();
-				netWrapper.markDirty();
 			}
 			else
 			{
 				netWrapper.updateNode(thisNode);
 			}
-			
 		}
 	}
 

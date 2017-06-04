@@ -2,7 +2,7 @@ package net.dyeo.teleporter.teleport;
 
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
-import net.minecraft.item.ItemStack;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -27,7 +27,7 @@ public class TeleporterNode
 		this.pos = new BlockPos(0, 0, 0);
 		this.dimension = 0;
 		this.type = BlockTeleporter.EnumType.REGULAR;
-		this.key = ItemStack.EMPTY.getUnlocalizedName();
+		this.key = Blocks.AIR.getUnlocalizedName();
 	}
 
 //	public TeleporterNode(BlockPos pos, int dimension, BlockTeleporter.EnumType type)

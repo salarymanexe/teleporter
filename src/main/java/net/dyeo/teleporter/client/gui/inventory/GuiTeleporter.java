@@ -33,8 +33,8 @@ public class GuiTeleporter extends GuiContainer
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
 	{
-		this.fontRenderer.drawString(this.tileEntity.getDisplayName().getUnformattedText(), 8, 6, 0x404040);
-		this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 0x404040);
+		this.fontRendererObj.drawString(this.tileEntity.getDisplayName().getUnformattedText(), 8, 6, 0x404040);
+		this.fontRendererObj.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 0x404040);
 	}
 
 	@Override
