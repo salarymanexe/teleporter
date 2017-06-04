@@ -3,6 +3,7 @@ package net.dyeo.teleporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import net.dyeo.teleporter.command.CommandTeleportReset;
+import net.dyeo.teleporter.command.CommandTeleporters;
 import net.dyeo.teleporter.common.config.ModConfiguration;
 import net.dyeo.teleporter.event.TeleportEventHandler;
 import net.dyeo.teleporter.proxy.CommonProxy;
@@ -63,6 +64,7 @@ public class TeleporterMod
 	public void serverStarting(FMLServerStartingEvent event)
 	{
 		event.registerServerCommand(new CommandTeleportReset());
+		event.registerServerCommand(new CommandTeleporters());
 	}
 
 }

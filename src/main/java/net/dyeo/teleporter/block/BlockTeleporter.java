@@ -98,6 +98,10 @@ public class BlockTeleporter extends BlockContainer
 	public void onEntityWalk(World world, BlockPos pos, Entity entity)
 	{
 		TeleporterNode destinationNode = null;
+
+		IBlockState state = world.getBlockState(pos);
+		EnumType type = EnumType.byMetadata(getMetaFromState(state));
+		
 		if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
 		{
 			ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
@@ -123,22 +127,13 @@ public class BlockTeleporter extends BlockContainer
 
 			if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
 			{
-				double width = 0.25;
-				double height = 0.25;
-
-				double mx = world.rand.nextGaussian() * 0.2d;
-				double my = world.rand.nextGaussian() * 0.2d;
-				double mz = world.rand.nextGaussian() * 0.2d;
-
-				world.spawnParticle(EnumParticleTypes.PORTAL,
-					pos.getX() + 0.5 + world.rand.nextFloat() * width * 2.0F - width,
-					pos.getY() + 1.5 + world.rand.nextFloat() * height,
-					pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
-				);
+                TileEntityTeleporter tEnt = (TileEntityTeleporter) world.getTileEntity(pos);
+                if(tEnt != null)
+                {
+                    tEnt.spawnParticles();
+                }
 			}
 
-			IBlockState state = world.getBlockState(pos);
-			EnumType type = EnumType.byMetadata(getMetaFromState(state));
 			if (type.isRecall() && entity instanceof EntityPlayerMP && destinationNode != null)
 			{
 				breakBlockRecall(world, pos, destinationNode.pos, state, (EntityPlayerMP)entity);
@@ -225,8 +220,8 @@ public class BlockTeleporter extends BlockContainer
 			}
 		}
 
-		world.setBlockToAir(pos);
 		InventoryHelper.spawnItemStack(world, nextPos.getX(), nextPos.getY() + 1, nextPos.getZ(), new ItemStack(ModBlocks.TELEPORTER, 1, getMetaFromState(state)));
+		world.setBlockToAir(pos);
 		while (world.getTileEntity(pos) != null)
 		{
 			world.removeTileEntity(pos);
