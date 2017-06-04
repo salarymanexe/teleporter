@@ -59,7 +59,7 @@ public class ContainerTeleporter extends Container
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int index)
 	{
-		ItemStack itemstack = ItemStack.EMPTY;
+		ItemStack itemstack = null;
 		Slot slot = this.inventorySlots.get(index);
 
 		if (slot != null && slot.getHasStack())
@@ -71,17 +71,17 @@ public class ContainerTeleporter extends Container
 			{
 				if (!this.mergeItemStack(itemstack1, 1, this.inventorySlots.size(), true))
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
 			else if (!this.mergeItemStack(itemstack1, 0, 1, false))
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
 
-			if (itemstack1.getCount() == 0)
+			if (itemstack1.stackSize == 0)
 			{
-				slot.putStack(ItemStack.EMPTY);
+				slot.putStack(null);
 			}
 			else
 			{

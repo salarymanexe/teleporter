@@ -3,6 +3,7 @@ package net.dyeo.teleporter.teleport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
@@ -33,10 +34,22 @@ public class TeleporterNetwork extends WorldSavedData
 	private final int VERSION_MAJOR = 2;
 	private final int VERSION_MINOR = 0;
 
-	//private ArrayList<TeleporterNode> network = new ArrayList<TeleporterNode>();
+	private HashMap<String, ArrayList<TeleporterNode>> network = new HashMap<String, ArrayList<TeleporterNode>>();
 
-	private HashMap<String, ArrayList<TeleporterNode>> newNetwork = new HashMap<String, ArrayList<TeleporterNode>>();
-
+	public Set<String> getSubnets()
+	{
+		return network.keySet();
+	}
+	
+	public int getSubnetSize(String subnetKey)
+	{
+		if(network.containsKey(subnetKey))
+		{
+			return network.get(subnetKey).size();
+		}
+		return 0;
+	}
+	
 	public TeleporterNetwork()
 	{
 		super(TeleporterMod.MODID);
@@ -59,39 +72,6 @@ public class TeleporterNetwork extends WorldSavedData
 		return instance;
 	}
 
-	/*
-	@Override
-	public void readFromNBT(NBTTagCompound nbt)
-	{
-		NBTTagList netNBT = nbt.getTagList("Network", NBT.TAG_COMPOUND);
-
-		if (this.network.size() != 0) this.network.clear();
-
-		for (int i = 0; i < netNBT.tagCount(); ++i)
-		{
-			NBTTagCompound nodeNBT = netNBT.getCompoundTagAt(i);
-			TeleporterNode node = new TeleporterNode(nodeNBT);
-			this.network.add(node);
-		}
-	}
-
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
-	{
-		NBTTagList netNBT = new NBTTagList();
-
-		for (int i = 0; i < this.network.size(); ++i)
-		{
-			TeleporterNode node = this.network.get(i);
-			NBTTagCompound nodeNBT = node.writeToNBT(new NBTTagCompound());
-			netNBT.appendTag(nodeNBT);
-		}
-
-		nbt.setTag("Network", netNBT);
-		return nbt;
-	}
-	*/
-
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
@@ -109,7 +89,7 @@ public class TeleporterNetwork extends WorldSavedData
 			this.runtimeRebuild = false;
 		}
 
-		if (!this.newNetwork.isEmpty()) this.newNetwork.clear();
+		if (!this.network.isEmpty()) this.network.clear();
 
 		Iterator<String> st = networkTag.getKeySet().iterator();
 		while (st.hasNext())
@@ -117,7 +97,7 @@ public class TeleporterNetwork extends WorldSavedData
 			String key = st.next();
 
 			ArrayList<TeleporterNode> subnetList = new ArrayList<TeleporterNode>();
-			this.newNetwork.put(key, subnetList);
+			this.network.put(key, subnetList);
 
 			NBTTagList listTag = networkTag.getTagList(key, NBT.TAG_COMPOUND);
 
@@ -135,7 +115,7 @@ public class TeleporterNetwork extends WorldSavedData
 	{
 		NBTTagCompound networkTag = new NBTTagCompound();
 
-		for (HashMap.Entry<String, ArrayList<TeleporterNode>> entry : newNetwork.entrySet())
+		for (HashMap.Entry<String, ArrayList<TeleporterNode>> entry : network.entrySet())
 		{
 			String itemKey = entry.getKey();
 			ArrayList<TeleporterNode> list = entry.getValue();
@@ -166,7 +146,7 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public TeleporterNode getNode(BlockPos pos, int dimension)
 	{
-		Iterator<ArrayList<TeleporterNode>> mit = newNetwork.values().iterator();
+		Iterator<ArrayList<TeleporterNode>> mit = network.values().iterator();
 		while (mit.hasNext())
 		{
 
@@ -188,9 +168,9 @@ public class TeleporterNetwork extends WorldSavedData
 	public TeleporterNode getNode(BlockPos pos, int dimension, ItemStack key)
 	{
 		String itemKey = getItemKey(key);
-		if (newNetwork.containsKey(itemKey))
+		if (network.containsKey(itemKey))
 		{
-			Iterator<TeleporterNode> lit = newNetwork.get(itemKey).iterator();
+			Iterator<TeleporterNode> lit = network.get(itemKey).iterator();
 			while (lit.hasNext())
 			{
 				TeleporterNode node = lit.next();
@@ -211,15 +191,15 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public void addNode(TeleporterNode node)
 	{
-		if (newNetwork.containsKey(node.key))
+		if (network.containsKey(node.key))
 		{
-			newNetwork.get(node.key).add(node);
+			network.get(node.key).add(node);
 		}
 		else
 		{
 			ArrayList<TeleporterNode> nodeList = new ArrayList<TeleporterNode>();
 			nodeList.add(node);
-			newNetwork.put(node.key, nodeList);
+			network.put(node.key, nodeList);
 		}
 		this.markDirty();
 	}
@@ -253,7 +233,7 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public boolean removeNode(BlockPos pos, int dimension)
 	{
-		Iterator<ArrayList<TeleporterNode>> mit = newNetwork.values().iterator();
+		Iterator<ArrayList<TeleporterNode>> mit = network.values().iterator();
 		while (mit.hasNext())
 		{
 
@@ -277,9 +257,9 @@ public class TeleporterNetwork extends WorldSavedData
 	public boolean removeNode(BlockPos pos, int dimension, ItemStack key)
 	{
 		String itemKey = getItemKey(key);
-		if (newNetwork.containsKey(itemKey))
+		if (network.containsKey(itemKey))
 		{
-			Iterator<TeleporterNode> lit = newNetwork.get(itemKey).iterator();
+			Iterator<TeleporterNode> lit = network.get(itemKey).iterator();
 			while (lit.hasNext())
 			{
 				TeleporterNode node = lit.next();
@@ -298,9 +278,9 @@ public class TeleporterNetwork extends WorldSavedData
 
 	public boolean removeNode(TeleporterNode node)
 	{
-		if (newNetwork.containsKey(node.key))
+		if (network.containsKey(node.key))
 		{
-			return newNetwork.get(node.key).remove(node);
+			return network.get(node.key).remove(node);
 		}
 		return false;
 	}
@@ -325,7 +305,7 @@ public class TeleporterNetwork extends WorldSavedData
 			livingEntity = livingEntity.getControllingPassenger();
 		}
 
-		ArrayList<TeleporterNode> subnet = this.newNetwork.get(sourceNode.key);
+		ArrayList<TeleporterNode> subnet = this.network.get(sourceNode.key);
 
 		System.out.println("Checking teleporter subnet " + sourceNode.key);
 
