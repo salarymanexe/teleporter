@@ -9,6 +9,7 @@ import net.dyeo.teleporter.event.TeleportEvent;
 import net.dyeo.teleporter.init.ModSounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.SPacketRespawn;
 import net.minecraft.server.MinecraftServer;
@@ -84,10 +85,26 @@ public class TeleporterUtility
 	 * transfers entity to a location in the same dimension
 	 */
 	private static boolean transferToLocation(EntityLivingBase entity, double posX, double posY, double posZ, float yaw, float pitch)
-	{
+	{       
+		EntityPlayer entityPlayer = (EntityPlayer)entity;
+		int foodLevel = 0;
+		float foodSaturation = 0;
+		if(entityPlayer != null)
+		{
+			foodLevel = entityPlayer.getFoodStats().getFoodLevel();
+			foodSaturation = entityPlayer.getFoodStats().getSaturationLevel();
+		}
+
 		entity.setPositionAndUpdate(posX, posY, posZ);
 		entity.rotationYaw = yaw;
 		entity.rotationPitch = pitch;
+		
+        if(entityPlayer != null)
+        {
+            entityPlayer.getFoodStats().setFoodLevel(foodLevel);
+            entityPlayer.getFoodStats().setFoodSaturationLevel(foodSaturation);
+        }
+            
 		return true;
 	}
 
@@ -105,6 +122,9 @@ public class TeleporterUtility
 
 //		PlayerChangedDimensionEvent playerChangedDimensionEvent = new PlayerChangedDimensionEvent(srcPlayer, srcPlayer.dimension, dstDimension);
 //		if (MinecraftForge.EVENT_BUS.post(playerChangedDimensionEvent)) return false;
+		
+        int foodLevel = srcPlayer.getFoodStats().getFoodLevel();
+        float foodSaturation = srcPlayer.getFoodStats().getSaturationLevel();
 
 		// (hard) set the player's dimension to the destination dimension
 		srcPlayer.dimension = dstDimension;
@@ -118,7 +138,6 @@ public class TeleporterUtility
 				srcPlayer.interactionManager.getGameType()
 			)
 		);
-
 
 		srcWorldServer.removeEntity(srcPlayer); // remove the original player entity
 		srcPlayer.isDead = false; // make sure the player isn't dead (removeEntity sets player as dead)
@@ -150,6 +169,9 @@ public class TeleporterUtility
 			srcWorldServer.provider.getDimension(),
 			dstWorldServer.provider.getDimension()
 		);
+		
+        srcPlayer.getFoodStats().setFoodLevel(foodLevel);
+        srcPlayer.getFoodStats().setFoodSaturationLevel(foodSaturation);
 
 		return true;
 	}
