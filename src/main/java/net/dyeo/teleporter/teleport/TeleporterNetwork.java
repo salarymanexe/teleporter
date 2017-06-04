@@ -415,27 +415,31 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public static String getItemKey(ItemStack stack)
 	{		
-		String key = stack.getUnlocalizedName();
-		
-		if(stack.stackSize != 0)
+		if(stack != null)
 		{
-			key += ":" + stack.getItemDamage();
+			String key = stack.getUnlocalizedName();
 			
-			if(stack.hasTagCompound())
+			if(stack.stackSize != 0)
 			{
-				if(stack.getItem() == Items.WRITTEN_BOOK)
+				key += ":" + stack.getItemDamage();
+				
+				if(stack.hasTagCompound())
 				{
-					key += ":" + stack.getTagCompound().getString("author");
-					key += ":" + stack.getTagCompound().getString("title");
-				}
-				else
-				{
-					key += ":" + stack.getTagCompound().toString();
+					if(stack.getItem() == Items.WRITTEN_BOOK)
+					{
+						key += ":" + stack.getTagCompound().getString("author");
+						key += ":" + stack.getTagCompound().getString("title");
+					}
+					else
+					{
+						key += ":" + stack.getTagCompound().toString();
+					}
 				}
 			}
+			
+			return key;			
 		}
-		
-		return key;
+		return "tile.air";
 	}
 
 }
