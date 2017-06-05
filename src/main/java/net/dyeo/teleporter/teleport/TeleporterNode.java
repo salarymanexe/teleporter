@@ -7,6 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 
 /**
@@ -30,18 +31,24 @@ public class TeleporterNode
 		this.key = Blocks.AIR.getUnlocalizedName();
 	}
 
-//	public TeleporterNode(BlockPos pos, int dimension, BlockTeleporter.EnumType type)
-//	{
-//		this.pos = pos;
-//		this.dimension = dimension;
-//		this.type = type;
-//	}
-
 	public TeleporterNode(NBTTagCompound compound)
 	{
 		this.readFromNBT(compound);
 	}
-
+	
+	public TeleporterNode(BlockPos pos, int dimension)
+	{
+		this.pos = pos;
+		this.dimension = dimension;
+		
+		TileEntityTeleporter tile = (TileEntityTeleporter)FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimension).getTileEntity(pos);
+		
+		if(tile != null)
+		{
+			this.type = tile.getWorld().getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
+			this.key = TeleporterNetwork.getItemKey(tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0));
+		}
+	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{

@@ -156,7 +156,7 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 
 			TeleporterNode thisNode = netWrapper.getNode(this.pos, tileDim);			
 
-			if (thisNode == null || netWrapper.runtimeRebuild == true)
+			if (thisNode == null)
 			{
 				thisNode = new TeleporterNode();
 				thisNode.pos = this.pos;

@@ -40,7 +40,7 @@ public class CommandTeleporters extends CommandBase
     @Override
     public String getUsage(ICommandSender sender)
     {
-        return "Returns the names of the subnets and the number of teleporters on each subnet. Data is unparsed, so it may be confusing!";
+        return "/teleporters";
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CommandTeleporters extends CommandBase
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender)
     {
-        return sender.canUseCommand(0, this.getName());
+        return true;
     }
 
     @Override
