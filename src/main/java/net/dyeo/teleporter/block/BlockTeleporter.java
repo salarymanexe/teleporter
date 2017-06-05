@@ -42,6 +42,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -134,8 +135,9 @@ public class BlockTeleporter extends BlockContainer
 			}
 			
 			if(type.isRecall() && entity instanceof EntityPlayerMP && destinationNode != null)
-			{
-				breakBlockRecall(world, pos, destinationNode.pos, state, (EntityPlayerMP)entity);
+			{                
+				WorldServer nextWorld = world.getMinecraftServer().worldServerForDimension(destinationNode.dimension);
+				breakBlockRecall(world, nextWorld, pos, destinationNode.pos, state, (EntityPlayerMP)entity);
 			}
 		}
 	}
@@ -195,7 +197,7 @@ public class BlockTeleporter extends BlockContainer
 		super.breakBlock(world, pos, state);
 	}
 	
-	public void breakBlockRecall(World world, BlockPos pos, BlockPos nextPos, IBlockState state, EntityPlayerMP player)
+	public void breakBlockRecall(World world, World nextWorld, BlockPos pos, BlockPos nextPos, IBlockState state, EntityPlayerMP player)
 	{
 		TileEntityTeleporter tileEntityTeleporter = (TileEntityTeleporter)world.getTileEntity(pos);
 		if (tileEntityTeleporter != null)
@@ -208,12 +210,12 @@ public class BlockTeleporter extends BlockContainer
 				ItemStack stack = handler.getStackInSlot(0);
 				if (!stack.isEmpty())
 				{
-					InventoryHelper.spawnItemStack(world, nextPos.getX(), nextPos.getY()+1, nextPos.getZ(), stack);
+					InventoryHelper.spawnItemStack(nextWorld, nextPos.getX(), nextPos.getY()+1, nextPos.getZ(), stack);
 				}
 			}
 		}
 
-		InventoryHelper.spawnItemStack(world, nextPos.getX(), nextPos.getY()+1, nextPos.getZ(), new ItemStack(ModBlocks.TELEPORTER,1,getMetaFromState(state)));
+		InventoryHelper.spawnItemStack(nextWorld, nextPos.getX(), nextPos.getY()+1, nextPos.getZ(), new ItemStack(ModBlocks.TELEPORTER,1,getMetaFromState(state)));
 		world.setBlockToAir(pos);
 		while(world.getTileEntity(pos) != null)
 		{
