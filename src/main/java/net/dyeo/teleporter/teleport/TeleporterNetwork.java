@@ -3,8 +3,10 @@ package net.dyeo.teleporter.teleport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
-
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
@@ -14,11 +16,13 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -29,9 +33,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
  *
  */
 public class TeleporterNetwork extends WorldSavedData
-{
-	public boolean runtimeRebuild = false;
-	
+{	
 	/*
 	 * These versions pertain solely to the teleporter network. As new changes are made to the network, old network versions will require every teleporter to re-register within the network, to prevent older worlds from breaking.	
 	 */
@@ -83,7 +85,7 @@ public class TeleporterNetwork extends WorldSavedData
 		}
 		return instance;
 	}
-
+	
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
@@ -94,35 +96,84 @@ public class TeleporterNetwork extends WorldSavedData
 
 		if(!this.network.isEmpty()) this.network.clear();
 		
-		if(versionMajor < VERSION_MAJOR || (versionMajor == VERSION_MAJOR && versionMinor < VERSION_MINOR))
+		if(versionMajor <= 0)
 		{
+			NBTTagList netNBT = nbt.getTagList("Network", NBT.TAG_COMPOUND);
+
+			if (this.network.size() != 0) this.network.clear();
+
+			for (int i = 0; i < netNBT.tagCount(); ++i)
+			{
+				NBTTagCompound nodeNBT = netNBT.getCompoundTagAt(i);
+				int x = nodeNBT.getInteger("x");
+				int y = nodeNBT.getInteger("y");
+				int z = nodeNBT.getInteger("z");
+				BlockPos tempPos = new BlockPos(x, y, z);
+				int tempDim = nbt.getInteger("dim");
+				
+				TeleporterNode node = new TeleporterNode(tempPos,tempDim);
+				if(network.containsKey(node.key))
+				{
+					network.get(node.key).add(node);
+				}
+				else
+				{
+					ArrayList<TeleporterNode> newList = new ArrayList<TeleporterNode>();
+					newList.add(node);
+					network.put(node.key,newList);
+				}
+			}
+			this.markDirty();
+		}
+		else if(versionMajor < VERSION_MAJOR || (versionMajor == VERSION_MAJOR && versionMinor < VERSION_MINOR))
+		{
+			System.out.println("Old teleporter network... Rebuilding network! May cause lag.");
 			nbt.removeTag("Network");
-			this.runtimeRebuild = true;
+			for(int d : DimensionManager.getIDs())
+			{
+				WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(d);
+				List<TileEntity> TEs = world.tickableTileEntities;
+				
+				for(TileEntity t : Collections2.filter(TEs, new Predicate<TileEntity>() 
+				{ @Override public boolean apply(TileEntity te) { return te instanceof TileEntityTeleporter; } } )) {
+					TileEntityTeleporter te = (TileEntityTeleporter)t;
+					TeleporterNode node = new TeleporterNode(te.getPos(),d);
+					if(network.containsKey(node.key))
+					{
+						network.get(node.key).add(node);
+					}
+					else
+					{
+						ArrayList<TeleporterNode> newList = new ArrayList<TeleporterNode>();
+						newList.add(node);
+						network.put(node.key,newList);
+					}
+				}
+			}
+			this.markDirty();
 		}
 		else
 		{
-			this.runtimeRebuild = false;
-		}
-
-		Iterator<String> st = networkTag.getKeySet().iterator();
-		while(st.hasNext())
-		{
-			String key = st.next();
-			
-			ArrayList<TeleporterNode> subnetList = new ArrayList<TeleporterNode>();
-			this.network.put(key, subnetList);
-			
-			NBTTagList listTag = networkTag.getTagList(key, NBT.TAG_COMPOUND);
-			
-			for (int i = 0; i < listTag.tagCount(); ++i)
+			Iterator<String> st = networkTag.getKeySet().iterator();
+			while(st.hasNext())
 			{
-				NBTTagCompound nodeNBT = listTag.getCompoundTagAt(i);
-				TeleporterNode node = new TeleporterNode(nodeNBT);
-				subnetList.add(node);
+				String key = st.next();
+			
+				ArrayList<TeleporterNode> subnetList = new ArrayList<TeleporterNode>();
+				this.network.put(key, subnetList);
+			
+				NBTTagList listTag = networkTag.getTagList(key, NBT.TAG_COMPOUND);
+				
+				for (int i = 0; i < listTag.tagCount(); ++i)
+				{
+					NBTTagCompound nodeNBT = listTag.getCompoundTagAt(i);
+					TeleporterNode node = new TeleporterNode(nodeNBT);
+					subnetList.add(node);
+				}
 			}
 		}
 	}
-
+	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
