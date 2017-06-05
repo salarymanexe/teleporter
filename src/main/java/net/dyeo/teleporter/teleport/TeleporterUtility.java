@@ -1,6 +1,5 @@
 package net.dyeo.teleporter.teleport;
 
-import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
 import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
@@ -17,7 +16,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
