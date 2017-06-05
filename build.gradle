@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 
-version = "1.6.1"
+version = "1.7.0-beta"
 group = "net.dyeo.teleporter"
 archivesBaseName = "VanillaTeleporter-1.10.2"
 
