@@ -96,7 +96,7 @@ public class TeleporterNetwork extends WorldSavedData
 
 		if(!this.network.isEmpty()) this.network.clear();
 		
-		if(versionMajor <= 0)
+		if(versionMajor < 2)
 		{
 			NBTTagList netNBT = nbt.getTagList("Network", NBT.TAG_COMPOUND);
 
@@ -121,33 +121,6 @@ public class TeleporterNetwork extends WorldSavedData
 					ArrayList<TeleporterNode> newList = new ArrayList<TeleporterNode>();
 					newList.add(node);
 					network.put(node.key,newList);
-				}
-			}
-			this.markDirty();
-		}
-		else if(versionMajor < VERSION_MAJOR || (versionMajor == VERSION_MAJOR && versionMinor < VERSION_MINOR))
-		{
-			System.out.println("Old teleporter network... Rebuilding network! May cause lag.");
-			nbt.removeTag("Network");
-			for(int d : DimensionManager.getIDs())
-			{
-				WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(d);
-				List<TileEntity> TEs = world.tickableTileEntities;
-				
-				for(TileEntity t : Collections2.filter(TEs, new Predicate<TileEntity>() 
-				{ @Override public boolean apply(TileEntity te) { return te instanceof TileEntityTeleporter; } } )) {
-					TileEntityTeleporter te = (TileEntityTeleporter)t;
-					TeleporterNode node = new TeleporterNode(te.getPos(),d);
-					if(network.containsKey(node.key))
-					{
-						network.get(node.key).add(node);
-					}
-					else
-					{
-						ArrayList<TeleporterNode> newList = new ArrayList<TeleporterNode>();
-						newList.add(node);
-						network.put(node.key,newList);
-					}
 				}
 			}
 			this.markDirty();
