@@ -57,6 +57,12 @@ public class TeleporterNode
 		this.key = nbt.getString("key");
 	}
 	
+	@Override
+	public String toString()
+	{
+		return "TeleporterNode [pos=" + pos + ", dimension=" + dimension + ", type=" + type + ", key=" + key + "]";
+	}
+
 	public boolean matches(BlockPos pos, int dimension)
 	{
 		return this.pos.equals(pos) && this.dimension == dimension;
