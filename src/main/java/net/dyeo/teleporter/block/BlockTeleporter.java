@@ -9,6 +9,7 @@ import net.dyeo.teleporter.capabilities.ITeleportHandler;
 import net.dyeo.teleporter.common.config.ModConfiguration;
 import net.dyeo.teleporter.common.network.GuiHandler;
 import net.dyeo.teleporter.init.ModBlocks;
+import net.dyeo.teleporter.teleport.TeleporterNetwork;
 import net.dyeo.teleporter.teleport.TeleporterNode;
 import net.dyeo.teleporter.teleport.TeleporterUtility;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
@@ -80,18 +81,23 @@ public class BlockTeleporter extends BlockContainer
 	}
 
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
 	{
-		super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+		super.onBlockPlacedBy(world, pos, state, placer, stack);
 
+		// if the stack being placed in the world by the player has a custom name
 		if (stack.hasDisplayName())
 		{
-			TileEntity tileentity = worldIn.getTileEntity(pos);
+			// set the custom name of the tile entity from the itemstack
+			TileEntity tileentity = world.getTileEntity(pos);
 			if (tileentity instanceof TileEntityTeleporter)
 			{
 				((TileEntityTeleporter)tileentity).setCustomName(stack.getDisplayName());
 			}
 		}
+
+		// add a new node to the network for this teleporter
+		TeleporterNetwork.get(world).addNode(new TeleporterNode(pos, world.provider.getDimension(), state.getValue(TYPE), null));
 	}
 
 	@Override
@@ -101,7 +107,7 @@ public class BlockTeleporter extends BlockContainer
 
 		IBlockState state = world.getBlockState(pos);
 		EnumType type = EnumType.byMetadata(getMetaFromState(state));
-		
+
 		if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
 		{
 			ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
@@ -127,11 +133,11 @@ public class BlockTeleporter extends BlockContainer
 
 			if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
 			{
-                TileEntityTeleporter tEnt = (TileEntityTeleporter) world.getTileEntity(pos);
-                if(tEnt != null)
-                {
-                    tEnt.spawnParticles();
-                }
+				TileEntityTeleporter tEnt = (TileEntityTeleporter)world.getTileEntity(pos);
+				if (tEnt != null)
+				{
+					tEnt.spawnParticles();
+				}
 			}
 
 			if (type.isRecall() && entity instanceof EntityPlayerMP && destinationNode != null)
@@ -262,7 +268,7 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
 	{
-		for ( EnumType type : EnumType.values() )
+		for (EnumType type : EnumType.values())
 		{
 			list.add(new ItemStack(item, 1, type.getMetadata()));
 		}
