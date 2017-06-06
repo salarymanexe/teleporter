@@ -31,7 +31,6 @@ import net.minecraftforge.items.IItemHandler;
 /**
  * TeleporterNetwork is the singleton responsible for saving the teleporter data onto the world file, and is
  * responsible for retrieving destination and source nodes during teleportation.
- *
  */
 public class TeleporterNetwork extends WorldSavedData
 {
@@ -403,7 +402,7 @@ public class TeleporterNetwork extends WorldSavedData
 			if (destinationWorld != null)
 			{
 				// if a tile entity doesn't exist at the specified node location, remove the node and continue
-				TileEntityTeleporter tEntDest = currentNode.getTileEntity();
+				TileEntityTeleporter tEntDest = getTileEntity(currentNode);
 				if (tEntDest == null)
 				{
 					System.out.println("Invalid node found! Deleting...");
@@ -492,7 +491,6 @@ public class TeleporterNetwork extends WorldSavedData
 			return true;
 		}
 	}
-
 
 	private static TileEntityTeleporter getTileEntity(TeleporterNode node)
 	{
