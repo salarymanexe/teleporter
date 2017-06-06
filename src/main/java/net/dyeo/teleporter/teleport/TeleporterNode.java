@@ -22,7 +22,6 @@ public class TeleporterNode
 	public EnumType type = EnumType.REGULAR;
 	public String key = Blocks.AIR.getUnlocalizedName();
 
-
 	public TeleporterNode(NBTTagCompound compound)
 	{
 		this.readFromNBT(compound);
@@ -35,7 +34,6 @@ public class TeleporterNode
 		this.type = type;
 		if (key != null) this.key = key;
 	}
-
 
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
@@ -58,14 +56,7 @@ public class TeleporterNode
 		this.type = EnumType.byMetadata(nbt.getInteger("type"));
 		this.key = nbt.getString("key");
 	}
-
-
-	@Override
-	public String toString()
-	{
-		return "{ \"x\":" + this.pos.getX() + ", \"y\":" + this.pos.getY() + ", \"z\":" + this.pos.getZ() + ", \"dim\":" + this.dimension + ", \"type\":" + this.type + ", \"key\":" + this.key + " }";
-	}
-
+	
 	public boolean matches(BlockPos pos, int dimension)
 	{
 		return this.pos.equals(pos) && this.dimension == dimension;
