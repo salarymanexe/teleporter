@@ -60,8 +60,12 @@ public class TeleporterNetwork extends WorldSavedData
 	{
 		super(identifier);
 	}
-
-
+	
+	/**
+	 * Loads and retrieves the TeleporterNetwork if it is available, or creates it if it is not.	
+	 * @param world The world it is being loaded from
+	 * @return The teleporter network
+	 */
 	public static TeleporterNetwork get(World world)
 	{
 		TeleporterNetwork instance = (TeleporterNetwork)world.getMapStorage().getOrLoadData(TeleporterNetwork.class, TeleporterMod.MODID);
@@ -185,6 +189,11 @@ public class TeleporterNetwork extends WorldSavedData
 		return network.keySet();
 	}
 
+	/**
+	 * Retrieve the number of teleporters in a subnet.
+	 * @param subnetKey The subnet key
+	 * @return The number of teleporters in the subnet
+	 */
 	public int getSubnetSize(String subnetKey)
 	{
 		if (network.containsKey(subnetKey))
@@ -222,26 +231,6 @@ public class TeleporterNetwork extends WorldSavedData
 		return null;
 	}
 
-//	public TeleporterNode getNode(BlockPos pos, int dimension, ItemStack key)
-//	{
-//		String itemKey = getItemKey(key);
-//		if (network.containsKey(itemKey))
-//		{
-//			Iterator<TeleporterNode> lit = network.get(itemKey).iterator();
-//			while (lit.hasNext())
-//			{
-//				TeleporterNode node = lit.next();
-//				if (node.matches(pos, dimension))
-//				{
-//					return node;
-//				}
-//			}
-//
-//		}
-//
-//		return null;
-//	}
-
 	/**
 	 * Adds a node to the network
 	 * @param node The node to be added
@@ -256,29 +245,13 @@ public class TeleporterNetwork extends WorldSavedData
 		this.markDirty();
 	}
 
-
-//	/**
-//	 * Update's a node's item key, and reassigns it in the network if necessary
-//	 * @param node The node to be updated
-//	 */
-//	public void updateNode(TeleporterNode node)
-//	{
-//		ItemStack stack = node.getTileEntity().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
-//		String newKey = getItemKey(stack);
-//		if (!node.key.equals(newKey))
-//		{
-//			// remove node from network
-//			removeNode(node);
-//			// set new key
-//			node.key = newKey;
-//			// add node back to network
-//			addNode(node);
-//			// update nbt data
-//			this.markDirty();
-//		}
-//	}
-
-
+	/**
+	 * Finds, and updates a node in the teleporter network. Searching uses the node's position and dimension.
+	 * @param pos The node's position
+	 * @param dimension The node's dimension
+	 * @param type The teleporter's type
+	 * @param stack The teleporter's item stack
+	 */
 	public void updateNode(BlockPos pos, int dimension, EnumType type, ItemStack stack)
 	{
 		String newKey = getItemKey(stack);
@@ -310,7 +283,7 @@ public class TeleporterNetwork extends WorldSavedData
 			if (found) break;
 		}
 
-		// create a new subket for the new key if one doesn't already exist
+		// create a new subnet for the new key if one doesn't already exist
 		if (!network.containsKey(newKey)) network.put(newKey, new ArrayList<TeleporterNode>());
 
 		// add a new node to the correct subnet for the new key
@@ -322,8 +295,6 @@ public class TeleporterNetwork extends WorldSavedData
 
 		this.markDirty();
 	}
-
-
 
 	/**
 	 * Removes a node from the network
@@ -358,6 +329,11 @@ public class TeleporterNetwork extends WorldSavedData
 		return false;
 	}
 
+	/**
+	 * Removes a node from the teleporter network.
+	 * @param node The node to remove
+	 * @return True if the removal was successful, false if the remove was unsuccessful or the node could not be found
+	 */
 	public boolean removeNode(TeleporterNode node)
 	{
 		if (network.containsKey(node.key))
@@ -460,7 +436,7 @@ public class TeleporterNetwork extends WorldSavedData
 	}
 
 	/**
-	 * Gets a chat message for the player, given a string id
+	 * Gets a chat message for the player, given a string id.
 	 * @param messageName The unlocalized message name
 	 * @return The message to be sent to the player
 	 */
@@ -470,8 +446,8 @@ public class TeleporterNetwork extends WorldSavedData
 	}
 
 	/**
-	 * Determines whether the teleporter block is being obstructed for purposes of teleporting
-	 * @param world
+	 * Determines whether the teleporter block is being obstructed for purposes of teleporting.
+	 * @param world The world the node is contained in
 	 * @param node
 	 * @return True if the teleporter is obstructed, false otherwise
 	 */
@@ -492,6 +468,11 @@ public class TeleporterNetwork extends WorldSavedData
 		}
 	}
 
+	/**
+	 * Retrieves the TileEntityTeleporter for a given teleporter node.
+	 * @param node The teleporter node
+	 * @return The tile entity, or null if no tile entity was found (or the tile entity is not a TileEntityTeleporter)
+	 */
 	private static TileEntityTeleporter getTileEntity(TeleporterNode node)
 	{
 		try
@@ -539,8 +520,6 @@ public class TeleporterNetwork extends WorldSavedData
 		}
 		return Blocks.AIR.getUnlocalizedName();
 	}
-
-
 
 	private static class TeleporterMap extends HashMap<String, List<TeleporterNode>>
 	{
