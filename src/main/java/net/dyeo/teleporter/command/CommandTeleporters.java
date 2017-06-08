@@ -70,7 +70,7 @@ public class CommandTeleporters extends CommandBase
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender)
     {
-        return true;
+        return sender.canUseCommand(2, this.getName());
     }
 
     @Override
