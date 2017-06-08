@@ -15,6 +15,7 @@ import net.dyeo.teleporter.teleport.TeleporterUtility;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
+import net.minecraft.block.BlockSlab;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -313,6 +314,12 @@ public class BlockTeleporter extends BlockContainer
 	{
 		return false;
 	}
+	
+	@Override
+	public boolean isFullyOpaque(IBlockState state)
+    {
+        return false;
+    }
 
 	@Override
 	public boolean isFullBlock(IBlockState state)
@@ -320,7 +327,13 @@ public class BlockTeleporter extends BlockContainer
 		EnumType type = EnumType.byMetadata(getMetaFromState(state));
 		return !type.isRecall();
 	}
-
+	
+	@Override
+	public boolean isFullCube(IBlockState state)
+	{
+		EnumType type = EnumType.byMetadata(getMetaFromState(state));
+		return !type.isRecall();
+	}
 
 	public static enum EnumType implements IStringSerializable
 	{
