@@ -1,15 +1,15 @@
 package net.dyeo.teleporter.tileentity;
 
 import net.dyeo.teleporter.block.BlockTeleporter;
+import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
 import net.dyeo.teleporter.teleport.TeleporterNetwork;
-import net.dyeo.teleporter.teleport.TeleporterNode;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -18,7 +18,7 @@ import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class TileEntityTeleporter extends TileEntity implements ITickable
+public class TileEntityTeleporter extends TileEntity
 {
 
 	private String customName = null;
@@ -26,11 +26,21 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 
 	private ItemStackHandler handler = new ItemStackHandler(1)
 	{
+		private void updateNode()
+		{
+			BlockPos pos = TileEntityTeleporter.this.getPos();
+			int dimension = TileEntityTeleporter.this.getWorld().provider.getDimension();
+			EnumType type = TileEntityTeleporter.this.getWorld().getBlockState(pos).getValue(BlockTeleporter.TYPE);
+			ItemStack stack = this.getStackInSlot(0);
+			
+			TeleporterNetwork.get(TileEntityTeleporter.this.world).updateNode(pos, dimension, type, stack);
+		}
+		
 		@Override
 		protected void onContentsChanged(int slot)
 		{
-			TileEntityTeleporter.this.update();
 			TileEntityTeleporter.this.markDirty();
+			this.updateNode();
 		}
 	};
 
@@ -133,36 +143,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 			pos.getY() + 1.5 + world.rand.nextFloat() * height,
 			pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
 		);
-	}
-
-	@Override
-	public void update()
-	{
-		if (!this.world.isRemote)
-		{
-			TeleporterNetwork netWrapper = TeleporterNetwork.get(this.world);
-
-			int tileDim = this.world.provider.getDimension();
-
-			TeleporterNode thisNode = netWrapper.getNode(this.pos, tileDim);			
-
-			if (thisNode == null)
-			{
-				thisNode = new TeleporterNode();
-				thisNode.pos = this.pos;
-				thisNode.dimension = tileDim;
-				thisNode.type = this.getWorld().getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
-				thisNode.key = TeleporterNetwork.getItemKey(getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0));
-				netWrapper.addNode(thisNode);				
-				this.markDirty();
-				netWrapper.markDirty();
-			}
-			else
-			{
-				netWrapper.updateNode(thisNode);
-			}
-			
-		}
 	}
 
 }

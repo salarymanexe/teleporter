@@ -1,13 +1,9 @@
 package net.dyeo.teleporter.teleport;
 
-import net.dyeo.teleporter.block.BlockTeleporter;
-import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
-import net.minecraft.item.ItemStack;
+import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.items.CapabilityItemHandler;
 
 
 /**
@@ -18,38 +14,23 @@ import net.minecraftforge.items.CapabilityItemHandler;
 public class TeleporterNode
 {
 
-	public BlockPos pos;
-	public int dimension;
-	public BlockTeleporter.EnumType type;
-	public String key;
-
-	public TeleporterNode()
-	{
-		this.pos = new BlockPos(0, 0, 0);
-		this.dimension = 0;
-		this.type = BlockTeleporter.EnumType.REGULAR;
-		this.key = ItemStack.EMPTY.getUnlocalizedName();
-	}
-	
-	public TeleporterNode(BlockPos pos, int dimension)
-	{
-		this.pos = pos;
-		this.dimension = dimension;
-		
-		TileEntityTeleporter tile = (TileEntityTeleporter)FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimension).getTileEntity(pos);
-		
-		if(tile != null)
-		{
-			this.type = tile.getWorld().getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
-			this.key = TeleporterNetwork.getItemKey(tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0));
-		}
-	}
+	public BlockPos pos = BlockPos.ORIGIN;
+	public int dimension = 0;
+	public EnumType type = EnumType.REGULAR;
+	public String key = Blocks.AIR.getUnlocalizedName();
 
 	public TeleporterNode(NBTTagCompound compound)
 	{
 		this.readFromNBT(compound);
 	}
 
+	public TeleporterNode(BlockPos pos, int dimension, EnumType type, String key)
+	{
+		this.pos = pos;
+		this.dimension = dimension;
+		this.type = type;
+		if (key != null) this.key = key;
+	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
@@ -69,26 +50,14 @@ public class TeleporterNode
 		int z = nbt.getInteger("z");
 		this.pos = new BlockPos(x, y, z);
 		this.dimension = nbt.getInteger("dim");
-		this.type = BlockTeleporter.EnumType.byMetadata(nbt.getInteger("type"));
+		this.type = EnumType.byMetadata(nbt.getInteger("type"));
 		this.key = nbt.getString("key");
 	}
-
-	public TileEntityTeleporter getTileEntity()
-	{
-		TileEntity result = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(this.dimension).getTileEntity(this.pos);
-		if (result instanceof TileEntityTeleporter) {
-			return (TileEntityTeleporter) result;
-		}
-		else {
-			return null;
-		}
-	}
-
-
+	
 	@Override
 	public String toString()
 	{
-		return "{ \"x\":" + this.pos.getX() + ", \"y\":" + this.pos.getY() + ", \"z\":" + this.pos.getZ() + ", \"dim\":" + this.dimension + ", \"type\":" + this.type + ", \"key\":" + this.key + " }";
+		return "TeleporterNode [pos=" + pos + ", dimension=" + dimension + ", type=" + type + ", key=" + key + "]";
 	}
 
 	public boolean matches(BlockPos pos, int dimension)

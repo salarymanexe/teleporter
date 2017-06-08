@@ -127,7 +127,7 @@ public class BlockTeleporter extends BlockContainer
 
 			if (teleportHandler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
 			{
-				TileEntityTeleporter tEnt = (TileEntityTeleporter) world.getTileEntity(pos);
+				TileEntityTeleporter tEnt = (TileEntityTeleporter)world.getTileEntity(pos);
 				if(tEnt != null)
 				{
 					tEnt.spawnParticles();
