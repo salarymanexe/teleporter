@@ -9,11 +9,8 @@ import java.util.Set;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
-import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -109,7 +106,7 @@ public class TeleporterNetwork extends WorldSavedData
 					if (tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null))
 					{
 						IItemHandler handler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-						node.key = getItemKey(handler.getStackInSlot(0));
+						node.key = TeleporterUtility.getItemKey(handler.getStackInSlot(0));
 					}
 				}
 
@@ -254,7 +251,7 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public void updateNode(BlockPos pos, int dimension, EnumType type, ItemStack stack)
 	{
-		String newKey = getItemKey(stack);
+		String newKey = TeleporterUtility.getItemKey(stack);
 		String oldKey = null;
 
 		boolean found = false;
@@ -305,7 +302,7 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public boolean removeNode(BlockPos pos, int dimension, ItemStack key)
 	{
-		String itemKey = getItemKey(key);
+		String itemKey = TeleporterUtility.getItemKey(key);
 		if (network.containsKey(itemKey))
 		{
 			Iterator<TeleporterNode> lit = network.get(itemKey).iterator();
@@ -378,7 +375,7 @@ public class TeleporterNetwork extends WorldSavedData
 			if (destinationWorld != null)
 			{
 				// if a tile entity doesn't exist at the specified node location, remove the node and continue
-				TileEntityTeleporter tEntDest = getTileEntity(currentNode);
+				TileEntityTeleporter tEntDest = TeleporterUtility.getTileEntity(currentNode);
 				if (tEntDest == null)
 				{
 					System.out.println("Invalid node found! Deleting...");
@@ -399,7 +396,7 @@ public class TeleporterNetwork extends WorldSavedData
 				}
 
 				// if the destination node is obstructed, continue
-				if (isObstructed(destinationWorld, currentNode))
+				if (TeleporterUtility.isObstructed(destinationWorld, currentNode))
 				{
 					if (livingEntity instanceof EntityPlayer)
 					{
@@ -443,82 +440,6 @@ public class TeleporterNetwork extends WorldSavedData
 	private TextComponentTranslation getMessage(String messageName)
 	{
 		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + messageName);
-	}
-
-	/**
-	 * Determines whether the teleporter block is being obstructed for purposes of teleporting.
-	 * @param world The world the node is contained in
-	 * @param node
-	 * @return True if the teleporter is obstructed, false otherwise
-	 */
-	public static boolean isObstructed(World world, TeleporterNode node)
-	{
-		BlockPos blockPos1 = new BlockPos(node.pos.getX(), node.pos.getY() + 1, node.pos.getZ());
-		BlockPos blockPos2 = new BlockPos(node.pos.getX(), node.pos.getY() + 2, node.pos.getZ());
-		Block block1 = world.getBlockState(blockPos1).getBlock();
-		Block block2 = world.getBlockState(blockPos2).getBlock();
-
-		if (block1.isPassable(world, blockPos1) && block2.isPassable(world, blockPos2))
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-
-	/**
-	 * Retrieves the TileEntityTeleporter for a given teleporter node.
-	 * @param node The teleporter node
-	 * @return The tile entity, or null if no tile entity was found (or the tile entity is not a TileEntityTeleporter)
-	 */
-	private static TileEntityTeleporter getTileEntity(TeleporterNode node)
-	{
-		try
-		{
-			WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(node.dimension);
-			return (TileEntityTeleporter)world.getTileEntity(node.pos);
-		}
-		catch(Exception ex)
-		{
-			TeleporterMod.LOGGER.catching(ex);
-			return null;
-		}
-	}
-
-
-	/**
-	 * Generates a unique item key pertaining to an item stack. Takes into account all unique values except for stack size. The return of this function is guaranteed to produce the same key for two identical items, and takes into account NBT tags, damage, and the unlocalized name. Mods which implement two different blocks/items with the same unlocalized name will be treated as the same.
-	 * @param stack The item stack to generate a key from
-	 * @return The unique key
-	 */
-	public static String getItemKey(ItemStack stack)
-	{
-		if (stack != null)
-		{
-			String key = stack.getUnlocalizedName();
-
-			if (stack.stackSize != 0)
-			{
-				key += ":" + stack.getItemDamage();
-
-				if (stack.hasTagCompound())
-				{
-					if (stack.getItem() == Items.WRITTEN_BOOK)
-					{
-						key += ":" + stack.getTagCompound().getString("author");
-						key += ":" + stack.getTagCompound().getString("title");
-					}
-					else
-					{
-						key += ":" + stack.getTagCompound().toString();
-					}
-				}
-			}
-			return key;
-		}
-		return Blocks.AIR.getUnlocalizedName();
 	}
 
 	private static class TeleporterMap extends HashMap<String, List<TeleporterNode>>

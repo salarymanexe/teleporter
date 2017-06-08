@@ -7,9 +7,14 @@ import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
 import net.dyeo.teleporter.capabilities.ITeleportHandler;
 import net.dyeo.teleporter.event.TeleportEvent;
 import net.dyeo.teleporter.init.ModSounds;
+import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketRespawn;
 import net.minecraft.server.MinecraftServer;
@@ -25,6 +30,12 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 public class TeleporterUtility
 {
 
+	/**
+	 * Teleports the entity to the next available node in the network.
+	 * @param entity The entity to be teleported.
+	 * @param pos The position of the entity, used to find the teleporter they're standing on.
+	 * @return The TeleporterNode they teleported to, or null if the teleport failed.
+	 */
 	public static TeleporterNode teleport(EntityLivingBase entity, BlockPos pos)
 	{
 		boolean teleportSuccess = false;
@@ -200,7 +211,7 @@ public class TeleporterUtility
 	/**
 	 * Sets the player's position in a minecraft server-friendly way
 	 */
-	private static boolean setPlayerPosition(EntityPlayerMP player, double x, double y, double z, float yaw, float pitch)
+	public static boolean setPlayerPosition(EntityPlayerMP player, double x, double y, double z, float yaw, float pitch)
 	{
 		ITeleportHandler handler = player.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
 		handler.setTeleportStatus(EnumTeleportStatus.IN_PROGRESS);
@@ -213,7 +224,7 @@ public class TeleporterUtility
 	/**
 	 * Sets the entity's position in a minecraft server-friendly way
 	 */
-	private static boolean setEntityPosition(Entity entity, double x, double y, double z, float yaw, float pitch)
+	public static boolean setEntityPosition(Entity entity, double x, double y, double z, float yaw, float pitch)
 	{
 		ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
 		handler.setTeleportStatus(EnumTeleportStatus.IN_PROGRESS);
@@ -221,5 +232,80 @@ public class TeleporterUtility
 		entity.setPositionAndRotation(x, y, z, yaw, pitch);//;(x, y, z, yaw, pitch);
 		entity.setRotationYawHead(yaw);
 		return true;
+	}
+
+	/**
+	 * Generates a unique item key pertaining to an item stack. Takes into account all unique values except for stack size. The return of this function is guaranteed to produce the same key for two identical items, and takes into account NBT tags, damage, and the unlocalized name. Mods which implement two different blocks/items with the same unlocalized name will be treated as the same.
+	 * @param stack The item stack to generate a key from
+	 * @return The unique key
+	 */
+	public static String getItemKey(ItemStack stack)
+	{
+		if (stack != null)
+		{
+			String key = stack.getUnlocalizedName();
+	
+			if (stack.stackSize != 0)
+			{
+				key += ":" + stack.getItemDamage();
+	
+				if (stack.hasTagCompound())
+				{
+					if (stack.getItem() == Items.WRITTEN_BOOK)
+					{
+						key += ":" + stack.getTagCompound().getString("author");
+						key += ":" + stack.getTagCompound().getString("title");
+					}
+					else
+					{
+						key += ":" + stack.getTagCompound().toString();
+					}
+				}
+			}
+			return key;
+		}
+		return Blocks.AIR.getUnlocalizedName();
+	}
+
+	/**
+	 * Determines whether the teleporter block is being obstructed for purposes of teleporting.
+	 * @param world The world the node is contained in
+	 * @param node
+	 * @return True if the teleporter is obstructed, false otherwise
+	 */
+	public static boolean isObstructed(World world, TeleporterNode node)
+	{
+		BlockPos blockPos1 = new BlockPos(node.pos.getX(), node.pos.getY() + 1, node.pos.getZ());
+		BlockPos blockPos2 = new BlockPos(node.pos.getX(), node.pos.getY() + 2, node.pos.getZ());
+		Block block1 = world.getBlockState(blockPos1).getBlock();
+		Block block2 = world.getBlockState(blockPos2).getBlock();
+	
+		if (block1.isPassable(world, blockPos1) && block2.isPassable(world, blockPos2))
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	/**
+	 * Retrieves the TileEntityTeleporter for a given teleporter node.
+	 * @param node The teleporter node
+	 * @return The tile entity, or null if no tile entity was found (or the tile entity is not a TileEntityTeleporter)
+	 */
+	public static TileEntityTeleporter getTileEntity(TeleporterNode node)
+	{
+		try
+		{
+			WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(node.dimension);
+			return (TileEntityTeleporter)world.getTileEntity(node.pos);
+		}
+		catch(Exception ex)
+		{
+			TeleporterMod.LOGGER.catching(ex);
+			return null;
+		}
 	}
 }
