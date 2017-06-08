@@ -1,12 +1,9 @@
 package net.dyeo.teleporter.teleport;
 
 import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
-import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 
 
 /**
