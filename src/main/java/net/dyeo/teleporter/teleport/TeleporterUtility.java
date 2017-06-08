@@ -22,6 +22,7 @@ import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -237,6 +238,16 @@ public class TeleporterUtility
 		entity.setRotationYawHead(yaw);
 		return true;
 	}
+	
+	/**
+	 * Retrieves the WorldServer for a given node.
+	 * @param node
+	 * @return
+	 */
+	public static WorldServer getNodeWorld(TeleporterNode node)
+	{
+		return FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(node.dimension);
+	}
 
 	/**
 	 * Generates a unique item key pertaining to an item stack. Takes into account all unique values except for stack size. The return of this function is guaranteed to produce the same key for two identical items, and takes into account NBT tags, damage, and the unlocalized name. Mods which implement two different blocks/items with the same unlocalized name will be treated as the same.
@@ -277,8 +288,9 @@ public class TeleporterUtility
 	 * @param node
 	 * @return True if the teleporter is obstructed, false otherwise
 	 */
-	public static boolean isObstructed(World world, TeleporterNode node)
+	public static boolean isObstructed(TeleporterNode node)
 	{
+		WorldServer world = TeleporterUtility.getNodeWorld(node);
 		BlockPos blockPos1 = new BlockPos(node.pos.getX(), node.pos.getY() + 1, node.pos.getZ());
 		BlockPos blockPos2 = new BlockPos(node.pos.getX(), node.pos.getY() + 2, node.pos.getZ());
 		Block block1 = world.getBlockState(blockPos1).getBlock();
@@ -311,5 +323,15 @@ public class TeleporterUtility
 			TeleporterMod.LOGGER.catching(ex);
 			return null;
 		}
+	}
+
+	/**
+	 * Gets a chat message for the player, given a string id.
+	 * @param messageName The unlocalized message name
+	 * @return The message to be sent to the player
+	 */
+	public static TextComponentTranslation getMessage(String messageName, Object source)
+	{
+		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + source.getClass().getSimpleName() + '.' + messageName);
 	}
 }

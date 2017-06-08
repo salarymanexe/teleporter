@@ -15,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.WorldServer;
@@ -74,7 +73,6 @@ public class TeleporterNetwork extends WorldSavedData
 		}
 		return instance;
 	}
-
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
@@ -396,12 +394,12 @@ public class TeleporterNetwork extends WorldSavedData
 				}
 
 				// if the destination node is obstructed, continue
-				if (TeleporterUtility.isObstructed(destinationWorld, currentNode))
+				if (TeleporterUtility.isObstructed(currentNode))
 				{
 					if (livingEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer)livingEntity;
-						entityPlayer.sendMessage(this.getMessage("teleporterBlocked"));
+						entityPlayer.sendMessage(TeleporterUtility.getMessage("teleporterBlocked",this));
 					}
 					continue;
 				}
@@ -412,11 +410,11 @@ public class TeleporterNetwork extends WorldSavedData
 					if (livingEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer)livingEntity;
-						entityPlayer.sendMessage(this.getMessage("teleporterDisabled"));
+						entityPlayer.sendMessage(TeleporterUtility.getMessage("teleporterDisabled",this));
 					}
 					continue;
 				}
-
+				
 				// if all above conditions are met, we've found a valid destination node.
 				destinationNode = currentNode;
 				break;
@@ -426,20 +424,10 @@ public class TeleporterNetwork extends WorldSavedData
 		if (destinationNode == null && livingEntity instanceof EntityPlayer)
 		{
 			EntityPlayer entityPlayer = (EntityPlayer)livingEntity;
-			entityPlayer.sendMessage(this.getMessage("teleporterNotFound"));
+			entityPlayer.sendMessage(TeleporterUtility.getMessage("teleporterNotFound",this));
 		}
 
 		return destinationNode;
-	}
-
-	/**
-	 * Gets a chat message for the player, given a string id.
-	 * @param messageName The unlocalized message name
-	 * @return The message to be sent to the player
-	 */
-	private TextComponentTranslation getMessage(String messageName)
-	{
-		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + messageName);
 	}
 
 	private static class TeleporterMap extends HashMap<String, List<TeleporterNode>>
