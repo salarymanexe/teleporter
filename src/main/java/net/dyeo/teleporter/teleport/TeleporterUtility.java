@@ -15,6 +15,7 @@ import net.minecraft.network.play.server.SPacketRespawn;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -34,9 +35,11 @@ public class TeleporterUtility
 		
 		if (destinationNode != null)
 		{
-			double x = destinationNode.pos.getX() + (BlockTeleporter.TELEPORTER_AABB.maxX * 0.5D);
-			double y = destinationNode.pos.getY() + (BlockTeleporter.TELEPORTER_AABB.maxY);
-			double z = destinationNode.pos.getZ() + (BlockTeleporter.TELEPORTER_AABB.maxZ * 0.5D);
+			AxisAlignedBB DESTINATION_AABB = destinationNode.type.isRecall() ? BlockTeleporter.RECALL_TELEPORTER_AABB : BlockTeleporter.TELEPORTER_AABB;
+			
+			double x = destinationNode.pos.getX() + (DESTINATION_AABB.maxX * 0.5D);
+			double y = destinationNode.pos.getY() + (DESTINATION_AABB.maxY);
+			double z = destinationNode.pos.getZ() + (DESTINATION_AABB.maxZ * 0.5D);
 			float yaw = entity.rotationYaw;
 			float pitch = entity.rotationPitch;
 
