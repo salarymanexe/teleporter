@@ -27,6 +27,10 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+/**
+ * Contains static utility methods used throughout the teleporter network and nodes, as well as the functionality for teleporting players and entities.
+ *
+ */
 public class TeleporterUtility
 {
 
