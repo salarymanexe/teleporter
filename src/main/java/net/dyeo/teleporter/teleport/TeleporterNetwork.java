@@ -9,21 +9,16 @@ import java.util.Set;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
-import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants.NBT;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
@@ -41,12 +36,22 @@ public class TeleporterNetwork extends WorldSavedData
 	/**
 	 * Teleporter Network Versioning Major (x.0)
 	 */
-	private final int VERSION_MAJOR = 2;
+	private final static int VERSION_MAJOR = 2;
 	/**
 	 * Teleporter Network Versioning Minor (0.x)
 	 */
-	private final int VERSION_MINOR = 0;
+	private final static int VERSION_MINOR = 1;
 
+    /**
+     * Checks if the network version retrieved is older than the current version.S
+     * @param major Retrieved network major version
+     * @param minor Retrieved network minor version
+     * @return
+     */
+    private static boolean isOlderVersion(int major, int minor)
+    {
+        return major < VERSION_MAJOR || (major <= VERSION_MAJOR && minor < VERSION_MINOR);
+    }
 
 	private Map<String, List<TeleporterNode>> network = new HashMap<String, List<TeleporterNode>>();
 
@@ -79,7 +84,6 @@ public class TeleporterNetwork extends WorldSavedData
 	}
 
 
-	@SuppressWarnings("unused")
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
@@ -103,14 +107,14 @@ public class TeleporterNetwork extends WorldSavedData
 				TeleporterNode node = new TeleporterNode(nbttaglist.getCompoundTagAt(i));
 
 				// get the key for the subnet by checking the stack stored in the tile tntity's item handler for this node
-				WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(node.dimension);
+				WorldServer world = TeleporterUtility.getNodeWorld(node);
 				if (world != null)
 				{
 					TileEntityTeleporter tile = (TileEntityTeleporter)world.getTileEntity(node.pos);
 					if (tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null))
 					{
 						IItemHandler handler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-						node.key = getItemKey(handler.getStackInSlot(0));
+						node.key = TeleporterUtility.getItemKey(handler.getStackInSlot(0));
 					}
 				}
 
@@ -133,6 +137,11 @@ public class TeleporterNetwork extends WorldSavedData
 			// iterate over the subkey keys in the network
 			for ( String key : networkTag.getKeySet() )
 			{
+                if(TeleporterNetwork.isOlderVersion(versionMajor,versionMinor))
+                {
+                    key = (key.endsWith(":0")) ? key.substring(0, key.length()-2) : key;
+                }
+             
 				// create a list of nodes for this subnet key
 				List<TeleporterNode> subnetList = new ArrayList<TeleporterNode>();
 
@@ -255,7 +264,7 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public void updateNode(BlockPos pos, int dimension, EnumType type, ItemStack stack)
 	{
-		String newKey = getItemKey(stack);
+		String newKey = TeleporterUtility.getItemKey(stack);
 		String oldKey = null;
 
 		boolean found = false;
@@ -290,9 +299,9 @@ public class TeleporterNetwork extends WorldSavedData
 		// add a new node to the correct subnet for the new key
 		network.get(newKey).add(new TeleporterNode(pos, dimension, type, newKey));
 
-		// remove the old subnet if it's now empty
-		if (network.get(oldKey).isEmpty()) network.remove(oldKey);
-
+		// remove the old subnet if it's now empty        
+		if (oldKey != null && network.get(oldKey).isEmpty()) network.remove(oldKey);
+		
 
 		this.markDirty();
 	}
@@ -306,7 +315,7 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public boolean removeNode(BlockPos pos, int dimension, ItemStack key)
 	{
-		String itemKey = getItemKey(key);
+		String itemKey = TeleporterUtility.getItemKey(key);
 		if (network.containsKey(itemKey))
 		{
 			Iterator<TeleporterNode> lit = network.get(itemKey).iterator();
@@ -375,11 +384,11 @@ public class TeleporterNetwork extends WorldSavedData
 		{
 			TeleporterNode currentNode = subnet.get(i);
 
-			WorldServer destinationWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(currentNode.dimension);
+			WorldServer destinationWorld = TeleporterUtility.getNodeWorld(currentNode);
 			if (destinationWorld != null)
 			{
 				// if a tile entity doesn't exist at the specified node location, remove the node and continue
-				TileEntityTeleporter tEntDest = getTileEntity(currentNode);
+				TileEntityTeleporter tEntDest = TeleporterUtility.getTileEntity(currentNode);
 				if (tEntDest == null)
 				{
 					System.out.println("Invalid node found! Deleting...");
@@ -400,12 +409,12 @@ public class TeleporterNetwork extends WorldSavedData
 				}
 
 				// if the destination node is obstructed, continue
-				if (isObstructed(destinationWorld, currentNode))
+				if (TeleporterUtility.isObstructed(currentNode))
 				{
 					if (livingEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer)livingEntity;
-						entityPlayer.sendMessage(this.getMessage("teleporterBlocked"));
+						entityPlayer.sendMessage(TeleporterUtility.getMessage("teleporterBlocked",this));
 					}
 					continue;
 				}
@@ -416,7 +425,7 @@ public class TeleporterNetwork extends WorldSavedData
 					if (livingEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer)livingEntity;
-						entityPlayer.sendMessage(this.getMessage("teleporterDisabled"));
+						entityPlayer.sendMessage(TeleporterUtility.getMessage("teleporterDisabled",this));
 					}
 					continue;
 				}
@@ -430,96 +439,10 @@ public class TeleporterNetwork extends WorldSavedData
 		if (destinationNode == null && livingEntity instanceof EntityPlayer)
 		{
 			EntityPlayer entityPlayer = (EntityPlayer)livingEntity;
-			entityPlayer.sendMessage(this.getMessage("teleporterNotFound"));
+			entityPlayer.sendMessage(TeleporterUtility.getMessage("teleporterNotFound",this));
 		}
 
 		return destinationNode;
-	}
-
-	/**
-	 * Gets a chat message for the player, given a string id.
-	 * @param messageName The unlocalized message name
-	 * @return The message to be sent to the player
-	 */
-	private TextComponentTranslation getMessage(String messageName)
-	{
-		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + messageName);
-	}
-
-	/**
-	 * Determines whether the teleporter block is being obstructed for purposes of teleporting.
-	 * @param world The world the node is contained in
-	 * @param node
-	 * @return True if the teleporter is obstructed, false otherwise
-	 */
-	public static boolean isObstructed(World world, TeleporterNode node)
-	{
-		BlockPos blockPos1 = new BlockPos(node.pos.getX(), node.pos.getY() + 1, node.pos.getZ());
-		BlockPos blockPos2 = new BlockPos(node.pos.getX(), node.pos.getY() + 2, node.pos.getZ());
-		Block block1 = world.getBlockState(blockPos1).getBlock();
-		Block block2 = world.getBlockState(blockPos2).getBlock();
-
-		if (block1.isPassable(world, blockPos1) && block2.isPassable(world, blockPos2))
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-
-	/**
-	 * Retrieves the TileEntityTeleporter for a given teleporter node.
-	 * @param node The teleporter node
-	 * @return The tile entity, or null if no tile entity was found (or the tile entity is not a TileEntityTeleporter)
-	 */
-	private static TileEntityTeleporter getTileEntity(TeleporterNode node)
-	{
-		try
-		{
-			WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(node.dimension);
-			return (TileEntityTeleporter)world.getTileEntity(node.pos);
-		}
-		catch(Exception ex)
-		{
-			TeleporterMod.LOGGER.catching(ex);
-			return null;
-		}
-	}
-
-
-	/**
-	 * Generates a unique item key pertaining to an item stack. Takes into account all unique values except for stack size. The return of this function is guaranteed to produce the same key for two identical items, and takes into account NBT tags, damage, and the unlocalized name. Mods which implement two different blocks/items with the same unlocalized name will be treated as the same.
-	 * @param stack The item stack to generate a key from
-	 * @return The unique key
-	 */
-	public static String getItemKey(ItemStack stack)
-	{
-		if (stack != null)
-		{
-			String key = stack.getUnlocalizedName();
-
-			if (!stack.isEmpty())
-			{
-				key += ":" + stack.getItemDamage();
-
-				if (stack.hasTagCompound())
-				{
-					if (stack.getItem() == Items.WRITTEN_BOOK)
-					{
-						key += ":" + stack.getTagCompound().getString("author");
-						key += ":" + stack.getTagCompound().getString("title");
-					}
-					else
-					{
-						key += ":" + stack.getTagCompound().toString();
-					}
-				}
-			}
-			return key;
-		}
-		return Blocks.AIR.getUnlocalizedName();
 	}
 
 	private static class TeleporterMap extends HashMap<String, List<TeleporterNode>>

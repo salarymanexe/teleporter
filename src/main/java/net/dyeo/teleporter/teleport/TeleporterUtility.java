@@ -1,25 +1,37 @@
 package net.dyeo.teleporter.teleport;
 
+import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
 import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
 import net.dyeo.teleporter.capabilities.ITeleportHandler;
 import net.dyeo.teleporter.event.TeleportEvent;
 import net.dyeo.teleporter.init.ModSounds;
+import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketRespawn;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+/**
+ * Contains static utility methods used throughout the teleporter network and nodes, as well as the functionality for teleporting players and entities.
+ *
+ */
 public class TeleporterUtility
 {
 
@@ -32,10 +44,13 @@ public class TeleporterUtility
 		TeleporterNode destinationNode = netWrapper.getNextNode(entity, sourceNode);
 		
 		if (destinationNode != null)
-		{
-			double x = destinationNode.pos.getX() + (BlockTeleporter.TELEPORTER_AABB.maxX * 0.5D);
-			double y = destinationNode.pos.getY() + (BlockTeleporter.TELEPORTER_AABB.maxY);
-			double z = destinationNode.pos.getZ() + (BlockTeleporter.TELEPORTER_AABB.maxZ * 0.5D);
+		{            
+			AxisAlignedBB DESTINATION_AABB = destinationNode.type.isRecall() ? BlockTeleporter.RECALL_TELEPORTER_AABB : BlockTeleporter.TELEPORTER_AABB;
+        
+        	double x = destinationNode.pos.getX() + (DESTINATION_AABB.maxX * 0.5D);
+        	double y = destinationNode.pos.getY() + (DESTINATION_AABB.maxY);
+        	double z = destinationNode.pos.getZ() + (DESTINATION_AABB.maxZ * 0.5D);
+
 			float yaw = entity.rotationYaw;
 			float pitch = entity.rotationPitch;
 
@@ -209,5 +224,105 @@ public class TeleporterUtility
 		entity.setPositionAndRotation(x, y, z, yaw, pitch);//;(x, y, z, yaw, pitch);
 		entity.setRotationYawHead(yaw);
 		return true;
+	}
+    
+    /**
+     * Retrieves the WorldServer for a given node.
+     * @param node
+     * @return
+     */
+    public static WorldServer getNodeWorld(TeleporterNode node)
+    {
+        return FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(node.dimension);
+    }
+
+	/**
+	 * Generates a unique item key pertaining to an item stack. Takes into account all unique values except for stack size. The return of this function is guaranteed to produce the same key for two identical items, and takes into account NBT tags, damage, and the unlocalized name. Mods which implement two different blocks/items with the same unlocalized name will be treated as the same.
+	 * @param stack The item stack to generate a key from
+	 * @return The unique key
+	 */
+	public static String getItemKey(ItemStack stack)
+	{
+		if (stack != null)
+		{
+			String key = stack.getUnlocalizedName();
+	
+			if (!stack.isEmpty())
+			{
+				if(stack.getItemDamage() > 0)
+				{
+					key += ":" + stack.getItemDamage();
+				}
+	
+				if (stack.hasTagCompound())
+				{
+					if (stack.getItem() == Items.WRITTEN_BOOK)
+					{
+						key += ":" + stack.getTagCompound().getString("author");
+						key += ":" + stack.getTagCompound().getString("title");
+					}
+					else
+					{
+						key += ":" + stack.getTagCompound().toString();
+					}
+				}
+			}
+			return key;
+		}
+		return Blocks.AIR.getUnlocalizedName();
+	}
+
+	/**
+	 * Determines whether the teleporter block is being obstructed for purposes of teleporting.
+	 * @param world The world the node is contained in
+	 * @param node
+	 * @return True if the teleporter is obstructed, false otherwise
+	 */
+	public static boolean isObstructed(TeleporterNode node)
+	{
+		WorldServer world = TeleporterUtility.getNodeWorld(node);
+		
+		BlockPos blockPos1 = new BlockPos(node.pos.getX(), node.pos.getY() + 1, node.pos.getZ());
+		BlockPos blockPos2 = new BlockPos(node.pos.getX(), node.pos.getY() + 2, node.pos.getZ());
+		Block block1 = world.getBlockState(blockPos1).getBlock();
+		Block block2 = world.getBlockState(blockPos2).getBlock();
+	
+		if (block1.isPassable(world, blockPos1) && block2.isPassable(world, blockPos2))
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	/**
+	 * Retrieves the TileEntityTeleporter for a given teleporter node.
+	 * @param node The teleporter node
+	 * @return The tile entity, or null if no tile entity was found (or the tile entity is not a TileEntityTeleporter)
+	 */
+	public static TileEntityTeleporter getTileEntity(TeleporterNode node)
+	{
+		try
+		{
+			WorldServer world = TeleporterUtility.getNodeWorld(node);
+			return (TileEntityTeleporter)world.getTileEntity(node.pos);
+		}
+		catch(Exception ex)
+		{
+			TeleporterMod.LOGGER.catching(ex);
+			return null;
+		}
+	}
+
+	/**
+	 * Gets a chat message for the player, given a string id.
+	 * @param messageName The unlocalized message name
+	 * @return The message to be sent to the player
+	 */
+	public static TextComponentTranslation getMessage(String messageName, Object source)
+	{
+		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + source.getClass().getSimpleName() + '.' + messageName);
 	}
 }

@@ -300,7 +300,13 @@ public class BlockTeleporter extends BlockContainer
 	public boolean isOpaqueCube(IBlockState state)
 	{
 		return false;
-	}	
+	}
+	
+    @Override
+    public boolean isFullyOpaque(IBlockState state)
+    {
+        return false;
+    }
 	
 	@Override
 	public boolean isFullBlock(IBlockState state)
@@ -308,6 +314,13 @@ public class BlockTeleporter extends BlockContainer
 		EnumType type = EnumType.byMetadata(getMetaFromState(state));
 		return !type.isRecall();
 	}
+    
+    @Override
+    public boolean isFullCube(IBlockState state)
+    {
+        EnumType type = EnumType.byMetadata(getMetaFromState(state));
+        return !type.isRecall();
+    }
 
 	public static enum EnumType implements IStringSerializable
 	{
