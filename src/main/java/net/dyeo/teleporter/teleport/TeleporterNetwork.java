@@ -37,12 +37,22 @@ public class TeleporterNetwork extends WorldSavedData
 	/**
 	 * Teleporter Network Versioning Major (x.0)
 	 */
-	private final int VERSION_MAJOR = 2;
+	private final static int VERSION_MAJOR = 2;
 	/**
 	 * Teleporter Network Versioning Minor (0.x)
 	 */
-	private final int VERSION_MINOR = 0;
+	private final static int VERSION_MINOR = 1;
 
+	/**
+	 * Checks if the network version retrieved is older than the current version.S
+	 * @param major Retrieved network major version
+	 * @param minor Retrieved network minor version
+	 * @return
+	 */
+	private static boolean isOlderVersion(int major, int minor)
+	{
+		return major < VERSION_MAJOR || (major <= VERSION_MAJOR && minor < VERSION_MINOR);
+	}
 
 	private Map<String, List<TeleporterNode>> network = new HashMap<String, List<TeleporterNode>>();
 
@@ -127,6 +137,11 @@ public class TeleporterNetwork extends WorldSavedData
 			// iterate over the subkey keys in the network
 			for ( String key : networkTag.getKeySet() )
 			{
+				if(TeleporterNetwork.isOlderVersion(versionMajor,versionMinor))
+				{
+					key = (key.endsWith(":0")) ? key.substring(0, key.length()-2) : key;
+				}
+				
 				// create a list of nodes for this subnet key
 				List<TeleporterNode> subnetList = new ArrayList<TeleporterNode>();
 
@@ -285,7 +300,7 @@ public class TeleporterNetwork extends WorldSavedData
 		network.get(newKey).add(new TeleporterNode(pos, dimension, type, newKey));
 
 		// remove the old subnet if it's now empty
-		if (network.get(oldKey).isEmpty()) network.remove(oldKey);
+		if (oldKey != null && network.get(oldKey).isEmpty()) network.remove(oldKey);
 
 
 		this.markDirty();

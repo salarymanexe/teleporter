@@ -262,7 +262,10 @@ public class TeleporterUtility
 	
 			if (stack.stackSize != 0)
 			{
-				key += ":" + stack.getItemDamage();
+				if (stack.getItemDamage() > 0)
+				{
+					key += ":" + stack.getItemDamage();
+				}
 	
 				if (stack.hasTagCompound())
 				{
