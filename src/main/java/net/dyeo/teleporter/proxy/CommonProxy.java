@@ -14,7 +14,6 @@ public class CommonProxy
 
 	public void preInit()
 	{
-		this.registerBlocks();
 		this.registerSounds();
 		this.registerTileEntities();
 	}
@@ -30,13 +29,6 @@ public class CommonProxy
 	{
 	}
 
-
-
-
-	private void registerBlocks()
-	{
-		ModBlocks.registerBlocks();
-	}
 
 	private void registerCapabilities()
 	{

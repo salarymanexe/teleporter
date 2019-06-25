@@ -1,9 +1,11 @@
 package net.dyeo.teleporter.teleport;
 
-import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
-import net.minecraft.init.Blocks;
+import net.dyeo.teleporter.block.BlockTeleporter;
+import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.DimensionManager;
 
 
 /**
@@ -14,23 +16,29 @@ import net.minecraft.util.math.BlockPos;
 public class TeleporterNode
 {
 
-	public BlockPos pos = BlockPos.ORIGIN;
-	public int dimension = 0;
-	public EnumType type = EnumType.REGULAR;
-	public String key = Blocks.AIR.getUnlocalizedName();
+	public BlockPos pos;
+	public int dimension;
+	public BlockTeleporter.EnumType type;
+
+	public TeleporterNode()
+	{
+		this.pos = new BlockPos(0, 0, 0);
+		this.dimension = 0;
+		this.type = BlockTeleporter.EnumType.REGULAR;
+	}
+
+//	public TeleporterNode(BlockPos pos, int dimension, BlockTeleporter.EnumType type)
+//	{
+//		this.pos = pos;
+//		this.dimension = dimension;
+//		this.type = type;
+//	}
 
 	public TeleporterNode(NBTTagCompound compound)
 	{
 		this.readFromNBT(compound);
 	}
 
-	public TeleporterNode(BlockPos pos, int dimension, EnumType type, String key)
-	{
-		this.pos = pos;
-		this.dimension = dimension;
-		this.type = type;
-		if (key != null) this.key = key;
-	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
@@ -39,7 +47,6 @@ public class TeleporterNode
 		nbt.setInteger("z", this.pos.getZ());
 		nbt.setInteger("dim", this.dimension);
 		nbt.setInteger("type", this.type.ordinal());
-		nbt.setString("key", this.key);
 		return nbt;
 	}
 
@@ -50,14 +57,21 @@ public class TeleporterNode
 		int z = nbt.getInteger("z");
 		this.pos = new BlockPos(x, y, z);
 		this.dimension = nbt.getInteger("dim");
-		this.type = EnumType.byMetadata(nbt.getInteger("type"));
-		this.key = nbt.getString("key");
+		this.type = BlockTeleporter.EnumType.byMetadata(nbt.getInteger("type"));
 	}
-	
+
+	public TileEntityTeleporter getTileEntity()
+	{
+		TileEntity result = DimensionManager.getWorld(this.dimension).getTileEntity(this.pos);
+		if (result instanceof TileEntityTeleporter) return (TileEntityTeleporter) result;
+		else return null;
+	}
+
+
 	@Override
 	public String toString()
 	{
-		return "TeleporterNode [pos=" + pos + ", dimension=" + dimension + ", type=" + type + ", key=" + key + "]";
+		return "{ \"x\":" + this.pos.getX() + ", \"y\":" + this.pos.getY() + ", \"z\":" + this.pos.getZ() + ", \"dim\":" + this.dimension + ", \"type\":" + this.type + " }";
 	}
 
 	public boolean matches(BlockPos pos, int dimension)

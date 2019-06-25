@@ -2,8 +2,6 @@
 
 tile.teleporter.name=Teleporter
 tile.enderTeleporter.name=Ender Teleporter
-tile.recallTeleporter.name=Recall Teleporter
-tile.recallEnderTeleporter.name=Recall Ender Teleporter
 
 container.teleporter=Teleporter
 

@@ -4,6 +4,7 @@ import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.common.config.ModConfiguration;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 public class ModSounds
 {
@@ -39,9 +40,10 @@ public class ModSounds
 	private static SoundEvent registerSound(String name)
 	{
 		ResourceLocation location = new ResourceLocation(TeleporterMod.MODID, name);
-		SoundEvent event = new SoundEvent(location);
+		SoundEvent event = new SoundEvent(location).setRegistryName(location);
 
-		SoundEvent.REGISTRY.register(size, location, event);
+		ForgeRegistries.SOUND_EVENTS.register(event);
+//		SoundEvent.REGISTRY.register(size, location, event);
 		size++;
 
 		return event;

@@ -5,7 +5,7 @@
         "glass": "blocks/glass",
         "side": "blocks/iron_block",
         "diode": "blocks/redstone_block",
-        "particle": "blocks/iron_block"
+        "particle": "blocks/quartz_block_top"
     },
     "elements": [
         {

@@ -3,7 +3,6 @@ package net.dyeo.teleporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import net.dyeo.teleporter.command.CommandTeleportReset;
-import net.dyeo.teleporter.command.CommandTeleporters;
 import net.dyeo.teleporter.common.config.ModConfiguration;
 import net.dyeo.teleporter.event.TeleportEventHandler;
 import net.dyeo.teleporter.proxy.CommonProxy;
@@ -18,7 +17,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 
-@Mod(modid = TeleporterMod.MODID, name = TeleporterMod.NAME, version = TeleporterMod.VERSION, updateJSON = TeleporterMod.UPDATEJSON)
+@Mod(modid = TeleporterMod.MODID, name = TeleporterMod.NAME, version = TeleporterMod.VERSION, updateJSON = TeleporterMod.UPDATEJSON, dependencies = "required-after:forge@[14.21.0.2363,);")
 public class TeleporterMod
 {
 
@@ -64,7 +63,6 @@ public class TeleporterMod
 	public void serverStarting(FMLServerStartingEvent event)
 	{
 		event.registerServerCommand(new CommandTeleportReset());
-		event.registerServerCommand(new CommandTeleporters());
 	}
 
 }

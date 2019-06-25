@@ -43,6 +43,7 @@ public class CapabilityTeleportHandler
 			return capability == CapabilityTeleportHandler.TELEPORT_CAPABILITY;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public <T> T getCapability(Capability<T> capability, EnumFacing facing)
 		{
