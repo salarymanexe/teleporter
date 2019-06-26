@@ -58,7 +58,8 @@ public class TeleporterUtility
 					}
 					else if (entity instanceof EntityLivingBase)
 					{
-						teleportSuccess = transferEntityToDimension(entity, x, y, z, yaw, pitch, destinationNode.dimension);
+						teleportSuccess = false;
+						//teleportSuccess = transferEntityToDimension(entity, x, y, z, yaw, pitch, destinationNode.dimension);
 					}
 				}
 			}
