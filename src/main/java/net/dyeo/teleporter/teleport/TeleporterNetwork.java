@@ -128,6 +128,10 @@ public class TeleporterNetwork extends WorldSavedData
 	 */
 	public TeleporterNode getNextNode(Entity entityIn, TeleporterNode sourceNode)
 	{
+		if(entityIn == null)
+		{
+			return null;
+		}
 
 		TileEntityTeleporter tEntSource = (TileEntityTeleporter)entityIn.world.getTileEntity(sourceNode.pos);
 		ItemStack sourceKey = tEntSource.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
@@ -147,7 +151,7 @@ public class TeleporterNetwork extends WorldSavedData
 
 			TeleporterNode node = this.network.get(i % this.network.size());
 
-			WorldServer destinationWorld = DimensionManager.getWorld(node.dimension);
+			WorldServer destinationWorld = entityIn.getServer().getWorld(node.dimension);
 			if (destinationWorld != null)
 			{
 				// if this node matches the source node, continue
