@@ -46,13 +46,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
-
 public class BlockTeleporter extends BlockContainer
 {
-
 	public static final AxisAlignedBB TELEPORTER_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
 	public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("type", BlockTeleporter.EnumType.class);
-
 
 	public BlockTeleporter()
 	{
@@ -63,7 +60,6 @@ public class BlockTeleporter extends BlockContainer
 		this.setLightLevel(0.5F);
 		this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, EnumType.REGULAR));
 	}
-
 
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
@@ -141,7 +137,7 @@ public class BlockTeleporter extends BlockContainer
 		this.onEntityWalk(world, pos, entity);
     }
 
-
+    @SuppressWarnings("deprecation")
 	@Override
 	public void neighborChanged(IBlockState state, World world, BlockPos pos, Block neighbourBlock, BlockPos fromPos)
 	{
@@ -196,8 +192,6 @@ public class BlockTeleporter extends BlockContainer
 		super.breakBlock(world, pos, state);
 	}
 
-
-
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta)
 	{
@@ -210,6 +204,7 @@ public class BlockTeleporter extends BlockContainer
 		return new BlockStateContainer(this, new IProperty[] { TYPE });
 	}
 
+    @SuppressWarnings("deprecation")
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
@@ -243,12 +238,14 @@ public class BlockTeleporter extends BlockContainer
 		return new ItemStack(Item.getItemFromBlock(this), 1, this.getMetaFromState(world.getBlockState(pos)));
 	}
 
+    @SuppressWarnings("deprecation")
 	@Override
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
 	{
 		return TELEPORTER_AABB; //new AxisAlignedBB(0.0F, 0.0F, 0.0F, getBounds().xCoord, getBounds().yCoord, getBounds().zCoord);
 	}
 
+    @SuppressWarnings("deprecation")
 	@Override
 	@Nullable
 	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
@@ -269,15 +266,14 @@ public class BlockTeleporter extends BlockContainer
 		return EnumBlockRenderType.MODEL;
 	}
 
+    @SuppressWarnings("deprecation")
 	@Override
 	public boolean isOpaqueCube(IBlockState state)
 	{
 		return false;
 	}
 
-
-
-	public static enum EnumType implements IStringSerializable
+	public enum EnumType implements IStringSerializable
 	{
 		REGULAR(0, "regular", "teleporter", "teleporter"),
 		ENDER(1, "ender", "enderTeleporter", "ender_teleporter");
@@ -316,7 +312,7 @@ public class BlockTeleporter extends BlockContainer
 			return META_LOOKUP[meta];
 		}
 
-		private EnumType(int meta, String name, String unlocalizedName, String registryName)
+		EnumType(int meta, String name, String unlocalizedName, String registryName)
 		{
 			this.meta = meta;
 			this.name = name;
