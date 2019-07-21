@@ -11,7 +11,6 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class CommonProxy
 {
-
 	public void preInit()
 	{
 		this.registerSounds();
@@ -21,7 +20,6 @@ public class CommonProxy
 	public void init()
 	{
 		this.registerCapabilities();
-		this.registerCraftingRecipes();
 		this.registerGuiHandler();
 	}
 
@@ -29,15 +27,9 @@ public class CommonProxy
 	{
 	}
 
-
 	private void registerCapabilities()
 	{
 		CapabilityTeleportHandler.registerCapabilities();
-	}
-
-	private void registerCraftingRecipes()
-	{
-		ModBlocks.registerCraftingRecipes();
 	}
 
 	private void registerGuiHandler()
@@ -54,5 +46,4 @@ public class CommonProxy
 	{
 		GameRegistry.registerTileEntity(TileEntityTeleporter.class, TileEntityTeleporter.class.getSimpleName());
 	}
-
 }
