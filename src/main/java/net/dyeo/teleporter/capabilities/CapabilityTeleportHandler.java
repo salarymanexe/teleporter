@@ -16,21 +16,18 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.concurrent.Callable;
 
 public class CapabilityTeleportHandler
 {
-
 	@CapabilityInject(ITeleportHandler.class)
 	public static final Capability<ITeleportHandler> TELEPORT_CAPABILITY = null;
-
 
 	public static void registerCapabilities()
 	{
 		MinecraftForge.EVENT_BUS.register(new EventHandler());
-		CapabilityManager.INSTANCE.register(ITeleportHandler.class, new Storage(), TeleportHandler.class);
+		CapabilityManager.INSTANCE.register(ITeleportHandler.class, new Storage(), new Factory());
 	}
-
-
 
 	public static class Provider implements ICapabilitySerializable<NBTBase>
 	{
@@ -63,8 +60,6 @@ public class CapabilityTeleportHandler
 		}
 	}
 
-
-
 	private static class Storage implements Capability.IStorage<ITeleportHandler>
 	{
 		@Override
@@ -79,8 +74,6 @@ public class CapabilityTeleportHandler
 			instance.deserializeNBT((NBTTagCompound)nbt);
 		}
 	}
-
-
 
 	private static class EventHandler
 	{
@@ -105,6 +98,15 @@ public class CapabilityTeleportHandler
 			}
 		}
 
+	}
+
+	private static class Factory implements Callable<TeleportHandler>
+	{
+		@Override
+		public TeleportHandler call()
+		{
+			return new TeleportHandler();
+		}
 	}
 
 }
