@@ -192,7 +192,7 @@ public class TeleporterNetwork extends WorldSavedData
 					if (potentialPlayerEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-						entityPlayer.sendMessage(this.getMessage("teleporterBlocked"));
+						entityPlayer.sendStatusMessage(this.getMessage("teleporterBlocked"), true);
 					}
 					continue;
 				}
@@ -203,7 +203,7 @@ public class TeleporterNetwork extends WorldSavedData
 					if (potentialPlayerEntity instanceof EntityPlayer)
 					{
 						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-						entityPlayer.sendMessage(this.getMessage("teleporterDisabled"));
+						entityPlayer.sendStatusMessage(this.getMessage("teleporterDisabled"), true);
 					}
 					continue;
 				}
@@ -217,7 +217,7 @@ public class TeleporterNetwork extends WorldSavedData
 		if (destinationNode == null && potentialPlayerEntity instanceof EntityPlayer)
 		{
 			EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-			entityPlayer.sendMessage(this.getMessage("teleporterNotFound"));
+			entityPlayer.sendStatusMessage(this.getMessage("teleporterNotFound"), true);
 		}
 
 		return destinationNode;
