@@ -13,6 +13,7 @@ public class ItemBlockTeleporter extends ItemBlock
 		super(block);
 		this.setMaxDamage(0);
 		this.setHasSubtypes(true);
+		this.setRegistryName(block.getRegistryName());
 	}
 
 	@Override

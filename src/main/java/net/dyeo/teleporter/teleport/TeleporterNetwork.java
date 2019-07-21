@@ -27,7 +27,6 @@ import net.minecraftforge.items.CapabilityItemHandler;
  */
 public class TeleporterNetwork extends WorldSavedData
 {
-
 	private ArrayList<TeleporterNode> network = new ArrayList<TeleporterNode>();
 
 	public TeleporterNetwork()
