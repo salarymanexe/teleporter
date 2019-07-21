@@ -88,26 +88,9 @@ public class TeleporterUtility
 	 */
 	private static boolean transferToLocation(EntityLivingBase entity, double posX, double posY, double posZ, float yaw, float pitch)
 	{
-		boolean isPlayer = entity instanceof EntityPlayer;
-		EntityPlayer player = isPlayer ? ((EntityPlayer)entity) : null;
-		FoodStats stats = isPlayer ? player.getFoodStats() : null;
-		float saturationLevel = 0.0f;
-		int foodLevel = 0;
-
-		if(isPlayer)
-		{
-			saturationLevel = stats.getSaturationLevel();
-			foodLevel = stats.getFoodLevel();
-		}
-
 		entity.setPositionAndUpdate(posX, posY, posZ);
-
-		if(isPlayer)
-		{
-			stats.setFoodSaturationLevel(saturationLevel);
-			stats.setFoodLevel(foodLevel);
-		}
-
+		entity.rotationYaw = yaw;
+		entity.rotationPitch = pitch;
 		return true;
 	}
 
