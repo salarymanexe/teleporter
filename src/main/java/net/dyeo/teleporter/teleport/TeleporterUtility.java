@@ -98,58 +98,53 @@ public class TeleporterUtility
 	/**
 	 * transfer player to dimension, retaining all information and not dying
 	 */
-	private static boolean transferPlayerToDimension(EntityPlayerMP srcPlayer, double posX, double posY, double posZ, float yaw, float pitch, int dstDimension)
+	private static boolean transferPlayerToDimension(EntityPlayerMP player, double posX, double posY, double posZ, float yaw, float pitch, int dstDimension)
 	{
-		WorldServer srcWorldServer = DimensionManager.getWorld(srcPlayer.dimension);
+		WorldServer srcWorldServer = DimensionManager.getWorld(player.dimension);
 		WorldServer dstWorldServer = DimensionManager.getWorld(dstDimension);
 
 		// fire player change dimension event and check that action is valid before continuing
-		if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(srcPlayer, dstDimension)) return false;
-
-//		PlayerChangedDimensionEvent playerChangedDimensionEvent = new PlayerChangedDimensionEvent(srcPlayer, srcPlayer.dimension, dstDimension);
-//		if (MinecraftForge.EVENT_BUS.post(playerChangedDimensionEvent)) return false;
+		if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(player, dstDimension)) return false;
 
 		// (hard) set the player's dimension to the destination dimension
-		srcPlayer.dimension = dstDimension;
+		player.dimension = dstDimension;
 
 		// send a player respawn packet to the destination dimension so the player respawns there
-		srcPlayer.connection.sendPacket(
+		player.connection.sendPacket(
 			new SPacketRespawn(
-				srcPlayer.dimension,
-				srcPlayer.world.getDifficulty(),
-				srcPlayer.world.getWorldInfo().getTerrainType(),
-				srcPlayer.interactionManager.getGameType()
+				player.dimension,
+				player.world.getDifficulty(),
+				player.world.getWorldInfo().getTerrainType(),
+				player.interactionManager.getGameType()
 			)
 		);
 
-
-		srcWorldServer.removeEntity(srcPlayer); // remove the original player entity
-		srcPlayer.isDead = false; // make sure the player isn't dead (removeEntity sets player as dead)
+		srcWorldServer.removeEntity(player); // remove the original player entity
+		player.isDead = false; // make sure the player isn't dead (removeEntity sets player as dead)
 
 		// TODO
-//		srcPlayer.mountEntity((Entity) null);
-//		if (srcPlayer.riddenByEntity != null)
+//		player.mountEntity((Entity) null);
+//		if (player.riddenByEntity != null)
 //		{
-//			srcPlayer.riddenByEntity.mountEntity((Entity) null);
+//			player.riddenByEntity.mountEntity((Entity) null);
 //		}
 
-		PlayerList serverConfigurationManager = srcPlayer.mcServer.getPlayerList();
+		PlayerList serverConfigurationManager = player.mcServer.getPlayerList();
 
-		dstWorldServer.spawnEntity(srcPlayer); // spawn the player in the new world
-		dstWorldServer.updateEntityWithOptionalForce(srcPlayer, false); // update the entity (do not force)
-		srcPlayer.setWorld(dstWorldServer); // set the player's world to the new world
-		serverConfigurationManager.preparePlayer(srcPlayer, srcWorldServer);
-		srcPlayer.connection.setPlayerLocation(posX, posY, posZ, yaw, pitch); // set player's location (net server handler)
-		srcPlayer.interactionManager.setWorld(dstWorldServer); // set item in world manager's world to the same as the player
-		serverConfigurationManager.updateTimeAndWeatherForPlayer(srcPlayer, dstWorldServer); // update time and weather for the player so that it's the same as the world
-		serverConfigurationManager.syncPlayerInventory(srcPlayer); // sync the player's inventory
-		srcPlayer.addExperience(0); // add no experience (syncs experience)
-		srcPlayer.setPlayerHealthUpdated(); // update player's health
-
+		dstWorldServer.spawnEntity(player); // spawn the player in the new world
+		dstWorldServer.updateEntityWithOptionalForce(player, false); // update the entity (do not force)
+		player.setWorld(dstWorldServer); // set the player's world to the new world
+		serverConfigurationManager.preparePlayer(player, srcWorldServer);
+		player.connection.setPlayerLocation(posX, posY, posZ, yaw, pitch); // set player's location (net server handler)
+		player.interactionManager.setWorld(dstWorldServer); // set item in world manager's world to the same as the player
+		serverConfigurationManager.updateTimeAndWeatherForPlayer(player, dstWorldServer); // update time and weather for the player so that it's the same as the world
+		serverConfigurationManager.syncPlayerInventory(player); // sync the player's inventory
+		player.addExperience(0); // add no experience (syncs experience)
+		player.setPlayerHealthUpdated(); // update player's health
 
 		// fire the dimension changed event so that minecraft swithces dimensions properly
 		FMLCommonHandler.instance().firePlayerChangedDimensionEvent(
-			srcPlayer,
+			player,
 			srcWorldServer.provider.getDimension(),
 			dstWorldServer.provider.getDimension()
 		);
