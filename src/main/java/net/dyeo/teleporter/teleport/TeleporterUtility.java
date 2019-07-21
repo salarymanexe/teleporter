@@ -9,9 +9,11 @@ import net.dyeo.teleporter.event.TeleportEvent;
 import net.dyeo.teleporter.init.ModSounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.SPacketRespawn;
 import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.FoodStats;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -86,9 +88,26 @@ public class TeleporterUtility
 	 */
 	private static boolean transferToLocation(EntityLivingBase entity, double posX, double posY, double posZ, float yaw, float pitch)
 	{
+		boolean isPlayer = entity instanceof EntityPlayer;
+		EntityPlayer player = isPlayer ? ((EntityPlayer)entity) : null;
+		FoodStats stats = isPlayer ? player.getFoodStats() : null;
+		float saturationLevel = 0.0f;
+		int foodLevel = 0;
+
+		if(isPlayer)
+		{
+			saturationLevel = stats.getSaturationLevel();
+			foodLevel = stats.getFoodLevel();
+		}
+
 		entity.setPositionAndUpdate(posX, posY, posZ);
-		entity.rotationYaw = yaw;
-		entity.rotationPitch = pitch;
+
+		if(isPlayer)
+		{
+			stats.setFoodSaturationLevel(saturationLevel);
+			stats.setFoodLevel(foodLevel);
+		}
+
 		return true;
 	}
 
