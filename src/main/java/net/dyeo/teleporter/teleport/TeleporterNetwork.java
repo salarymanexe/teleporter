@@ -178,9 +178,9 @@ public class TeleporterNetwork extends WorldSavedData
 					continue;
 				}
 
-				// if the key itemstacks are different, continue
+				// if the teleporter's names or the key itemstacks are different, continue
 				ItemStack destinationKey = tEntDest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
-				if (!this.doKeyStacksMatch(sourceKey, destinationKey))
+				if (!sourceNode.getTileEntity().getName().equals(node.getTileEntity().getName()) || !this.doKeyStacksMatch(sourceKey, destinationKey))
 				{
 					continue;
 				}
@@ -197,7 +197,7 @@ public class TeleporterNetwork extends WorldSavedData
 				}
 
 				// if the destination node is powered, continue
-				if (tEntDest.isPowered() == true)
+				if (tEntDest.isPowered())
 				{
 					if (potentialPlayerEntity instanceof EntityPlayer)
 					{
