@@ -1,6 +1,8 @@
 package net.dyeo.teleporter.teleport;
 
 import java.util.ArrayList;
+
+import com.sun.istack.internal.NotNull;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
@@ -19,6 +21,9 @@ import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.items.CapabilityItemHandler;
+
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * TeleporterNetwork is the singleton responsible for saving the teleporter data onto the world file, and is
@@ -39,7 +44,6 @@ public class TeleporterNetwork extends WorldSavedData
 		super(identifier);
 	}
 
-
 	public static TeleporterNetwork get(World world)
 	{
 		TeleporterNetwork instance = (TeleporterNetwork)world.getMapStorage().getOrLoadData(TeleporterNetwork.class, TeleporterMod.MODID);
@@ -51,7 +55,6 @@ public class TeleporterNetwork extends WorldSavedData
 		}
 		return instance;
 	}
-
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
@@ -84,21 +87,6 @@ public class TeleporterNetwork extends WorldSavedData
 		return nbt;
 	}
 
-
-	public TeleporterNode getNode(BlockPos pos, int dimension)
-	{
-		for (int i = 0; i < this.network.size(); ++i)
-		{
-			TeleporterNode node = this.network.get(i);
-			if (node.matches(pos, dimension))
-			{
-				return node;
-			}
-		}
-		return null;
-	}
-
-
 	public void addNode(TeleporterNode node)
 	{
 		this.network.add(node);
@@ -120,6 +108,18 @@ public class TeleporterNetwork extends WorldSavedData
 		return false;
 	}
 
+	public TeleporterNode getNode(BlockPos pos, int dimension)
+	{
+		for (int i = 0; i < this.network.size(); ++i)
+		{
+			TeleporterNode node = this.network.get(i);
+			if (node.matches(pos, dimension))
+			{
+				return node;
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * gets the next node that can be teleported to from the target teleporter
@@ -147,70 +147,67 @@ public class TeleporterNetwork extends WorldSavedData
 		int index = this.network.indexOf(sourceNode);
 		for (int i = index + 1; i < this.network.size() + index; ++i)
 		{
-
 			TeleporterNode node = this.network.get(i % this.network.size());
 
 			WorldServer destinationWorld = entityIn.getServer().getWorld(node.dimension);
-			if (destinationWorld != null)
+
+			// if this node matches the source node, continue
+			if (node == sourceNode)
 			{
-				// if this node matches the source node, continue
-				if (node == sourceNode)
-				{
-					continue;
-				}
-
-				// if the teleporter types are different, continue
-				if (sourceNode.type != node.type)
-				{
-					continue;
-				}
-
-				// if the teleporter isn't inter-dimensional and the dimensions are different, continue
-				if (sourceNode.type == BlockTeleporter.EnumType.REGULAR && sourceNode.dimension != node.dimension)
-				{
-					continue;
-				}
-
-				// if a tile entity doesn't exist at the specified node location, continue
-				TileEntityTeleporter tEntDest = (TileEntityTeleporter)destinationWorld.getTileEntity(node.pos);
-				if (tEntDest == null)
-				{
-					continue;
-				}
-
-				// if the teleporter's names or the key itemstacks are different, continue
-				ItemStack destinationKey = tEntDest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
-				if (!sourceNode.getTileEntity().getName().equals(node.getTileEntity().getName()) || !this.doKeyStacksMatch(sourceKey, destinationKey))
-				{
-					continue;
-				}
-
-				// if the destination node is obstructed, continue
-				if (this.isObstructed(destinationWorld, node))
-				{
-					if (potentialPlayerEntity instanceof EntityPlayer)
-					{
-						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-						entityPlayer.sendStatusMessage(this.getMessage("teleporterBlocked"), true);
-					}
-					continue;
-				}
-
-				// if the destination node is powered, continue
-				if (tEntDest.isPowered())
-				{
-					if (potentialPlayerEntity instanceof EntityPlayer)
-					{
-						EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-						entityPlayer.sendStatusMessage(this.getMessage("teleporterDisabled"), true);
-					}
-					continue;
-				}
-
-				// if all above conditions are met, we've found a valid destination node.
-				destinationNode = node;
-				break;
+				continue;
 			}
+
+			// if the teleporter types are different, continue
+			if (sourceNode.type != node.type)
+			{
+				continue;
+			}
+
+			// if the teleporter isn't inter-dimensional and the dimensions are different, continue
+			if (sourceNode.type == BlockTeleporter.EnumType.REGULAR && sourceNode.dimension != node.dimension)
+			{
+				continue;
+			}
+
+			// if a tile entity doesn't exist at the specified node location, continue
+			TileEntityTeleporter tEntDest = (TileEntityTeleporter)destinationWorld.getTileEntity(node.pos);
+			if (tEntDest == null)
+			{
+				continue;
+			}
+
+			// if the teleporter's names or the key itemstacks are different, continue
+			ItemStack destinationKey = tEntDest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
+			if (!sourceNode.getTileEntity().getName().equals(node.getTileEntity().getName()) || !this.doKeyStacksMatch(sourceKey, destinationKey))
+			{
+				continue;
+			}
+
+			// if the destination node is obstructed, continue
+			if (this.isObstructed(destinationWorld, node))
+			{
+				if (potentialPlayerEntity instanceof EntityPlayer)
+				{
+					EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
+					entityPlayer.sendStatusMessage(this.getMessage("teleporterBlocked"), true);
+				}
+				continue;
+			}
+
+			// if the destination node is powered, continue
+			if (tEntDest.isPowered())
+			{
+				if (potentialPlayerEntity instanceof EntityPlayer)
+				{
+					EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
+					entityPlayer.sendStatusMessage(this.getMessage("teleporterDisabled"), true);
+				}
+				continue;
+			}
+
+			// if all above conditions are met, we've found a valid destination node.
+			destinationNode = node;
+			break;
 		}
 
 		if (destinationNode == null && potentialPlayerEntity instanceof EntityPlayer)

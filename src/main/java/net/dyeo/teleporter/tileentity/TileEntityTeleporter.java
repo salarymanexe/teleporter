@@ -98,21 +98,14 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	@Override
 	public ITextComponent getDisplayName()
 	{
-		return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
+		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
 	}
-
-
 
 	public boolean canInteractWith(EntityPlayer player)
 	{
 		if (this.world.getTileEntity(this.pos) != this) return false;
-		final double X_CENTRE_OFFSET = 0.5;
-		final double Y_CENTRE_OFFSET = 0.5;
-		final double Z_CENTRE_OFFSET = 0.5;
-		final double MAXIMUM_DISTANCE_SQ = 8.0 * 8.0;
-		return player.getDistanceSq(this.pos.getX() + X_CENTRE_OFFSET, this.pos.getY() + Y_CENTRE_OFFSET, this.pos.getZ() + Z_CENTRE_OFFSET) < MAXIMUM_DISTANCE_SQ;
+		return player.getDistanceSq(this.pos.getX() + 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5) < 64.0;
 	}
-
 
 	public void removeFromNetwork()
 	{
