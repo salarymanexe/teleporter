@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "IRI",
+    "IEI"
+  ],
+  "key":
+  {
+    "#": { "item": "minecraft:glass" },
+    "I": { "item": "minecraft:iron_block" },
+    "R": { "item": "minecraft:redstone_block" },
+    "E": { "item": "minecraft:ender_pearl" }
+  },
+  "result":
+  {
+    "item": "teleporter:teleporter",
+    "count": 1,
+    "data": 0
+  },
+  "conditions":
+  [
+    {
+      "type": "use_diamonds",
+      "value": false
+    }
+  ]
+}
