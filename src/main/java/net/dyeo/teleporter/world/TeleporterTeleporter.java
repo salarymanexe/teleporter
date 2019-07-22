@@ -1,4 +1,4 @@
-package net.dyeo.teleporter.teleport;
+package net.dyeo.teleporter.world;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;

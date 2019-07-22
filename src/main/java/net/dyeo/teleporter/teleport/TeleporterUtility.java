@@ -6,6 +6,7 @@ import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
 import net.dyeo.teleporter.capabilities.ITeleportHandler;
 import net.dyeo.teleporter.event.TeleportEvent;
 import net.dyeo.teleporter.init.ModSounds;
+import net.dyeo.teleporter.world.TeleporterTeleporter;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
