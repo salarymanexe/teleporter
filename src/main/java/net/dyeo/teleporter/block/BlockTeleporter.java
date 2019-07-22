@@ -2,6 +2,7 @@ package net.dyeo.teleporter.block;
 
 import javax.annotation.Nullable;
 import net.dyeo.teleporter.TeleporterMod;
+import net.dyeo.teleporter.blockstate.IMetaType;
 import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
 import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
 import net.dyeo.teleporter.capabilities.ITeleportHandler;
@@ -273,7 +274,7 @@ public class BlockTeleporter extends BlockContainer
 		return false;
 	}
 
-	public enum EnumType implements IStringSerializable
+	public enum EnumType implements IStringSerializable, IMetaType
 	{
 		REGULAR(0, "regular", "teleporter", "teleporter"),
 		ENDER(1, "ender", "enderTeleporter", "ender_teleporter");
@@ -291,16 +292,19 @@ public class BlockTeleporter extends BlockContainer
 			return this.name;
 		}
 
+		@Override
 		public int getMetadata()
 		{
 			return this.meta;
 		}
 
+		@Override
 		public String getUnlocalizedName()
 		{
 			return this.unlocalizedName;
 		}
 
+		@Override
 		public String getRegistryName()
 		{
 			return this.registryName;
