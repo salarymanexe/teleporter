@@ -1,8 +1,5 @@
 package net.dyeo.teleporter.teleport;
 
-import java.util.ArrayList;
-
-import com.sun.istack.internal.NotNull;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
@@ -14,16 +11,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.WorldSavedData;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.items.CapabilityItemHandler;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
 
 /**
  * TeleporterNetwork is the singleton responsible for saving the teleporter data onto the world file, and is
