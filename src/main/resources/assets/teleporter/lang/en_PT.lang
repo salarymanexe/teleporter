@@ -6,16 +6,16 @@ tile.enderTeleporter.name=Ender Teleporter
 container.teleporter=Teleporter
 
 # message that displays when the user attempts to go to a blocked teleporter
-message.teleporter_TeleporterNetwork.teleporterBlocked=Arr! Yer teleporter be blocked!
+message.teleporter.teleporterBlocked=Arr! Yer teleporter be blocked!
 
 # message that displays when the user attempts to go to a locked (disabled) teleporter
-message.teleporter_TeleporterNetwork.teleporterDisabled=Arr! Yer teleporter be locked!
+message.teleporter.teleporterDisabled=Arr! Yer teleporter be locked!
 
 # message that displays when there are no teleporters that can be teleported to
-message.teleporter_TeleporterNetwork.teleporterNotFound=There be no teleporters for yer key!
+message.teleporter.teleporterNotFound=There be no teleporters for yer key!
 
 # message that displays when a teleporter is locked by the player
-message.teleporter_BlockTeleporter.teleporterLocked=Ye locked yer teleporter!
+message.teleporter.teleporterLocked=Ye locked yer teleporter!
 
 # message that displays when a teleporter is unlocked by the player
-message.teleporter_BlockTeleporter.teleporterUnlocked=Ye unlocked yer teleporter!
+message.teleporter.teleporterUnlocked=Ye unlocked yer teleporter!

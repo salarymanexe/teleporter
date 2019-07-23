@@ -142,29 +142,25 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public void neighborChanged(IBlockState state, World world, BlockPos pos, Block neighbourBlock, BlockPos fromPos)
 	{
-		if (!world.isRemote)
+		TileEntityTeleporter tileEntity = (TileEntityTeleporter)world.getTileEntity(pos);
+		if (tileEntity != null)
 		{
-			TileEntityTeleporter tileentity = (TileEntityTeleporter)world.getTileEntity(pos);
-			if (tileentity != null)
+			boolean isNowPowered = (world.isBlockIndirectlyGettingPowered(pos) > 0);
+			boolean isAlreadyPowered = tileEntity.isPowered();
+
+			tileEntity.setPowered(isNowPowered);
+
+			if (!world.isRemote && isNowPowered != isAlreadyPowered)
 			{
-				boolean isNowPowered = (world.isBlockIndirectlyGettingPowered(pos) > 0);
-				boolean isAlreadyPowered = tileentity.isPowered();
-
-				tileentity.setPowered(isNowPowered);
-
-				if (isNowPowered != isAlreadyPowered)
+				// there is no way in forge to determine who activated/deactivated the teleporter, so we simply get the closest player
+				// works for _most_ cases
+				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, false);
+				if (player != null)
 				{
-					// there is no way in forge to determine who activated/deactivated the teleporter, so we simply get the closest player
-					// works for _most_ cases
-					EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, false);
-					if (player != null)
-					{
-						String translationKey = "message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + (isNowPowered ? "teleporterLocked" : "teleporterUnlocked");
-						TextComponentTranslation message = new TextComponentTranslation(translationKey);
-						player.sendMessage(message);
-					}
-					tileentity.markDirty();
+					TextComponentTranslation message = TeleporterUtility.getMessage(isNowPowered ? "teleporterLocked" : "teleporterUnlocked");
+					player.sendStatusMessage(message, true);
 				}
+				tileEntity.markDirty();
 			}
 		}
 	}

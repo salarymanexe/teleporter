@@ -189,7 +189,7 @@ public class TeleporterNetwork extends WorldSavedData
 				if (potentialPlayerEntity instanceof EntityPlayer)
 				{
 					EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-					entityPlayer.sendStatusMessage(this.getMessage("teleporterBlocked"), true);
+					entityPlayer.sendStatusMessage(TeleporterUtility.getMessage("teleporterBlocked"), true);
 				}
 				continue;
 			}
@@ -200,7 +200,7 @@ public class TeleporterNetwork extends WorldSavedData
 				if (potentialPlayerEntity instanceof EntityPlayer)
 				{
 					EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-					entityPlayer.sendStatusMessage(this.getMessage("teleporterDisabled"), true);
+					entityPlayer.sendStatusMessage(TeleporterUtility.getMessage("teleporterDisabled"), true);
 				}
 				continue;
 			}
@@ -213,7 +213,7 @@ public class TeleporterNetwork extends WorldSavedData
 		if (destinationNode == null && potentialPlayerEntity instanceof EntityPlayer)
 		{
 			EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
-			entityPlayer.sendStatusMessage(this.getMessage("teleporterNotFound"), true);
+			entityPlayer.sendStatusMessage(TeleporterUtility.getMessage("teleporterNotFound"), true);
 		}
 
 		return destinationNode;
@@ -283,11 +283,6 @@ public class TeleporterNetwork extends WorldSavedData
 			// if one key is null and the other is not, they don't match
 			else return false;
 		}
-	}
-
-	private TextComponentTranslation getMessage(String messageName)
-	{
-		return new TextComponentTranslation("message." + TeleporterMod.MODID + '_' + this.getClass().getSimpleName() + '.' + messageName);
 	}
 
 }

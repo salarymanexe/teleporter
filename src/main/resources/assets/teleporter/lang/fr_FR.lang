@@ -8,16 +8,16 @@ tile.enderTeleporter.name=Ender Teleporter
 container.teleporter=Teleporter
 
 # message that displays when the user attempts to go to a blocked teleporter
-message.teleporter_TeleporterNetwork.teleporterBlocked=Téléporteur est bloqué; sauter...
+message.teleporter.teleporterBlocked=Téléporteur est bloqué; sauter...
 
 # message that displays when the user attempts to go to a locked (disabled) teleporter
-message.teleporter_TeleporterNetwork.teleporterDisabled=Téléporteur est désactivé; sauter...
+message.teleporter.teleporterDisabled=Téléporteur est désactivé; sauter...
 
 # message that displays when there are no teleporters that can be teleported to
-message.teleporter_TeleporterNetwork.teleporterNotFound=Pas de téléporteurs trouvé qui correspondent à vos clés.
+message.teleporter.teleporterNotFound=Pas de téléporteurs trouvé qui correspondent à vos clés
 
 # message that displays when a teleporter is locked by the player
-message.teleporter_BlockTeleporter.teleporterLocked=Téléporteur verrouillé: peut quitter seul.
+message.teleporter.teleporterLocked=Téléporteur verrouillé: peut quitter seul
 
 # message that displays when a teleporter is unlocked by the player
-message.teleporter_BlockTeleporter.teleporterUnlocked=Téléporteur déverrouillé: pouvez entrer et de sortir.
+message.teleporter.teleporterUnlocked=Téléporteur déverrouillé: pouvez entrer et de sortir

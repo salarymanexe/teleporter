@@ -1,5 +1,6 @@
 package net.dyeo.teleporter.teleport;
 
+import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
 import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
@@ -13,11 +14,17 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 
 public class TeleporterUtility
 {
+	public static TextComponentTranslation getMessage(String messageName)
+	{
+		return new TextComponentTranslation("message." + TeleporterMod.MODID + '.' + messageName);
+	}
+
 	public static TeleporterNode teleport(EntityLivingBase entity, BlockPos pos)
 	{
 		boolean teleportSuccess = false;
@@ -28,7 +35,7 @@ public class TeleporterUtility
 
 		ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
 
-		if (destinationNode != null)
+		if (sourceNode != null && destinationNode != null)
 		{
 			handler.setTeleportStatus(EnumTeleportStatus.IN_PROGRESS);
 
