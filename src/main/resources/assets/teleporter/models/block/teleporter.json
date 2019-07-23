@@ -4,8 +4,7 @@
     "textures": {
         "glass": "blocks/glass",
         "side": "blocks/iron_block",
-        "diode": "blocks/redstone_block",
-        "particle": "blocks/quartz_block_top"
+        "particle": "blocks/iron_block"
     },
     "elements": [
         {
@@ -31,29 +30,6 @@
                 },
                 "south": {
                     "texture": "#side"
-                }
-            }
-        },
-        {
-            "type": "cube",
-            "from": [4,8,4],
-            "to": [12,12,12],
-            "faces": {
-                "up": {
-                    "uv": [4,4,12,12],
-                    "texture": "#diode"
-                },
-                "west": {
-                    "texture": "#diode"
-                },
-                "east": {
-                    "texture": "#diode"
-                },
-                "north": {
-                    "texture": "#diode"
-                },
-                "south": {
-                    "texture": "#diode"
                 }
             }
         },

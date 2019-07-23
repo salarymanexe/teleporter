@@ -18,7 +18,6 @@ import net.minecraftforge.items.ItemStackHandler;
 
 public class TileEntityTeleporter extends TileEntity implements ITickable
 {
-
 	private String customName = null;
 	private boolean firstUpdate = true;
 	private boolean isPowered = false;
@@ -32,7 +31,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 			TileEntityTeleporter.this.markDirty();
 		}
 	};
-
 
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
@@ -66,8 +64,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 		this.setPowered(compound.getBoolean("powered"));
 		this.handler.deserializeNBT(compound.getCompoundTag("Inventory"));
 	}
-
-
 
 	public boolean isPowered()
 	{
@@ -126,7 +122,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 			this.firstUpdate = false;
 		}
 	}
-
 
 	private void updateNode()
 	{

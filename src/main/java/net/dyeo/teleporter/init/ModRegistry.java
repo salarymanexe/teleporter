@@ -4,6 +4,7 @@ import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.blockstate.IMetaType;
 import net.dyeo.teleporter.item.ItemBlockTeleporter;
+import net.dyeo.teleporter.renderer.TileEntityTeleporterRenderer;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -52,6 +53,7 @@ public class ModRegistry
     private static void initializeRenderers()
     {
         renderers = new HashMap<>();
+        renderers.put(TileEntityTeleporter.class, new TileEntityTeleporterRenderer());
     }
 
     @Mod.EventBusSubscriber(modid = TeleporterMod.MODID)
