@@ -57,6 +57,20 @@ public class TeleportEventHandler
 				}
 			}
 		}
+
+		@SubscribeEvent
+		public void onLivingAttack(LivingAttackEvent event)
+		{
+			if (!event.getEntity().world.isRemote && entities.contains(event.getEntityLiving()))
+			{
+				EntityLivingBase entity = event.getEntityLiving();
+				if (entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
+				{
+					ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
+					event.setCanceled(event.getSource() == DamageSource.IN_WALL && handler.getTeleportStatus() != EnumTeleportStatus.INACTIVE);
+				}
+			}
+		}
 	}
 
 	private static TeleportUpdateHandler updateHandler = new TeleportUpdateHandler();
