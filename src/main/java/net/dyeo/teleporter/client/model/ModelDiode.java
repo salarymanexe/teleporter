@@ -8,7 +8,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ModelDiode extends ModelBase
 {
-    private ModelRenderer diode = (new ModelRenderer(this)).addBox(0.0f, 0.0f, 0.0f, 8, 4, 8);
+    private ModelRenderer diode = (new ModelRenderer(this)).addBox(0.0f, 0.0f, 0.0f, 16, 8, 16);
 
     /**
      * Renders the model.

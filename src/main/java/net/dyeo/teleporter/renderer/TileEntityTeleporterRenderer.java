@@ -15,6 +15,8 @@ public class TileEntityTeleporterRenderer extends TileEntitySpecialRenderer<Tile
         };
     private final ModelDiode modelDiode = new ModelDiode();
 
+    private final float SCALE = 0.0625f * 0.5f;
+
     @Override
     public void render(TileEntityTeleporter te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
     {
@@ -26,7 +28,7 @@ public class TileEntityTeleporterRenderer extends TileEntitySpecialRenderer<Tile
         this.bindTexture(TEXTURE_DIODE[te.getBlockMetadata()]);
 
         GlStateManager.enableCull();
-        modelDiode.render(0.0625f);
+        modelDiode.render(SCALE);
 
         GlStateManager.popMatrix();
     }
