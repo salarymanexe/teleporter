@@ -25,17 +25,15 @@ public class TeleporterUtility
 		return new TextComponentTranslation("message." + TeleporterMod.MODID + '.' + messageName);
 	}
 
-	public static TeleporterNode teleport(EntityLivingBase entity, BlockPos pos)
+	public static void teleport(EntityLivingBase entity, BlockPos pos)
 	{
-		boolean teleportSuccess = false;
-
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(entity.world);
 		TeleporterNode sourceNode = netWrapper.getNode(pos, entity.world.provider.getDimension());
 		TeleporterNode destinationNode = netWrapper.getNextNode(entity, sourceNode);
 
 		ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
 
-		if (sourceNode != null && destinationNode != null)
+		if (handler != null && sourceNode != null && destinationNode != null)
 		{
 			handler.setTeleportStatus(EnumTeleportStatus.IN_PROGRESS);
 
@@ -47,30 +45,27 @@ public class TeleporterUtility
 
 			if (sourceNode.type == BlockTeleporter.EnumType.REGULAR || entity.dimension == destinationNode.dimension)
 			{
-				if (entity instanceof EntityPlayer)
+				if (entity instanceof EntityPlayerMP)
 				{
-					teleportSuccess = transferPlayerToLocation((EntityPlayer)entity, x, y, z, yaw, pitch);
+					transferPlayerToLocation((EntityPlayerMP)entity, x, y, z, yaw, pitch);
 				}
 				else
 				{
-					teleportSuccess = transferEntityToLocation(entity, x, y, z, yaw, pitch);
+					transferEntityToLocation(entity, x, y, z, yaw, pitch);
 				}
 			}
 			else
 			{
-				if (entity instanceof EntityPlayer)
+				if (entity instanceof EntityPlayerMP)
 				{
-					teleportSuccess = transferPlayerToDimension((EntityPlayer)entity, x, y, z, yaw, pitch, destinationNode.dimension);
+					transferPlayerToDimension((EntityPlayerMP)entity, x, y, z, yaw, pitch, destinationNode.dimension);
 				}
 				else
 				{
-					teleportSuccess = transferEntityToDimension(entity, x, y, z, yaw, pitch, destinationNode.dimension);
+					transferEntityToDimension(entity, x, y, z, yaw, pitch, destinationNode.dimension);
 				}
 			}
-		}
 
-		if (teleportSuccess)
-		{
 			entity.world.playSound(null, sourceNode.pos.getX(), sourceNode.pos.getY(), sourceNode.pos.getZ(), ModSounds.PORTAL_ENTER, SoundCategory.BLOCKS, 0.9f, 1.0f);
 			entity.world.playSound(null, destinationNode.pos.getX(), destinationNode.pos.getY(), destinationNode.pos.getZ(), ModSounds.PORTAL_EXIT, SoundCategory.BLOCKS, 0.9f, 1.0f);
 		}
@@ -81,13 +76,12 @@ public class TeleporterUtility
 		}
 
 		MinecraftForge.EVENT_BUS.post(new TeleportEvent.EntityTeleportedEvent(entity));
-		return destinationNode;
 	}
 
 	/**
 	 * transfers player to a location in the same dimension
 	 */
-	private static boolean transferPlayerToLocation(EntityPlayer player, double x, double y, double z, float yaw, float pitch)
+	private static void transferPlayerToLocation(EntityPlayerMP player, double x, double y, double z, float yaw, float pitch)
 	{
 		WorldServer world = player.world.getMinecraftServer().getWorld(player.dimension);
 		world.getBlockState(new BlockPos(x,y,z));
@@ -97,14 +91,12 @@ public class TeleporterUtility
 		player.setPositionAndUpdate(x, y, z);
 		player.rotationYaw = yaw;
 		player.rotationPitch = pitch;
-
-		return true;
 	}
 
 	/**
 	 * transfers entity to a location in the same dimension
 	 */
-	private static boolean transferEntityToLocation(EntityLivingBase entity, double x, double y, double z, float yaw, float pitch)
+	private static void transferEntityToLocation(EntityLivingBase entity, double x, double y, double z, float yaw, float pitch)
 	{
 		WorldServer world = entity.world.getMinecraftServer().getWorld(entity.dimension);
 		world.getBlockState(new BlockPos(x,y,z));
@@ -112,42 +104,33 @@ public class TeleporterUtility
 		entity.setPositionAndUpdate(x, y, z);
 		entity.rotationYaw = yaw;
 		entity.rotationPitch = pitch;
-
-		return true;
 	}
 
 	/**
 	 * transfers player to a location in another dimension
 	 */
-	private static boolean transferPlayerToDimension(EntityPlayer player, double x, double y, double z, float yaw, float pitch, int dstDimension)
+	private static void transferPlayerToDimension(EntityPlayerMP player, double x, double y, double z, float yaw, float pitch, int dstDimension)
 	{
-		if(player instanceof EntityPlayerMP)
-		{
-			EntityPlayerMP mpPlayer = (EntityPlayerMP)player;
-			MinecraftServer server = mpPlayer.world.getMinecraftServer();
-			WorldServer dstWorld = server.getWorld(dstDimension);
+		MinecraftServer server = player.world.getMinecraftServer();
+		WorldServer dstWorld = server.getWorld(dstDimension);
 
-			player.setSprinting(false);
+		player.setSprinting(false);
 
-			dstWorld.getMinecraftServer().getPlayerList().transferPlayerToDimension(mpPlayer, dstDimension, new TeleporterTeleporter(x,y,z,yaw,pitch));
-			mpPlayer.addExperienceLevel(0);
-			player.setPositionAndUpdate(x,y,z);
+		dstWorld.getMinecraftServer().getPlayerList().transferPlayerToDimension(player, dstDimension, new TeleporterTeleporter(x,y,z,yaw,pitch));
 
-			return true;
-		}
-		return false;
+		player.setPositionAndUpdate(x,y,z);
+		player.rotationYaw = yaw;
+		player.rotationPitch = pitch;
 	}
 
 	/**
 	 * transfers entity to a location in another dimension
 	 */
-	private static boolean transferEntityToDimension(EntityLivingBase entity, double x, double y, double z, float yaw, float pitch, int dstDimension)
+	private static void transferEntityToDimension(EntityLivingBase entity, double x, double y, double z, float yaw, float pitch, int dstDimension)
 	{
 		MinecraftServer server = entity.world.getMinecraftServer();
 
 		entity.changeDimension(dstDimension, new TeleporterTeleporter(x,y,z,yaw,pitch));
 		entity.setPositionAndUpdate(x,y,z);
-
-		return true;
 	}
 }

@@ -105,9 +105,9 @@ public class BlockTeleporter extends BlockContainer
 						boolean isHostile = (entity instanceof EntityMob) || (entity instanceof EntityWolf && ((EntityWolf)entity).isAngry());
 						boolean isPassive = (entity instanceof EntityAnimal);
 
-						if ((isHostile == false || isHostile == ModConfiguration.teleportHostileMobs) && (isPassive == false || isPassive == ModConfiguration.teleportPassiveMobs))
+						if ((!isHostile || ModConfiguration.teleportHostileMobs) && (!isPassive || ModConfiguration.teleportPassiveMobs))
 						{
-							TeleporterNode destinationNode = TeleporterUtility.teleport((EntityLivingBase)entity, pos);
+							TeleporterUtility.teleport((EntityLivingBase)entity, pos);
 						}
 					}
 				}
