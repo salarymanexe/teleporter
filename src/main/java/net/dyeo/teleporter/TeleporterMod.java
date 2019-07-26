@@ -1,7 +1,10 @@
 package net.dyeo.teleporter;
 
+import net.dyeo.teleporter.network.TeleporterMessage;
+import net.dyeo.teleporter.network.TeleporterMessageHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import net.dyeo.teleporter.command.CommandTeleportReset;
@@ -28,7 +31,7 @@ public class TeleporterMod
 	public static final String UPDATEJSON = "https://raw.githubusercontent.com/crazysnailboy/VanillaTeleporter/master/update.json";
 
 	private static final String CLIENT_PROXY_CLASS = "net.dyeo.teleporter.proxy.ClientProxy";
-	private static final String SERVER_PROXY_CLASS = "net.dyeo.teleporter.proxy.CommonProxy";
+	private static final String SERVER_PROXY_CLASS = "net.dyeo.teleporter.proxy.ServerProxy";
 
 	@Instance(MODID)
 	public static TeleporterMod instance;
@@ -43,7 +46,6 @@ public class TeleporterMod
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		ModConfiguration.preInit();
 		proxy.preInit();
 	}
 
@@ -51,7 +53,6 @@ public class TeleporterMod
 	public void init(FMLInitializationEvent event)
 	{
 		proxy.init();
-		MinecraftForge.EVENT_BUS.register(new TeleportEventHandler());
 	}
 
 	@EventHandler

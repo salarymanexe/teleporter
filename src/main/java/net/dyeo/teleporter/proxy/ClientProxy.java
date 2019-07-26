@@ -18,13 +18,13 @@ public class ClientProxy extends CommonProxy
 	public void init()
 	{
 		super.init();
+		TeleporterMod.NETWORK_WRAPPER.registerMessage(TeleporterMessageHandler.class, TeleporterMessage.class, 0, Side.CLIENT);
 	}
 
 	@Override
 	public void postInit()
 	{
 		super.postInit();
-		TeleporterMod.NETWORK_WRAPPER.registerMessage(TeleporterMessageHandler.class, TeleporterMessage.class, 0, Side.CLIENT);
 	}
 
 }

@@ -16,13 +16,15 @@ public class TeleporterMessageHandler implements IMessageHandler<TeleporterMessa
         Minecraft minecraft = Minecraft.getMinecraft();
         World world = minecraft.world;
 
-        if(world != null && world.isRemote)
+        if(world.isRemote)
         {
-            TileEntity tileEntity = world.getTileEntity(message.pos);
-            if(tileEntity instanceof TileEntityTeleporter)
-            {
-                ((TileEntityTeleporter) tileEntity).setPowered(message.isPowered);
-            }
+            minecraft.addScheduledTask(() -> {
+               TileEntityTeleporter tileEntity = (TileEntityTeleporter)world.getTileEntity(message.pos);
+               if(tileEntity != null)
+               {
+                   tileEntity.setPowered(message.isPowered);
+               }
+            });
         }
 
         return null;
