@@ -7,7 +7,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.DimensionManager;
 
-
 /**
  * TeleporterNode contains the members that must be saved to the world.
  * It also contains methods to save and write and read the data to NBT.

@@ -53,8 +53,8 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	public NBTTagCompound writeToNBT(NBTTagCompound compound)
 	{
 		compound = super.writeToNBT(compound);
-		compound.setBoolean("powered", this.isPowered());
 		if (this.hasCustomName()) compound.setString("CustomName", this.customName);
+		compound.setBoolean("powered", this.isPowered());
 		compound.setTag("Inventory", this.handler.serializeNBT());
 		return compound;
 	}
@@ -156,10 +156,12 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 			thisNode.dimension = tileDim;
 			thisNode.type = this.world.getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
 
-			if (isNewNode == true)
+			if (isNewNode)
 			{
 				netWrapper.addNode(thisNode);
 			}
+
+			this.updatePoweredState();
 		}
 	}
 

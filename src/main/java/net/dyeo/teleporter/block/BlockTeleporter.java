@@ -57,7 +57,6 @@ public class BlockTeleporter extends BlockContainer
 		this.setCreativeTab(CreativeTabs.TRANSPORTATION);
 		this.setResistance(30.0F);
 		this.setHardness(3.0F);
-		this.setLightLevel(0.5F);
 		this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, EnumType.REGULAR));
 	}
 
@@ -260,6 +259,17 @@ public class BlockTeleporter extends BlockContainer
 	public EnumBlockRenderType getRenderType(IBlockState state)
 	{
 		return EnumBlockRenderType.MODEL;
+	}
+
+	@Override
+	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
+	{
+		TileEntity tileEntity = world.getTileEntity(pos);
+		if(tileEntity instanceof TileEntityTeleporter)
+		{
+			return ((TileEntityTeleporter)tileEntity).isPowered() ? 0 : 8;
+		}
+		return 0;
 	}
 
     @SuppressWarnings("deprecation")
