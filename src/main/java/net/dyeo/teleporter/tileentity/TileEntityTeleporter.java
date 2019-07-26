@@ -1,8 +1,8 @@
 package net.dyeo.teleporter.tileentity;
 
 import net.dyeo.teleporter.block.BlockTeleporter;
-import net.dyeo.teleporter.teleport.TeleporterNetwork;
-import net.dyeo.teleporter.teleport.TeleporterNode;
+import net.dyeo.teleporter.world.TeleporterNetwork;
+import net.dyeo.teleporter.world.TeleporterNode;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -15,6 +15,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import scala.Console;
 
 public class TileEntityTeleporter extends TileEntity implements ITickable
 {

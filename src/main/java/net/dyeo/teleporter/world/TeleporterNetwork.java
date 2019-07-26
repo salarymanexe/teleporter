@@ -1,7 +1,8 @@
-package net.dyeo.teleporter.teleport;
+package net.dyeo.teleporter.world;
 
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
+import net.dyeo.teleporter.utility.TeleporterUtility;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;

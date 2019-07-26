@@ -1,4 +1,4 @@
-package net.dyeo.teleporter.teleport;
+package net.dyeo.teleporter.world;
 
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;

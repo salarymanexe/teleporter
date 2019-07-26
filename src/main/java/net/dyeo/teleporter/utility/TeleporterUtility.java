@@ -1,4 +1,4 @@
-package net.dyeo.teleporter.teleport;
+package net.dyeo.teleporter.utility;
 
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
@@ -7,9 +7,10 @@ import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
 import net.dyeo.teleporter.capabilities.ITeleportHandler;
 import net.dyeo.teleporter.event.TeleportEvent;
 import net.dyeo.teleporter.init.ModSounds;
+import net.dyeo.teleporter.world.TeleporterNetwork;
+import net.dyeo.teleporter.world.TeleporterNode;
 import net.dyeo.teleporter.world.TeleporterTeleporter;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.SoundCategory;
