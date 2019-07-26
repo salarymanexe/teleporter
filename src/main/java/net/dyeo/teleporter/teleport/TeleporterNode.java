@@ -15,7 +15,6 @@ import net.minecraftforge.common.DimensionManager;
  */
 public class TeleporterNode
 {
-
 	public BlockPos pos;
 	public int dimension;
 	public BlockTeleporter.EnumType type;
@@ -27,18 +26,10 @@ public class TeleporterNode
 		this.type = BlockTeleporter.EnumType.REGULAR;
 	}
 
-//	public TeleporterNode(BlockPos pos, int dimension, BlockTeleporter.EnumType type)
-//	{
-//		this.pos = pos;
-//		this.dimension = dimension;
-//		this.type = type;
-//	}
-
 	public TeleporterNode(NBTTagCompound compound)
 	{
 		this.readFromNBT(compound);
 	}
-
 
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
@@ -66,7 +57,6 @@ public class TeleporterNode
 		if (result instanceof TileEntityTeleporter) return (TileEntityTeleporter) result;
 		else return null;
 	}
-
 
 	@Override
 	public String toString()

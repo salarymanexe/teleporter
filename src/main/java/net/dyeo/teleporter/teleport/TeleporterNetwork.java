@@ -119,66 +119,66 @@ public class TeleporterNetwork extends WorldSavedData
 	 * gets the next node that can be teleported to from the target teleporter
 	 *
 	 */
-	public TeleporterNode getNextNode(Entity entityIn, TeleporterNode sourceNode)
+	public TeleporterNode getNextNode(Entity entity, TeleporterNode srcNode)
 	{
-		if(entityIn == null)
+		if(entity == null)
 		{
 			return null;
 		}
 
-		TileEntityTeleporter tEntSource = (TileEntityTeleporter)entityIn.world.getTileEntity(sourceNode.pos);
-		ItemStack sourceKey = tEntSource.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
+		TileEntityTeleporter srcTileEntity = (TileEntityTeleporter)entity.world.getTileEntity(srcNode.pos);
 
-		TeleporterNode destinationNode = null;
+		TeleporterNode dstNode = null;
 
 		// get the top-most entity (rider) for sending messages
-		Entity potentialPlayerEntity = entityIn;
+		Entity potentialPlayerEntity = entity;
 		while (!potentialPlayerEntity.getPassengers().isEmpty())
 		{
 			potentialPlayerEntity = potentialPlayerEntity.getControllingPassenger();
 		}
 
-		int index = this.network.indexOf(sourceNode);
+		int index = this.network.indexOf(srcNode);
 		for (int i = index + 1; i < this.network.size() + index; ++i)
 		{
 			TeleporterNode node = this.network.get(i % this.network.size());
 
-			WorldServer destinationWorld = entityIn.getServer().getWorld(node.dimension);
+			WorldServer dstWorld = entity.getServer().getWorld(node.dimension);
 
 			// if this node matches the source node, continue
-			if (node == sourceNode)
-			{
-				continue;
-			}
-
-			// if the teleporter types are different, continue
-			if (sourceNode.type != node.type)
-			{
-				continue;
-			}
-
-			// if the teleporter isn't inter-dimensional and the dimensions are different, continue
-			if (sourceNode.type == BlockTeleporter.EnumType.REGULAR && sourceNode.dimension != node.dimension)
+			if (node == srcNode)
 			{
 				continue;
 			}
 
 			// if a tile entity doesn't exist at the specified node location, continue
-			TileEntityTeleporter tEntDest = (TileEntityTeleporter)destinationWorld.getTileEntity(node.pos);
-			if (tEntDest == null)
+			TileEntityTeleporter dstTileEntity = (TileEntityTeleporter)dstWorld.getTileEntity(node.pos);
+			if (dstTileEntity == null)
+			{
+				continue;
+			}
+
+			// if the teleporter types are different, continue
+			if (srcNode.type != node.type)
+			{
+				continue;
+			}
+
+			// if the teleporter isn't inter-dimensional and the dimensions are different, continue
+			if (srcNode.type == BlockTeleporter.EnumType.REGULAR && srcNode.dimension != node.dimension)
 			{
 				continue;
 			}
 
 			// if the teleporter's names or the key itemstacks are different, continue
-			ItemStack destinationKey = tEntDest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
-			if (!sourceNode.getTileEntity().getName().equals(node.getTileEntity().getName()) || !this.doKeyStacksMatch(sourceKey, destinationKey))
+			ItemStack srcKey = srcTileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
+			ItemStack dstKey = dstTileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
+			if (!srcTileEntity.getName().equals(dstTileEntity.getName()) || !doKeyStacksMatch(srcKey, dstKey))
 			{
 				continue;
 			}
 
 			// if the destination node is obstructed, continue
-			if (this.isObstructed(destinationWorld, node))
+			if (isObstructed(dstWorld, node))
 			{
 				if (potentialPlayerEntity instanceof EntityPlayer)
 				{
@@ -189,7 +189,7 @@ public class TeleporterNetwork extends WorldSavedData
 			}
 
 			// if the destination node is powered, continue
-			if (tEntDest.isPowered())
+			if (dstTileEntity.isPowered())
 			{
 				if (potentialPlayerEntity instanceof EntityPlayer)
 				{
@@ -200,20 +200,20 @@ public class TeleporterNetwork extends WorldSavedData
 			}
 
 			// if all above conditions are met, we've found a valid destination node.
-			destinationNode = node;
+			dstNode = node;
 			break;
 		}
 
-		if (destinationNode == null && potentialPlayerEntity instanceof EntityPlayer)
+		if (dstNode == null && potentialPlayerEntity instanceof EntityPlayer)
 		{
 			EntityPlayer entityPlayer = (EntityPlayer) potentialPlayerEntity;
 			entityPlayer.sendStatusMessage(TeleporterUtility.getMessage("teleporterNotFound"), true);
 		}
 
-		return destinationNode;
+		return dstNode;
 	}
 
-	private boolean isObstructed(World world, TeleporterNode node)
+	private static boolean isObstructed(World world, TeleporterNode node)
 	{
 		BlockPos blockPos1 = new BlockPos(node.pos.getX(), node.pos.getY() + 1, node.pos.getZ());
 		BlockPos blockPos2 = new BlockPos(node.pos.getX(), node.pos.getY() + 2, node.pos.getZ());
@@ -230,10 +230,10 @@ public class TeleporterNetwork extends WorldSavedData
 		}
 	}
 
-	private boolean doKeyStacksMatch(ItemStack sourceKey, ItemStack destinationKey)
+	private static boolean doKeyStacksMatch(ItemStack srcKey, ItemStack dstKey)
 	{
 		// if both keys are null, they match (obviously!)
-		if (sourceKey.isEmpty() && destinationKey.isEmpty())
+		if (srcKey.isEmpty() && dstKey.isEmpty())
 		{
 			return true;
 		}
@@ -241,32 +241,32 @@ public class TeleporterNetwork extends WorldSavedData
 		else
 		{
 			// if they're both not null...
-			if (!(sourceKey.isEmpty() || destinationKey.isEmpty()))
+			if (!(srcKey.isEmpty() || dstKey.isEmpty()))
 			{
 				// ensure that the items match
-				if (sourceKey.getItem() != destinationKey.getItem()) return false;
+				if (srcKey.getItem() != dstKey.getItem()) return false;
 				// ensure that the item metadata matches
-				if (sourceKey.getItemDamage() != destinationKey.getItemDamage()) return false;
+				if (srcKey.getItemDamage() != dstKey.getItemDamage()) return false;
 
 				// if the source key has an NBT tag
-				if (sourceKey.hasTagCompound())
+				if (srcKey.hasTagCompound())
 				{
 					// ensure that the destination key also has an NBT tag
-					if (!destinationKey.hasTagCompound()) return false;
+					if (!dstKey.hasTagCompound()) return false;
 
 					// if the key items are written books
-					if (sourceKey.getItem() == Items.WRITTEN_BOOK)
+					if (srcKey.getItem() == Items.WRITTEN_BOOK)
 					{
 						// ensure that the book authors and titles match
-						String sourceBookNBT = sourceKey.getTagCompound().getString("author") + ":" + sourceKey.getTagCompound().getString("title");
-						String destinationBookNBT = destinationKey.getTagCompound().getString("author") + ":" + destinationKey.getTagCompound().getString("title");
+						String sourceBookNBT = srcKey.getTagCompound().getString("author") + ":" + srcKey.getTagCompound().getString("title");
+						String destinationBookNBT = dstKey.getTagCompound().getString("author") + ":" + dstKey.getTagCompound().getString("title");
 						if (!sourceBookNBT.equals(destinationBookNBT)) return false;
 					}
 					// if it's any other type of item
 					else
 					{
 						// ensure that the nbt tags match
-						if (!ItemStack.areItemStackTagsEqual(sourceKey, destinationKey)) return false;
+						if (!ItemStack.areItemStackTagsEqual(srcKey, dstKey)) return false;
 					}
 				}
 
@@ -278,5 +278,4 @@ public class TeleporterNetwork extends WorldSavedData
 			else return false;
 		}
 	}
-
 }

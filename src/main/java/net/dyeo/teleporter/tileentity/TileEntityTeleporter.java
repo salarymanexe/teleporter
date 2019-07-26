@@ -142,14 +142,12 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 
 			thisNode.pos = this.pos;
 			thisNode.dimension = tileDim;
-			thisNode.type = this.getWorld().getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
+			thisNode.type = this.world.getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
 
 			if (isNewNode == true)
 			{
 				netWrapper.addNode(thisNode);
 			}
-
-//			System.out.println("Node updated :: " + thisNode.toString() );
 		}
 	}
 
