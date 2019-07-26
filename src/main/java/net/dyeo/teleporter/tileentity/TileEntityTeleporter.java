@@ -1,6 +1,8 @@
 package net.dyeo.teleporter.tileentity;
 
+import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
+import net.dyeo.teleporter.network.TeleporterMessage;
 import net.dyeo.teleporter.world.TeleporterNetwork;
 import net.dyeo.teleporter.world.TeleporterNode;
 import net.minecraft.entity.player.EntityPlayer;
@@ -74,6 +76,7 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	public void setPowered(boolean isPowered)
 	{
 		this.isPowered = isPowered;
+		updatePoweredState();
 	}
 
 	public String getName()
@@ -121,6 +124,14 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 				this.markDirty();
 			}
 			this.firstUpdate = false;
+		}
+	}
+
+	private void updatePoweredState()
+	{
+		if(world != null && !world.isRemote)
+		{
+			TeleporterMod.NETWORK_WRAPPER.sendToAll(new TeleporterMessage(this.pos, this.isPowered));
 		}
 	}
 
