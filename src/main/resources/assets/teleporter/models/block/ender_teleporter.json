@@ -1,8 +1,9 @@
 {
 	"parent": "teleporter:block/teleporter",
     "textures": {
-        "glass": "blocks/glass",
-        "side": "blocks/obsidian",
-        "particle": "blocks/obsidian"
+      "0": "blocks/obsidian",
+      "1": "blocks/glass",
+      "2": "blocks/glowstone",
+      "particle": "blocks/iron_block"
     }
 }
