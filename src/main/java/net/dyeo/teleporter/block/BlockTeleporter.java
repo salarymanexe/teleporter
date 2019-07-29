@@ -42,13 +42,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import scala.Console;
 
 import javax.annotation.Nullable;
 
 public class BlockTeleporter extends BlockSlab
 {
-	public static final AxisAlignedBB TELEPORTER_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
-
 	public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("type", BlockTeleporter.EnumType.class);
 
 	public BlockTeleporter()
@@ -66,6 +65,7 @@ public class BlockTeleporter extends BlockSlab
 		this.useNeighborBrightness = !this.isDouble();
 
 		IBlockState blockState = this.blockState.getBaseState();
+		blockState = blockState.withProperty(HALF, EnumBlockHalf.BOTTOM);
 		blockState = blockState.withProperty(TYPE, EnumType.REGULAR);
 		this.setDefaultState(blockState);
 	}
@@ -73,9 +73,20 @@ public class BlockTeleporter extends BlockSlab
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
-		if (!world.isRemote && !player.isSneaking())
+		if (!world.isRemote)
 		{
-			player.openGui(TeleporterMod.instance, GuiHandler.GUI_ID_TELEPORTER, world, pos.getX(), pos.getY(), pos.getZ());
+			ItemStack item = player.getHeldItem(hand);
+			if(!player.isSneaking())
+			{
+				player.openGui(TeleporterMod.instance, GuiHandler.GUI_ID_TELEPORTER, world, pos.getX(), pos.getY(), pos.getZ());
+			}
+			else if(hand == EnumHand.MAIN_HAND && item.isEmpty())
+			{
+				IBlockState blockState = this.blockState.getBaseState()
+						.withProperty(HALF, state.getValue(HALF) == EnumBlockHalf.BOTTOM ? EnumBlockHalf.TOP : EnumBlockHalf.BOTTOM)
+						.withProperty(TYPE, state.getValue(TYPE));
+				world.setBlockState(pos,blockState);
+			}
 		}
 		return true;
 	}
@@ -98,11 +109,22 @@ public class BlockTeleporter extends BlockSlab
     @Override
 	public void onEntityWalk(World world, BlockPos pos, Entity entity)
     {
-		if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
+		this.onTeleportEntity(world, pos, entity);
+    }
+
+    @Override
+	public void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance)
+    {
+		this.onTeleportEntity(world, pos, entity);
+    }
+
+    public void onTeleportEntity(World world, BlockPos pos, Entity entity)
+	{
+		if (!world.isRemote)
 		{
-			ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
-			if (!world.isRemote)
+			if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
 			{
+				ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
 				if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
 				{
 					handler.setOnTeleporter(entity.getPosition().distanceSq(pos) <= 1);
@@ -119,32 +141,25 @@ public class BlockTeleporter extends BlockSlab
 						}
 					}
 				}
-			}
 
-			if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
-			{
-				double width = 0.25;
-				double height = 0.25;
+				if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
+				{
+					double width = 0.25;
+					double height = 0.25;
 
-				double mx = world.rand.nextGaussian() * 0.2d;
-				double my = world.rand.nextGaussian() * 0.2d;
-				double mz = world.rand.nextGaussian() * 0.2d;
+					double mx = world.rand.nextGaussian() * 0.2d;
+					double my = world.rand.nextGaussian() * 0.2d;
+					double mz = world.rand.nextGaussian() * 0.2d;
 
-				world.spawnParticle(EnumParticleTypes.PORTAL,
-					pos.getX() + 0.5 + world.rand.nextFloat() * width * 2.0F - width,
-					pos.getY() + 1.5 + world.rand.nextFloat() * height,
-					pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
-				);
+					world.spawnParticle(EnumParticleTypes.PORTAL,
+							pos.getX() + 0.5 + world.rand.nextFloat() * width * 2.0F - width,
+							pos.getY() + 1.5 + world.rand.nextFloat() * height,
+							pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
+					);
+				}
 			}
 		}
-    }
-
-    @Override
-	public void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance)
-    {
-		super.onFallenUpon(world, pos, entity, fallDistance);
-		this.onEntityWalk(world, pos, entity);
-    }
+	}
 
     @SuppressWarnings("deprecation")
 	@Override
@@ -210,13 +225,6 @@ public class BlockTeleporter extends BlockSlab
 		return new TileEntityTeleporter();
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
-	{
-		return super.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, meta, placer).withProperty(TYPE, EnumType.fromMetadata(meta));
-	}
-
 	@Override
 	public String getUnlocalizedName(int meta)
 	{
@@ -272,7 +280,7 @@ public class BlockTeleporter extends BlockSlab
 	@Override
 	public int getMetaFromState(IBlockState state)
 	{
-		return state.getValue(TYPE).getMetadata();
+		return (state.getValue(HALF).ordinal() << 1) | state.getValue(TYPE).ordinal();
 	}
 
 	@Override
@@ -308,6 +316,11 @@ public class BlockTeleporter extends BlockSlab
 	public EnumBlockRenderType getRenderType(IBlockState state)
 	{
 		return EnumBlockRenderType.MODEL;
+	}
+
+	public static AxisAlignedBB getBoundingBox(IBlockState state)
+	{
+		return state.getValue(HALF) == EnumBlockHalf.BOTTOM ? AABB_BOTTOM_HALF : AABB_TOP_HALF;
 	}
 
     @SuppressWarnings("deprecation")
@@ -355,8 +368,8 @@ public class BlockTeleporter extends BlockSlab
 
 		public static EnumType fromMetadata(int meta)
 		{
-			if (meta < 0 || meta >= META_LOOKUP.length) meta = 0;
-			return META_LOOKUP[meta];
+			int temp = meta & 0b01;
+			return META_LOOKUP[temp];
 		}
 
 		EnumType(int meta, String name, String unlocalizedName, String registryName)

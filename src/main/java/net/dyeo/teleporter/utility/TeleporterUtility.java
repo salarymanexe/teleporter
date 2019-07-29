@@ -10,10 +10,13 @@ import net.dyeo.teleporter.init.ModSounds;
 import net.dyeo.teleporter.world.TeleporterNetwork;
 import net.dyeo.teleporter.world.TeleporterNode;
 import net.dyeo.teleporter.world.TeleporterTeleporter;
+import net.minecraft.block.BlockSlab;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
@@ -29,22 +32,26 @@ public class TeleporterUtility
 	public static void teleport(EntityLivingBase entity, BlockPos pos)
 	{
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(entity.world);
-		TeleporterNode sourceNode = netWrapper.getNode(pos, entity.world.provider.getDimension());
-		TeleporterNode destinationNode = netWrapper.getNextNode(entity, sourceNode);
+		TeleporterNode srcNode = netWrapper.getNode(pos, entity.world.provider.getDimension());
+		TeleporterNode dstNode = netWrapper.getNextNode(entity, srcNode);
 
 		ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
 
-		if (handler != null && sourceNode != null && destinationNode != null)
+		if (handler != null && srcNode != null && dstNode != null)
 		{
 			handler.setTeleportStatus(EnumTeleportStatus.IN_PROGRESS);
 
-			double x = destinationNode.pos.getX() + (BlockTeleporter.TELEPORTER_AABB.maxX * 0.5D);
-			double y = destinationNode.pos.getY() + (BlockTeleporter.TELEPORTER_AABB.maxY);
-			double z = destinationNode.pos.getZ() + (BlockTeleporter.TELEPORTER_AABB.maxZ * 0.5D);
+			MinecraftServer server = entity.world.getMinecraftServer();
+			WorldServer dstWorld = server.getWorld(dstNode.dimension);
+
+			AxisAlignedBB boundingBox = BlockTeleporter.getBoundingBox(dstWorld.getBlockState(dstNode.pos));
+			double x = dstNode.pos.getX() + (boundingBox.maxX * 0.5D);
+			double y = dstNode.pos.getY() + (boundingBox.maxY);
+			double z = dstNode.pos.getZ() + (boundingBox.maxZ * 0.5D);
 			float yaw = entity.rotationYaw;
 			float pitch = entity.rotationPitch;
 
-			if (sourceNode.type == BlockTeleporter.EnumType.REGULAR || entity.dimension == destinationNode.dimension)
+			if (srcNode.type == BlockTeleporter.EnumType.REGULAR || entity.dimension == dstNode.dimension)
 			{
 				if (entity instanceof EntityPlayerMP)
 				{
@@ -59,20 +66,20 @@ public class TeleporterUtility
 			{
 				if (entity instanceof EntityPlayerMP)
 				{
-					transferPlayerToDimension((EntityPlayerMP)entity, x, y, z, yaw, pitch, destinationNode.dimension);
+					transferPlayerToDimension((EntityPlayerMP)entity, x, y, z, yaw, pitch, dstNode.dimension);
 				}
 				else
 				{
-					transferEntityToDimension(entity, x, y, z, yaw, pitch, destinationNode.dimension);
+					transferEntityToDimension(entity, x, y, z, yaw, pitch, dstNode.dimension);
 				}
 			}
 
-			entity.world.playSound(null, sourceNode.pos.getX(), sourceNode.pos.getY(), sourceNode.pos.getZ(), ModSounds.PORTAL_ENTER, SoundCategory.BLOCKS, 0.9f, 1.0f);
-			entity.world.playSound(null, destinationNode.pos.getX(), destinationNode.pos.getY(), destinationNode.pos.getZ(), ModSounds.PORTAL_EXIT, SoundCategory.BLOCKS, 0.9f, 1.0f);
+			entity.world.playSound(null, srcNode.pos.getX(), srcNode.pos.getY(), srcNode.pos.getZ(), ModSounds.PORTAL_ENTER, SoundCategory.BLOCKS, 0.9f, 1.0f);
+			entity.world.playSound(null, dstNode.pos.getX(), dstNode.pos.getY(), dstNode.pos.getZ(), ModSounds.PORTAL_EXIT, SoundCategory.BLOCKS, 0.9f, 1.0f);
 		}
 		else
 		{
-			entity.world.playSound(null, sourceNode.pos.getX(), sourceNode.pos.getY(), sourceNode.pos.getZ(), ModSounds.PORTAL_ERROR, SoundCategory.BLOCKS, 0.9f, 1.0f);
+			entity.world.playSound(null, srcNode.pos.getX(), srcNode.pos.getY(), srcNode.pos.getZ(), ModSounds.PORTAL_ERROR, SoundCategory.BLOCKS, 0.9f, 1.0f);
 			handler.setTeleportStatus(EnumTeleportStatus.FAILED);
 		}
 
