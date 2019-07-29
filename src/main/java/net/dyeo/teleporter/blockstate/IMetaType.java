@@ -1,6 +1,8 @@
 package net.dyeo.teleporter.blockstate;
 
-public interface IMetaType
+import net.minecraft.util.IStringSerializable;
+
+public interface IMetaType extends IStringSerializable
 {
     String getName();
     int getMetadata();

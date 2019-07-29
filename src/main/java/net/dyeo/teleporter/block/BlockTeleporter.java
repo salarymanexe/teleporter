@@ -1,6 +1,5 @@
 package net.dyeo.teleporter.block;
 
-import javax.annotation.Nullable;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.blockstate.IMetaType;
 import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
@@ -11,7 +10,7 @@ import net.dyeo.teleporter.common.network.GuiHandler;
 import net.dyeo.teleporter.utility.TeleporterUtility;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockContainer;
+import net.minecraft.block.BlockSlab;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -33,32 +32,42 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
-public class BlockTeleporter extends BlockContainer
+import javax.annotation.Nullable;
+
+public class BlockTeleporter extends BlockSlab
 {
 	public static final AxisAlignedBB TELEPORTER_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
+
 	public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("type", BlockTeleporter.EnumType.class);
 
 	public BlockTeleporter()
 	{
 		super(Material.ROCK);
-		this.setCreativeTab(CreativeTabs.TRANSPORTATION);
+
+		if(!this.isDouble())
+		{
+			this.setCreativeTab(CreativeTabs.TRANSPORTATION);
+		}
+
 		this.setResistance(30.0F);
 		this.setHardness(3.0F);
 		this.setLightLevel(0.5f);
-		this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, EnumType.REGULAR));
+		this.useNeighborBrightness = !this.isDouble();
+
+		IBlockState blockState = this.blockState.getBaseState();
+		blockState = blockState.withProperty(TYPE, EnumType.REGULAR);
+		this.setDefaultState(blockState);
 	}
 
 	@Override
@@ -189,22 +198,75 @@ public class BlockTeleporter extends BlockContainer
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World world, int meta)
+	public boolean hasTileEntity(IBlockState state)
+	{
+		return true;
+	}
+
+	@Nullable
+	@Override
+	public TileEntity createTileEntity(World world, IBlockState state)
 	{
 		return new TileEntityTeleporter();
+	}
+
+	@SuppressWarnings("deprecation")
+	@Override
+	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+	{
+		return super.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, meta, placer).withProperty(TYPE, EnumType.fromMetadata(meta));
+	}
+
+	@Override
+	public String getUnlocalizedName(int meta)
+	{
+		return EnumType.fromMetadata(meta).getUnlocalizedName();
+	}
+
+	@Override
+	public boolean isDouble()
+	{
+		return false;
+	}
+
+	@Override
+	public IProperty<?> getVariantProperty()
+	{
+		return HALF;
+	}
+
+	@Override
+	public Comparable<?> getTypeForItem(ItemStack stack)
+	{
+		return EnumType.fromMetadata(stack.getMetadata());
 	}
 
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		return new BlockStateContainer(this, new IProperty[] { TYPE });
+		return new BlockStateContainer.Builder(this)
+				.add(HALF)
+				.add(TYPE)
+				.build();
 	}
 
     @SuppressWarnings("deprecation")
 	@Override
-	public IBlockState getStateFromMeta(int meta)
+	public final IBlockState getStateFromMeta(final int meta)
 	{
-		return this.getDefaultState().withProperty(TYPE, meta == 0 ? EnumType.REGULAR : EnumType.ENDER);
+		IBlockState blockState = this.getDefaultState();
+		if (!this.isDouble())
+		{
+			EnumBlockHalf value = EnumBlockHalf.BOTTOM;
+			if ((meta & 0b10) != 0)
+			{
+				value = EnumBlockHalf.TOP;
+			}
+
+			blockState = blockState.withProperty(HALF, value);
+		}
+
+		return blockState.withProperty(TYPE, (meta & 0b01) == 0 ? EnumType.REGULAR : EnumType.ENDER);
 	}
 
 	@Override
@@ -234,21 +296,6 @@ public class BlockTeleporter extends BlockContainer
 		return new ItemStack(Item.getItemFromBlock(this), 1, this.getMetaFromState(world.getBlockState(pos)));
 	}
 
-    @SuppressWarnings("deprecation")
-	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
-	{
-		return TELEPORTER_AABB; //new AxisAlignedBB(0.0F, 0.0F, 0.0F, getBounds().xCoord, getBounds().yCoord, getBounds().zCoord);
-	}
-
-    @SuppressWarnings("deprecation")
-	@Override
-	@Nullable
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
-	{
-		return TELEPORTER_AABB;
-	}
-
 	@Override
 	@SideOnly(Side.CLIENT)
 	public BlockRenderLayer getBlockLayer()
@@ -256,6 +303,7 @@ public class BlockTeleporter extends BlockContainer
 		return BlockRenderLayer.CUTOUT;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state)
 	{
@@ -269,7 +317,7 @@ public class BlockTeleporter extends BlockContainer
 		return false;
 	}
 
-	public enum EnumType implements IStringSerializable, IMetaType
+	public enum EnumType implements IMetaType
 	{
 		REGULAR(0, "regular", "teleporter", "teleporter"),
 		ENDER(1, "ender", "enderTeleporter", "ender_teleporter");
@@ -305,7 +353,7 @@ public class BlockTeleporter extends BlockContainer
 			return this.registryName;
 		}
 
-		public static EnumType byMetadata(int meta)
+		public static EnumType fromMetadata(int meta)
 		{
 			if (meta < 0 || meta >= META_LOOKUP.length) meta = 0;
 			return META_LOOKUP[meta];
@@ -326,6 +374,5 @@ public class BlockTeleporter extends BlockContainer
 				META_LOOKUP[value.getMetadata()] = value;
 			}
 		}
-
 	}
 }

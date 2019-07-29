@@ -2,6 +2,8 @@ package net.dyeo.teleporter.init;
 
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
+import net.dyeo.teleporter.block.BlockTeleporterDouble;
+import net.dyeo.teleporter.block.BlockTeleporterHalf;
 import net.dyeo.teleporter.blockstate.IMetaType;
 import net.dyeo.teleporter.item.ItemBlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
@@ -39,7 +41,14 @@ public class ModRegistry
     private static void initializeItems()
     {
         items = new HashMap<>();
-        items.put(new ItemBlockTeleporter(blocks.get("teleporter")), new BlockTeleporter.EnumType[]{BlockTeleporter.EnumType.REGULAR, BlockTeleporter.EnumType.ENDER});
+
+        BlockTeleporter teleporter = (BlockTeleporter)blocks.get("teleporter");
+        items.put(new ItemBlockTeleporter(teleporter, new BlockTeleporterHalf(), new BlockTeleporterDouble(), false),
+                new BlockTeleporter.EnumType[]
+                {
+                        BlockTeleporter.EnumType.REGULAR,
+                        BlockTeleporter.EnumType.ENDER,
+                });
     }
 
     private static void initializeTileEntities()
