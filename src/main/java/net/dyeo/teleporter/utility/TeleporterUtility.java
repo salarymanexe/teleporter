@@ -5,20 +5,25 @@ import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
 import net.dyeo.teleporter.capabilities.EnumTeleportStatus;
 import net.dyeo.teleporter.capabilities.ITeleportHandler;
+import net.dyeo.teleporter.common.config.ModConfiguration;
 import net.dyeo.teleporter.event.TeleportEvent;
 import net.dyeo.teleporter.init.ModSounds;
 import net.dyeo.teleporter.world.TeleporterNetwork;
 import net.dyeo.teleporter.world.TeleporterNode;
 import net.dyeo.teleporter.world.TeleporterTeleporter;
-import net.minecraft.block.BlockSlab;
-import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityMob;
+import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -29,7 +34,50 @@ public class TeleporterUtility
 		return new TextComponentTranslation("message." + TeleporterMod.MODID + '.' + messageName);
 	}
 
-	public static void teleport(EntityLivingBase entity, BlockPos pos)
+	public static void tryTeleport(World world, BlockPos pos, Entity entity)
+	{
+		if (!world.isRemote)
+		{
+			if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
+			{
+				ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
+				if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
+				{
+					handler.setOnTeleporter(entity.getPosition().distanceSq(pos) <= 1);
+					handler.setDimension(entity.dimension);
+
+					if (handler.getOnTeleporter())
+					{
+						boolean isHostile = (entity instanceof EntityMob) || (entity instanceof EntityWolf && ((EntityWolf)entity).isAngry());
+						boolean isPassive = (entity instanceof EntityAnimal);
+
+						if ((!isHostile || ModConfiguration.teleportHostileMobs) && (!isPassive || ModConfiguration.teleportPassiveMobs))
+						{
+							teleport((EntityLivingBase)entity, pos);
+						}
+					}
+				}
+
+				if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
+				{
+					double width = 0.25;
+					double height = 0.25;
+
+					double mx = world.rand.nextGaussian() * 0.2d;
+					double my = world.rand.nextGaussian() * 0.2d;
+					double mz = world.rand.nextGaussian() * 0.2d;
+
+					world.spawnParticle(EnumParticleTypes.PORTAL,
+							pos.getX() + 0.5 + world.rand.nextFloat() * width * 2.0F - width,
+							pos.getY() + 1.5 + world.rand.nextFloat() * height,
+							pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
+					);
+				}
+			}
+		}
+	}
+
+	private static void teleport(EntityLivingBase entity, BlockPos pos)
 	{
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(entity.world);
 		TeleporterNode srcNode = netWrapper.getNode(pos, entity.world.provider.getDimension());

@@ -39,6 +39,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -110,57 +112,14 @@ public class BlockTeleporter extends BlockSlab
     @Override
 	public void onEntityWalk(World world, BlockPos pos, Entity entity)
     {
-		this.onTeleportEntity(world, pos, entity);
+        TeleporterUtility.tryTeleport(world, pos, entity);
     }
 
     @Override
 	public void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance)
     {
-		this.onTeleportEntity(world, pos, entity);
+		TeleporterUtility.tryTeleport(world, pos, entity);
     }
-
-    public void onTeleportEntity(World world, BlockPos pos, Entity entity)
-	{
-		if (!world.isRemote)
-		{
-			if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
-			{
-				ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
-				if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
-				{
-					handler.setOnTeleporter(entity.getPosition().distanceSq(pos) <= 1);
-					handler.setDimension(entity.dimension);
-
-					if (handler.getOnTeleporter())
-					{
-						boolean isHostile = (entity instanceof EntityMob) || (entity instanceof EntityWolf && ((EntityWolf)entity).isAngry());
-						boolean isPassive = (entity instanceof EntityAnimal);
-
-						if ((!isHostile || ModConfiguration.teleportHostileMobs) && (!isPassive || ModConfiguration.teleportPassiveMobs))
-						{
-							TeleporterUtility.teleport((EntityLivingBase)entity, pos);
-						}
-					}
-				}
-
-				if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
-				{
-					double width = 0.25;
-					double height = 0.25;
-
-					double mx = world.rand.nextGaussian() * 0.2d;
-					double my = world.rand.nextGaussian() * 0.2d;
-					double mz = world.rand.nextGaussian() * 0.2d;
-
-					world.spawnParticle(EnumParticleTypes.PORTAL,
-							pos.getX() + 0.5 + world.rand.nextFloat() * width * 2.0F - width,
-							pos.getY() + 1.5 + world.rand.nextFloat() * height,
-							pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
-					);
-				}
-			}
-		}
-	}
 
     @SuppressWarnings("deprecation")
 	@Override
