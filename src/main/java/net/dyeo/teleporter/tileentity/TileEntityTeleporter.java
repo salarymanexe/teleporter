@@ -1,23 +1,23 @@
 package net.dyeo.teleporter.tileentity;
 
-import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
-import net.dyeo.teleporter.network.TeleporterMessage;
 import net.dyeo.teleporter.world.TeleporterNetwork;
 import net.dyeo.teleporter.world.TeleporterNode;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
-import scala.Console;
 
 public class TileEntityTeleporter extends TileEntity implements ITickable
 {
@@ -76,7 +76,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	public void setPowered(boolean isPowered)
 	{
 		this.isPowered = isPowered;
-		updatePoweredState();
 	}
 
 	public String getName()
@@ -114,6 +113,12 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	}
 
 	@Override
+	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate)
+	{
+		return false;
+	}
+
+	@Override
 	public void update()
 	{
 		if (this.firstUpdate)
@@ -124,14 +129,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 				this.markDirty();
 			}
 			this.firstUpdate = false;
-		}
-	}
-
-	private void updatePoweredState()
-	{
-		if(world != null && !world.isRemote)
-		{
-			TeleporterMod.NETWORK_WRAPPER.sendToAll(new TeleporterMessage(this.pos, this.isPowered));
 		}
 	}
 
@@ -160,8 +157,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 			{
 				netWrapper.addNode(thisNode);
 			}
-
-			this.updatePoweredState();
 		}
 	}
 

@@ -1,8 +1,0 @@
-{
-	"parent": "teleporter:block/teleporter",
-    "textures": {
-        "glass": "blocks/glass",
-        "side": "blocks/obsidian",
-        "particle": "blocks/obsidian"
-    }
-}

@@ -47,7 +47,7 @@ public class TeleporterNode
 		int z = nbt.getInteger("z");
 		this.pos = new BlockPos(x, y, z);
 		this.dimension = nbt.getInteger("dim");
-		this.type = BlockTeleporter.EnumType.byMetadata(nbt.getInteger("type"));
+		this.type = BlockTeleporter.EnumType.fromMetadata(nbt.getInteger("type"));
 	}
 
 	public TileEntityTeleporter getTileEntity()

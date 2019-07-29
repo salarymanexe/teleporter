@@ -13,9 +13,7 @@ import net.minecraftforge.items.SlotItemHandler;
 
 public class ContainerTeleporter extends Container
 {
-
 	private final TileEntityTeleporter tileEntity;
-
 
 	public ContainerTeleporter(InventoryPlayer playerInventory, TileEntityTeleporter tileEntity)
 	{

@@ -1,6 +1,5 @@
 package net.dyeo.teleporter.block;
 
-import javax.annotation.Nullable;
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.blockstate.IMetaType;
 import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
@@ -11,7 +10,8 @@ import net.dyeo.teleporter.common.network.GuiHandler;
 import net.dyeo.teleporter.utility.TeleporterUtility;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockContainer;
+import net.minecraft.block.BlockSlab;
+import net.minecraft.block.BlockStairs;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -33,40 +33,61 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
-public class BlockTeleporter extends BlockContainer
+import javax.annotation.Nullable;
+
+public class BlockTeleporter extends BlockSlab
 {
-	public static final AxisAlignedBB TELEPORTER_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
 	public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("type", BlockTeleporter.EnumType.class);
 
 	public BlockTeleporter()
 	{
 		super(Material.ROCK);
-		this.setCreativeTab(CreativeTabs.TRANSPORTATION);
+
+		if(!this.isDouble())
+		{
+			this.setCreativeTab(CreativeTabs.TRANSPORTATION);
+		}
+
 		this.setResistance(30.0F);
 		this.setHardness(3.0F);
 		this.setLightLevel(0.5f);
-		this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, EnumType.REGULAR));
+		this.useNeighborBrightness = !this.isDouble();
+
+		IBlockState blockState = this.blockState.getBaseState();
+		blockState = blockState.withProperty(HALF, EnumBlockHalf.BOTTOM);
+		blockState = blockState.withProperty(TYPE, EnumType.REGULAR);
+		this.setDefaultState(blockState);
 	}
 
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
-		if (!world.isRemote && !player.isSneaking())
+		if (!world.isRemote)
 		{
-			player.openGui(TeleporterMod.instance, GuiHandler.GUI_ID_TELEPORTER, world, pos.getX(), pos.getY(), pos.getZ());
+			ItemStack item = player.getHeldItem(hand);
+			if(!player.isSneaking())
+			{
+				player.openGui(TeleporterMod.instance, GuiHandler.GUI_ID_TELEPORTER, world, pos.getX(), pos.getY(), pos.getZ());
+			}
+			else if(hand == EnumHand.MAIN_HAND && item.isEmpty())
+			{
+				IBlockState blockState = this.blockState.getBaseState()
+						.withProperty(HALF, state.getValue(HALF) == EnumBlockHalf.BOTTOM ? EnumBlockHalf.TOP : EnumBlockHalf.BOTTOM)
+						.withProperty(TYPE, state.getValue(TYPE));
+				world.setBlockState(pos, blockState);
+			}
 		}
 		return true;
 	}
@@ -89,11 +110,22 @@ public class BlockTeleporter extends BlockContainer
     @Override
 	public void onEntityWalk(World world, BlockPos pos, Entity entity)
     {
-		if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
+		this.onTeleportEntity(world, pos, entity);
+    }
+
+    @Override
+	public void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance)
+    {
+		this.onTeleportEntity(world, pos, entity);
+    }
+
+    public void onTeleportEntity(World world, BlockPos pos, Entity entity)
+	{
+		if (!world.isRemote)
 		{
-			ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
-			if (!world.isRemote)
+			if (entity instanceof EntityLivingBase && entity.hasCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null))
 			{
+				ITeleportHandler handler = entity.getCapability(CapabilityTeleportHandler.TELEPORT_CAPABILITY, null);
 				if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
 				{
 					handler.setOnTeleporter(entity.getPosition().distanceSq(pos) <= 1);
@@ -110,32 +142,25 @@ public class BlockTeleporter extends BlockContainer
 						}
 					}
 				}
-			}
 
-			if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
-			{
-				double width = 0.25;
-				double height = 0.25;
+				if (handler.getTeleportStatus() == EnumTeleportStatus.INACTIVE)
+				{
+					double width = 0.25;
+					double height = 0.25;
 
-				double mx = world.rand.nextGaussian() * 0.2d;
-				double my = world.rand.nextGaussian() * 0.2d;
-				double mz = world.rand.nextGaussian() * 0.2d;
+					double mx = world.rand.nextGaussian() * 0.2d;
+					double my = world.rand.nextGaussian() * 0.2d;
+					double mz = world.rand.nextGaussian() * 0.2d;
 
-				world.spawnParticle(EnumParticleTypes.PORTAL,
-					pos.getX() + 0.5 + world.rand.nextFloat() * width * 2.0F - width,
-					pos.getY() + 1.5 + world.rand.nextFloat() * height,
-					pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
-				);
+					world.spawnParticle(EnumParticleTypes.PORTAL,
+							pos.getX() + 0.5 + world.rand.nextFloat() * width * 2.0F - width,
+							pos.getY() + 1.5 + world.rand.nextFloat() * height,
+							pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
+					);
+				}
 			}
 		}
-    }
-
-    @Override
-	public void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance)
-    {
-		super.onFallenUpon(world, pos, entity, fallDistance);
-		this.onEntityWalk(world, pos, entity);
-    }
+	}
 
     @SuppressWarnings("deprecation")
 	@Override
@@ -147,10 +172,9 @@ public class BlockTeleporter extends BlockContainer
 			boolean isNowPowered = (world.isBlockIndirectlyGettingPowered(pos) > 0);
 			boolean isAlreadyPowered = tileEntity.isPowered();
 
-			tileEntity.setPowered(isNowPowered);
-
 			if (!world.isRemote && isNowPowered != isAlreadyPowered)
 			{
+				tileEntity.setPowered(isNowPowered);
 				// there is no way in forge to determine who activated/deactivated the teleporter, so we simply get the closest player
 				// works for _most_ cases
 				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, false);
@@ -189,28 +213,68 @@ public class BlockTeleporter extends BlockContainer
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World world, int meta)
+	public boolean hasTileEntity(IBlockState state)
+	{
+		return true;
+	}
+
+	@Nullable
+	@Override
+	public TileEntity createTileEntity(World world, IBlockState state)
 	{
 		return new TileEntityTeleporter();
 	}
 
 	@Override
+	public String getUnlocalizedName(int meta)
+	{
+		return EnumType.fromMetadata(meta).getUnlocalizedName();
+	}
+
+	@Override
+	public boolean isDouble()
+	{
+		return false;
+	}
+
+	@Override
+	public IProperty<?> getVariantProperty()
+	{
+		return HALF;
+	}
+
+	@Override
+	public Comparable<?> getTypeForItem(ItemStack stack)
+	{
+		return EnumType.fromMetadata(stack.getMetadata());
+	}
+
+	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		return new BlockStateContainer(this, new IProperty[] { TYPE });
+		return new BlockStateContainer.Builder(this)
+				.add(HALF)
+				.add(TYPE)
+				.build();
 	}
 
     @SuppressWarnings("deprecation")
 	@Override
-	public IBlockState getStateFromMeta(int meta)
+	public final IBlockState getStateFromMeta(final int meta)
 	{
-		return this.getDefaultState().withProperty(TYPE, meta == 0 ? EnumType.REGULAR : EnumType.ENDER);
+		IBlockState blockState = this.getDefaultState();
+		if (!this.isDouble())
+		{
+			blockState = blockState.withProperty(HALF, (meta & 0b01) == 0 ? EnumBlockHalf.BOTTOM : EnumBlockHalf.TOP);
+		}
+
+		return blockState.withProperty(TYPE, (meta & 0b01) == 0 ? EnumType.REGULAR : EnumType.ENDER);
 	}
 
 	@Override
 	public int getMetaFromState(IBlockState state)
 	{
-		return state.getValue(TYPE).getMetadata();
+		return (state.getValue(HALF).ordinal() << 1) | state.getValue(TYPE).ordinal();
 	}
 
 	@Override
@@ -231,22 +295,7 @@ public class BlockTeleporter extends BlockContainer
 	@Override
 	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
 	{
-		return new ItemStack(Item.getItemFromBlock(this), 1, this.getMetaFromState(world.getBlockState(pos)));
-	}
-
-    @SuppressWarnings("deprecation")
-	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
-	{
-		return TELEPORTER_AABB; //new AxisAlignedBB(0.0F, 0.0F, 0.0F, getBounds().xCoord, getBounds().yCoord, getBounds().zCoord);
-	}
-
-    @SuppressWarnings("deprecation")
-	@Override
-	@Nullable
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
-	{
-		return TELEPORTER_AABB;
+		return new ItemStack(Item.getItemFromBlock(this), 1, this.getMetaFromState(world.getBlockState(pos)) & 0b01);
 	}
 
 	@Override
@@ -256,10 +305,16 @@ public class BlockTeleporter extends BlockContainer
 		return BlockRenderLayer.CUTOUT;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state)
 	{
 		return EnumBlockRenderType.MODEL;
+	}
+
+	public static AxisAlignedBB getBoundingBox(IBlockState state)
+	{
+		return state.getValue(HALF) == EnumBlockHalf.BOTTOM ? AABB_BOTTOM_HALF : AABB_TOP_HALF;
 	}
 
     @SuppressWarnings("deprecation")
@@ -269,10 +324,10 @@ public class BlockTeleporter extends BlockContainer
 		return false;
 	}
 
-	public enum EnumType implements IStringSerializable, IMetaType
+	public enum EnumType implements IMetaType
 	{
-		REGULAR(0, "regular", "teleporter", "teleporter"),
-		ENDER(1, "ender", "enderTeleporter", "ender_teleporter");
+		REGULAR(0b00, "regular", "teleporter", "teleporter"),
+		ENDER(0b01, "ender", "enderTeleporter", "ender_teleporter");
 
 		private final int meta;
 		private final String name;
@@ -305,10 +360,10 @@ public class BlockTeleporter extends BlockContainer
 			return this.registryName;
 		}
 
-		public static EnumType byMetadata(int meta)
+		public static EnumType fromMetadata(int meta)
 		{
-			if (meta < 0 || meta >= META_LOOKUP.length) meta = 0;
-			return META_LOOKUP[meta];
+			int temp = meta & 0b01;
+			return META_LOOKUP[temp];
 		}
 
 		EnumType(int meta, String name, String unlocalizedName, String registryName)
@@ -326,6 +381,5 @@ public class BlockTeleporter extends BlockContainer
 				META_LOOKUP[value.getMetadata()] = value;
 			}
 		}
-
 	}
 }

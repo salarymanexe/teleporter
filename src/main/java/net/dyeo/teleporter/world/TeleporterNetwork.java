@@ -11,6 +11,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -27,6 +28,9 @@ import java.util.ArrayList;
  */
 public class TeleporterNetwork extends WorldSavedData
 {
+	protected static final AxisAlignedBB AABB_LOWER = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
+	protected static final AxisAlignedBB AABB_UPPER = new AxisAlignedBB(0.0D, 0.5D, 0.0D, 1.0D, 1.0D, 1.0D);
+
 	private ArrayList<TeleporterNode> network = new ArrayList<TeleporterNode>();
 
 	public TeleporterNetwork()

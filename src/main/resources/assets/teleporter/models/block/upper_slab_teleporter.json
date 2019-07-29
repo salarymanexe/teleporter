@@ -1,0 +1,42 @@
+{
+    "parent": "block/upper_slab",
+    "elements": [
+        {
+            "name": "base",
+            "from": [0, 8, 0],
+            "to": [16, 12, 16],
+            "faces": {
+                "north": {"uv": [0, 12, 16, 16], "texture": "#0"},
+                "east": {"uv": [0, 12, 16, 16], "texture": "#0"},
+                "south": {"uv": [0, 12, 16, 16], "texture": "#0"},
+                "west": {"uv": [0, 12, 16, 16], "texture": "#0"},
+                "up": {"uv": [0, 0, 16, 16], "texture": "#0"},
+                "down": {"uv": [0, 0, 16, 16], "texture": "#0"}
+            }
+        },
+        {
+            "name": "glass",
+            "from": [0, 12, 0],
+            "to": [16, 16, 16],
+            "faces": {
+                "north": {"uv": [0, 0, 16, 4], "texture": "#1"},
+                "east": {"uv": [0, 0, 16, 4], "texture": "#1"},
+                "south": {"uv": [0, 0, 16, 4], "texture": "#1"},
+                "west": {"uv": [0, 0, 16, 4], "texture": "#1"},
+                "up": {"uv": [0, 0, 16, 16], "texture": "#1"}
+            }
+        },
+        {
+            "name": "diode",
+            "from": [4, 12, 4],
+            "to": [12, 14, 12],
+            "faces": {
+                "north": {"uv": [4, 0, 12, 2], "texture": "#2"},
+                "east": {"uv": [4, 0, 12, 2], "texture": "#2"},
+                "south": {"uv": [4, 0, 12, 2], "texture": "#2"},
+                "west": {"uv": [4, 0, 12, 2], "texture": "#2"},
+                "up": {"uv": [4, 4, 12, 12], "texture": "#2"}
+            }
+        }
+    ]
+}

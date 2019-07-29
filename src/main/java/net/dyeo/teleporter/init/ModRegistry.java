@@ -4,7 +4,6 @@ import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
 import net.dyeo.teleporter.blockstate.IMetaType;
 import net.dyeo.teleporter.item.ItemBlockTeleporter;
-import net.dyeo.teleporter.renderer.TileEntityTeleporterRenderer;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -13,7 +12,6 @@ import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.animation.FastTESR;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -21,6 +19,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import scala.Console;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +40,13 @@ public class ModRegistry
     private static void initializeItems()
     {
         items = new HashMap<>();
-        items.put(new ItemBlockTeleporter(blocks.get("teleporter")), new BlockTeleporter.EnumType[]{BlockTeleporter.EnumType.REGULAR, BlockTeleporter.EnumType.ENDER});
+
+        items.put(new ItemBlockTeleporter((BlockTeleporter)blocks.get("teleporter")),
+                new BlockTeleporter.EnumType[]
+                {
+                        BlockTeleporter.EnumType.REGULAR,
+                        BlockTeleporter.EnumType.ENDER,
+                });
     }
 
     private static void initializeTileEntities()
@@ -53,7 +58,6 @@ public class ModRegistry
     private static void initializeRenderers()
     {
         renderers = new HashMap<>();
-        renderers.put(TileEntityTeleporter.class, new TileEntityTeleporterRenderer());
     }
 
     @Mod.EventBusSubscriber(modid = TeleporterMod.MODID)
@@ -66,6 +70,7 @@ public class ModRegistry
             for (Map.Entry<String, Block> pair : blocks.entrySet())
             {
                 pair.getValue().setUnlocalizedName(pair.getKey()).setRegistryName(pair.getKey());
+                Console.println(pair.getValue().getRegistryName().toString());
                 event.getRegistry().register(pair.getValue());
             }
 
@@ -82,6 +87,7 @@ public class ModRegistry
             initializeItems();
             for (Item item : items.keySet())
             {
+                Console.println(item.getRegistryName().toString());
                 event.getRegistry().register(item);
             }
         }
