@@ -21,7 +21,7 @@ public class ContainerTeleporter extends Container
 		IItemHandler itemHandler = this.tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 
 		// container slot
-		this.addSlotToContainer(new SlotItemHandler(itemHandler, 0, 79, 35));
+		this.addSlotToContainer(new SlotItemHandler(itemHandler, 0, 79, 36));
 
 		// player inventory slots
 		int offsetX = 8;

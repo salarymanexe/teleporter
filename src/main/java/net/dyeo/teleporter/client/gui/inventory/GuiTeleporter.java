@@ -11,11 +11,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-
 @SideOnly(Side.CLIENT)
 public class GuiTeleporter extends GuiContainer
 {
-
 	private static final ResourceLocation TELEPORTER_GUI_TEXTURE = new ResourceLocation(TeleporterMod.MODID, "textures/gui/container/teleporter.png");
 
 	private final InventoryPlayer playerInventory;
@@ -27,7 +25,7 @@ public class GuiTeleporter extends GuiContainer
 		this.playerInventory = playerInventory;
 		this.tileEntity = tileEntity;
 		this.xSize = 176;
-		this.ySize = 166;
+		this.ySize = 167;
 	}
 
 	@Override
