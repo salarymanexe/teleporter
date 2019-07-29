@@ -11,7 +11,7 @@ import net.minecraft.item.ItemStack;
 public class ItemBlockTeleporter extends ItemSlab
 {
 
-	public ItemBlockTeleporter(final BlockTeleporter block, final BlockTeleporterHalf half, final BlockTeleporterDouble full, final boolean stacked)
+	public ItemBlockTeleporter(final Block block, final BlockTeleporterHalf half, final BlockTeleporterDouble full, final boolean stacked)
 	{
 		super(block, half, full);
 		this.setMaxDamage(0);

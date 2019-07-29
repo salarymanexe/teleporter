@@ -21,6 +21,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.logging.log4j.Level;
+import scala.Console;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,8 +44,7 @@ public class ModRegistry
     {
         items = new HashMap<>();
 
-        BlockTeleporter teleporter = (BlockTeleporter)blocks.get("teleporter");
-        items.put(new ItemBlockTeleporter(teleporter, new BlockTeleporterHalf(), new BlockTeleporterDouble(), false),
+        items.put(new ItemBlockTeleporter(blocks.get("teleporter"), new BlockTeleporterHalf(), new BlockTeleporterDouble(), false),
                 new BlockTeleporter.EnumType[]
                 {
                         BlockTeleporter.EnumType.REGULAR,
@@ -72,6 +73,7 @@ public class ModRegistry
             for (Map.Entry<String, Block> pair : blocks.entrySet())
             {
                 pair.getValue().setUnlocalizedName(pair.getKey()).setRegistryName(pair.getKey());
+                Console.println(pair.getValue().getRegistryName().toString());
                 event.getRegistry().register(pair.getValue());
             }
 
@@ -88,6 +90,7 @@ public class ModRegistry
             initializeItems();
             for (Item item : items.keySet())
             {
+                Console.println(item.getRegistryName().toString());
                 event.getRegistry().register(item);
             }
         }

@@ -11,6 +11,7 @@ import net.dyeo.teleporter.utility.TeleporterUtility;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
+import net.minecraft.block.BlockStairs;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -42,7 +43,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import scala.Console;
+import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nullable;
 
@@ -85,7 +86,7 @@ public class BlockTeleporter extends BlockSlab
 				IBlockState blockState = this.blockState.getBaseState()
 						.withProperty(HALF, state.getValue(HALF) == EnumBlockHalf.BOTTOM ? EnumBlockHalf.TOP : EnumBlockHalf.BOTTOM)
 						.withProperty(TYPE, state.getValue(TYPE));
-				world.setBlockState(pos,blockState);
+				world.setBlockState(pos, blockState);
 			}
 		}
 		return true;
@@ -171,10 +172,9 @@ public class BlockTeleporter extends BlockSlab
 			boolean isNowPowered = (world.isBlockIndirectlyGettingPowered(pos) > 0);
 			boolean isAlreadyPowered = tileEntity.isPowered();
 
-			tileEntity.setPowered(isNowPowered);
-
 			if (!world.isRemote && isNowPowered != isAlreadyPowered)
 			{
+				tileEntity.setPowered(isNowPowered);
 				// there is no way in forge to determine who activated/deactivated the teleporter, so we simply get the closest player
 				// works for _most_ cases
 				EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, false);
@@ -265,13 +265,7 @@ public class BlockTeleporter extends BlockSlab
 		IBlockState blockState = this.getDefaultState();
 		if (!this.isDouble())
 		{
-			EnumBlockHalf value = EnumBlockHalf.BOTTOM;
-			if ((meta & 0b10) != 0)
-			{
-				value = EnumBlockHalf.TOP;
-			}
-
-			blockState = blockState.withProperty(HALF, value);
+			blockState = blockState.withProperty(HALF, (meta & 0b01) == 0 ? EnumBlockHalf.BOTTOM : EnumBlockHalf.TOP);
 		}
 
 		return blockState.withProperty(TYPE, (meta & 0b01) == 0 ? EnumType.REGULAR : EnumType.ENDER);
@@ -301,7 +295,7 @@ public class BlockTeleporter extends BlockSlab
 	@Override
 	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
 	{
-		return new ItemStack(Item.getItemFromBlock(this), 1, this.getMetaFromState(world.getBlockState(pos)));
+		return new ItemStack(Item.getItemFromBlock(this), 1, this.getMetaFromState(world.getBlockState(pos)) & 0b01);
 	}
 
 	@Override
@@ -332,8 +326,8 @@ public class BlockTeleporter extends BlockSlab
 
 	public enum EnumType implements IMetaType
 	{
-		REGULAR(0, "regular", "teleporter", "teleporter"),
-		ENDER(1, "ender", "enderTeleporter", "ender_teleporter");
+		REGULAR(0b00, "regular", "teleporter", "teleporter"),
+		ENDER(0b01, "ender", "enderTeleporter", "ender_teleporter");
 
 		private final int meta;
 		private final String name;
