@@ -1,19 +1,15 @@
 package net.dyeo.teleporter.item;
 
 import net.dyeo.teleporter.block.BlockTeleporter;
-import net.dyeo.teleporter.block.BlockTeleporterDouble;
-import net.dyeo.teleporter.block.BlockTeleporterHalf;
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemSlab;
 import net.minecraft.item.ItemStack;
 
 public class ItemBlockTeleporter extends ItemSlab
 {
 
-	public ItemBlockTeleporter(final Block block, final BlockTeleporterHalf half, final BlockTeleporterDouble full, final boolean stacked)
+	public ItemBlockTeleporter(final BlockTeleporter block)
 	{
-		super(block, half, full);
+		super(block, block, block);
 		this.setMaxDamage(0);
 		this.setHasSubtypes(true);
 		this.setRegistryName(block.getRegistryName());

@@ -2,8 +2,6 @@ package net.dyeo.teleporter.init;
 
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.block.BlockTeleporter;
-import net.dyeo.teleporter.block.BlockTeleporterDouble;
-import net.dyeo.teleporter.block.BlockTeleporterHalf;
 import net.dyeo.teleporter.blockstate.IMetaType;
 import net.dyeo.teleporter.item.ItemBlockTeleporter;
 import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
@@ -21,7 +19,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.Level;
 import scala.Console;
 
 import java.util.HashMap;
@@ -44,7 +41,7 @@ public class ModRegistry
     {
         items = new HashMap<>();
 
-        items.put(new ItemBlockTeleporter(blocks.get("teleporter"), new BlockTeleporterHalf(), new BlockTeleporterDouble(), false),
+        items.put(new ItemBlockTeleporter((BlockTeleporter)blocks.get("teleporter")),
                 new BlockTeleporter.EnumType[]
                 {
                         BlockTeleporter.EnumType.REGULAR,
