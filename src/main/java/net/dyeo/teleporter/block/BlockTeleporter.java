@@ -263,12 +263,9 @@ public class BlockTeleporter extends BlockSlab
 	public final IBlockState getStateFromMeta(final int meta)
 	{
 		IBlockState blockState = this.getDefaultState();
-		if (!this.isDouble())
-		{
-			blockState = blockState.withProperty(HALF, (meta & 0b01) == 0 ? EnumBlockHalf.BOTTOM : EnumBlockHalf.TOP);
-		}
-
-		return blockState.withProperty(TYPE, (meta & 0b01) == 0 ? EnumType.REGULAR : EnumType.ENDER);
+		blockState = blockState.withProperty(HALF, (meta & 0b10) == 0 ? EnumBlockHalf.BOTTOM : EnumBlockHalf.TOP);
+		blockState = blockState.withProperty(TYPE, (meta & 0b01) == 0 ? EnumType.REGULAR : EnumType.ENDER);
+		return blockState;
 	}
 
 	@Override
