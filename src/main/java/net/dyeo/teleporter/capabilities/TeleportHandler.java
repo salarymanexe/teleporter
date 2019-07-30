@@ -4,11 +4,9 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class TeleportHandler implements ITeleportHandler
 {
-
 	private boolean onTeleporter = false;
 	private EnumTeleportStatus teleportStatus = EnumTeleportStatus.INACTIVE;
 	private int dimension = 0;
-
 
 	@Override
 	public NBTTagCompound serializeNBT()
@@ -27,7 +25,6 @@ public class TeleportHandler implements ITeleportHandler
 		this.teleportStatus = EnumTeleportStatus.values()[nbt.getInteger("teleportStatus")];
 		this.dimension = nbt.getInteger("dimension");
 	}
-
 
 	@Override
 	public boolean getOnTeleporter()

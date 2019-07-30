@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "ORO",
+    "OEO"
+  ],
+  "key":
+  {
+    "#": { "item": "minecraft:glass" },
+    "O": { "item": "minecraft:obsidian" },
+    "R": { "item": "minecraft:redstone_block" },
+    "E": { "item": "minecraft:ender_eye" }
+  },
+  "result":
+  {
+    "item": "teleporter:teleporter",
+    "count": 1,
+    "data": 1
+  },
+  "conditions":
+  [
+    {
+      "type": "use_diamonds",
+      "value": false
+    }
+  ]
+}

@@ -1,49 +1,39 @@
 package net.dyeo.teleporter.tileentity;
 
 import net.dyeo.teleporter.block.BlockTeleporter;
-import net.dyeo.teleporter.block.BlockTeleporter.EnumType;
-import net.dyeo.teleporter.teleport.TeleporterNetwork;
+import net.dyeo.teleporter.world.TeleporterNetwork;
+import net.dyeo.teleporter.world.TeleporterNode;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class TileEntityTeleporter extends TileEntity
+public class TileEntityTeleporter extends TileEntity implements ITickable
 {
-
 	private String customName = null;
+	private boolean firstUpdate = true;
 	private boolean isPowered = false;
 
 	private ItemStackHandler handler = new ItemStackHandler(1)
 	{
-		private void updateNode()
-		{
-			BlockPos pos = TileEntityTeleporter.this.getPos();
-			int dimension = TileEntityTeleporter.this.getWorld().provider.getDimension();
-			EnumType type = TileEntityTeleporter.this.getWorld().getBlockState(pos).getValue(BlockTeleporter.TYPE);
-			ItemStack stack = this.getStackInSlot(0);
-			
-			TeleporterNetwork.get(TileEntityTeleporter.this.world).updateNode(pos, dimension, type, stack);
-		}
-		
 		@Override
 		protected void onContentsChanged(int slot)
 		{
+			TileEntityTeleporter.this.updateNode();
 			TileEntityTeleporter.this.markDirty();
-			this.updateNode();
 		}
 	};
-
 
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
@@ -55,7 +45,7 @@ public class TileEntityTeleporter extends TileEntity
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing)
 	{
-		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.<T>cast(this.handler);
+		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return (T)this.handler;
 		return super.getCapability(capability, facing);
 	}
 
@@ -63,8 +53,8 @@ public class TileEntityTeleporter extends TileEntity
 	public NBTTagCompound writeToNBT(NBTTagCompound compound)
 	{
 		compound = super.writeToNBT(compound);
-		compound.setBoolean("powered", this.isPowered());
 		if (this.hasCustomName()) compound.setString("CustomName", this.customName);
+		compound.setBoolean("powered", this.isPowered());
 		compound.setTag("Inventory", this.handler.serializeNBT());
 		return compound;
 	}
@@ -77,8 +67,6 @@ public class TileEntityTeleporter extends TileEntity
 		this.setPowered(compound.getBoolean("powered"));
 		this.handler.deserializeNBT(compound.getCompoundTag("Inventory"));
 	}
-
-
 
 	public boolean isPowered()
 	{
@@ -109,40 +97,67 @@ public class TileEntityTeleporter extends TileEntity
 	@Override
 	public ITextComponent getDisplayName()
 	{
-		return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
+		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
 	}
-	
+
 	public boolean canInteractWith(EntityPlayer player)
 	{
 		if (this.world.getTileEntity(this.pos) != this) return false;
-		final double X_CENTRE_OFFSET = 0.5;
-		final double Y_CENTRE_OFFSET = 0.5;
-		final double Z_CENTRE_OFFSET = 0.5;
-		final double MAXIMUM_DISTANCE_SQ = 8.0 * 8.0;
-		return player.getDistanceSq(this.pos.getX() + X_CENTRE_OFFSET, this.pos.getY() + Y_CENTRE_OFFSET, this.pos.getZ() + Z_CENTRE_OFFSET) < MAXIMUM_DISTANCE_SQ;
+		return player.getDistanceSq(this.pos.getX() + 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5) < 64.0;
 	}
 
 	public void removeFromNetwork()
 	{
 		TeleporterNetwork netWrapper = TeleporterNetwork.get(this.world);
-		ItemStack key = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(0);
-		netWrapper.removeNode(this.pos, this.world.provider.getDimension(), key);
+		netWrapper.removeNode(this.pos, this.world.provider.getDimension());
 	}
-	
-	public void spawnParticles()
+
+	@Override
+	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate)
 	{
-		double width = 0.25;
-		double height = 0.25;
+		return false;
+	}
 
-		double mx = world.rand.nextGaussian() * 0.2d;
-		double my = world.rand.nextGaussian() * 0.2d;
-		double mz = world.rand.nextGaussian() * 0.2d;
+	@Override
+	public void update()
+	{
+		if (this.firstUpdate)
+		{
+			if (!this.world.isRemote)
+			{
+				this.updateNode();
+				this.markDirty();
+			}
+			this.firstUpdate = false;
+		}
+	}
 
-		world.spawnParticle(EnumParticleTypes.PORTAL,
-			pos.getX() + 0.5 + world.rand.nextFloat() * width * 2.0F - width,
-			pos.getY() + 1.5 + world.rand.nextFloat() * height,
-			pos.getZ() + 0.5 + world.rand.nextFloat() * width * 2.0F - width, mx, my, mz
-		);
+	private void updateNode()
+	{
+		if (!this.world.isRemote)
+		{
+			boolean isNewNode = false;
+
+			TeleporterNetwork netWrapper = TeleporterNetwork.get(this.world);
+
+			int tileDim = this.world.provider.getDimension();
+
+			TeleporterNode thisNode = netWrapper.getNode(this.pos, tileDim);
+			if (thisNode == null)
+			{
+				thisNode = new TeleporterNode();
+				isNewNode = true;
+			}
+
+			thisNode.pos = this.pos;
+			thisNode.dimension = tileDim;
+			thisNode.type = this.world.getBlockState(this.pos).getValue(BlockTeleporter.TYPE);
+
+			if (isNewNode)
+			{
+				netWrapper.addNode(thisNode);
+			}
+		}
 	}
 
 }

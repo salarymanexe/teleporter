@@ -1,9 +1,0 @@
-{
-	"parent": "teleporter:block/recall_teleporter",
-    "textures": {
-        "glass": "blocks/glass",
-        "side": "blocks/obsidian",
-        "diode": "blocks/glowstone",
-        "particle": "blocks/obsidian"
-    }
-}

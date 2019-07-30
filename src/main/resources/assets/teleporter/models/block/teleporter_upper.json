@@ -1,0 +1,9 @@
+{
+  "parent": "teleporter:block/upper_slab_teleporter",
+  "textures": {
+    "0": "blocks/iron_block",
+    "1": "blocks/glass",
+    "2": "blocks/redstone_block",
+    "particle": "blocks/iron_block"
+  }
+}

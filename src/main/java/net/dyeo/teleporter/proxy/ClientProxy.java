@@ -1,7 +1,5 @@
 package net.dyeo.teleporter.proxy;
 
-import net.dyeo.teleporter.init.ModBlocks;
-
 public class ClientProxy extends CommonProxy
 {
 
@@ -15,26 +13,12 @@ public class ClientProxy extends CommonProxy
 	public void init()
 	{
 		super.init();
-		this.registerBlockVariants();
-		this.registerInventoryModels();
 	}
 
 	@Override
 	public void postInit()
 	{
 		super.postInit();
-	}
-
-
-
-	private void registerBlockVariants()
-	{
-		ModBlocks.registerBlockVariants();
-	}
-
-	private void registerInventoryModels()
-	{
-		ModBlocks.registerInventoryModels();
 	}
 
 }

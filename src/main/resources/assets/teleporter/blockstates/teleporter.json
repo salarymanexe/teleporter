@@ -1,16 +1,8 @@
 {
 	"variants": {
-		"type=regular": {
-			"model": "teleporter:teleporter"
-		},
-		"type=ender": {
-			"model": "teleporter:ender_teleporter"
-		},
-        "type=recall": {
-            "model": "teleporter:recall_teleporter"
-        },
-        "type=recall_ender": {
-            "model": "teleporter:recall_ender_teleporter"
-        }
+		"half=top,type=regular": { "model": "teleporter:teleporter_upper" },
+		"half=top,type=ender": { "model": "teleporter:ender_teleporter_upper" },
+		"half=bottom,type=regular": { "model": "teleporter:teleporter_lower" },
+		"half=bottom,type=ender": { "model": "teleporter:ender_teleporter_lower" }
 	}
 }

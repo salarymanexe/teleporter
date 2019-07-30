@@ -2,27 +2,25 @@ package net.dyeo.teleporter.proxy;
 
 import net.dyeo.teleporter.TeleporterMod;
 import net.dyeo.teleporter.capabilities.CapabilityTeleportHandler;
+import net.dyeo.teleporter.common.config.ModConfiguration;
 import net.dyeo.teleporter.common.network.GuiHandler;
-import net.dyeo.teleporter.init.ModBlocks;
+import net.dyeo.teleporter.event.TeleportEventHandler;
 import net.dyeo.teleporter.init.ModSounds;
-import net.dyeo.teleporter.tileentity.TileEntityTeleporter;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class CommonProxy
 {
-
 	public void preInit()
 	{
-		this.registerBlocks();
+		ModConfiguration.preInit();
 		this.registerSounds();
-		this.registerTileEntities();
 	}
 
 	public void init()
 	{
+		this.registerEventHandler();
 		this.registerCapabilities();
-		this.registerCraftingRecipes();
 		this.registerGuiHandler();
 	}
 
@@ -30,22 +28,14 @@ public class CommonProxy
 	{
 	}
 
-
-
-
-	private void registerBlocks()
-	{
-		ModBlocks.registerBlocks();
-	}
-
 	private void registerCapabilities()
 	{
 		CapabilityTeleportHandler.registerCapabilities();
 	}
 
-	private void registerCraftingRecipes()
+	private void registerEventHandler()
 	{
-		ModBlocks.registerCraftingRecipes();
+		MinecraftForge.EVENT_BUS.register(new TeleportEventHandler());
 	}
 
 	private void registerGuiHandler()
@@ -57,10 +47,4 @@ public class CommonProxy
 	{
 		ModSounds.registerSounds();
 	}
-
-	private void registerTileEntities()
-	{
-		GameRegistry.registerTileEntity(TileEntityTeleporter.class, TileEntityTeleporter.class.getSimpleName());
-	}
-
 }

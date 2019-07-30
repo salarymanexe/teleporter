@@ -1,3 +1,3 @@
 {
-    "parent": "teleporter:block/teleporter"
+    "parent": "teleporter:block/teleporter_lower"
 }
