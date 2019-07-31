@@ -27,8 +27,8 @@ public class TeleporterTeleporter implements ITeleporter
     {
         world.getBlockState(new BlockPos(x,y,z));
         entity.setPosition(x,y,z);
-        entity.rotationYaw = yaw;
-        entity.rotationPitch = pitch;
+        entity.rotationYaw = this.yaw;
+        entity.rotationPitch = this.pitch;
         entity.motionX = 0.0f;
         entity.motionY = 0.0f;
         entity.motionZ = 0.0f;

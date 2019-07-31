@@ -11,6 +11,8 @@ import net.dyeo.teleporter.init.ModSounds;
 import net.dyeo.teleporter.world.TeleporterNetwork;
 import net.dyeo.teleporter.world.TeleporterNode;
 import net.dyeo.teleporter.world.TeleporterTeleporter;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -26,6 +28,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class TeleporterUtility
 {
@@ -92,11 +96,12 @@ public class TeleporterUtility
 			MinecraftServer server = entity.world.getMinecraftServer();
 			WorldServer dstWorld = server.getWorld(dstNode.dimension);
 
-			AxisAlignedBB boundingBox = BlockTeleporter.getBoundingBox(dstWorld.getBlockState(dstNode.pos));
+			IBlockState blockState = dstWorld.getBlockState(dstNode.pos);
+			AxisAlignedBB boundingBox = BlockTeleporter.getBoundingBox(blockState);
 			double x = dstNode.pos.getX() + (boundingBox.maxX * 0.5D);
 			double y = dstNode.pos.getY() + (boundingBox.maxY);
 			double z = dstNode.pos.getZ() + (boundingBox.maxZ * 0.5D);
-			float yaw = entity.rotationYaw;
+			float yaw = blockState.getValue(BlockTeleporter.FACING).getYaw();
 			float pitch = entity.rotationPitch;
 
 			if (srcNode.type == BlockTeleporter.EnumType.REGULAR || entity.dimension == dstNode.dimension)
@@ -144,9 +149,10 @@ public class TeleporterUtility
 
 		player.setSprinting(false);
 
-		player.setPositionAndUpdate(x, y, z);
+		player.setRotationYawHead(yaw);
 		player.rotationYaw = yaw;
 		player.rotationPitch = pitch;
+		player.setPositionAndUpdate(x, y, z);
 	}
 
 	/**
@@ -157,9 +163,10 @@ public class TeleporterUtility
 		WorldServer world = entity.world.getMinecraftServer().getWorld(entity.dimension);
 		world.getBlockState(new BlockPos(x,y,z));
 
-		entity.setPositionAndUpdate(x, y, z);
+		entity.setRotationYawHead(yaw);
 		entity.rotationYaw = yaw;
 		entity.rotationPitch = pitch;
+		entity.setPositionAndUpdate(x, y, z);
 	}
 
 	/**
@@ -174,9 +181,10 @@ public class TeleporterUtility
 
 		dstWorld.getMinecraftServer().getPlayerList().transferPlayerToDimension(player, dstDimension, new TeleporterTeleporter(x,y,z,yaw,pitch));
 
-		player.setPositionAndUpdate(x,y,z);
+		player.setRotationYawHead(yaw);
 		player.rotationYaw = yaw;
 		player.rotationPitch = pitch;
+		player.setPositionAndUpdate(x,y,z);
 	}
 
 	/**
@@ -187,6 +195,26 @@ public class TeleporterUtility
 		MinecraftServer server = entity.world.getMinecraftServer();
 
 		entity.changeDimension(dstDimension, new TeleporterTeleporter(x,y,z,yaw,pitch));
+
+		entity.setRotationYawHead(yaw);
+		entity.rotationYaw = yaw;
+		entity.rotationPitch = pitch;
 		entity.setPositionAndUpdate(x,y,z);
+	}
+
+	public class RenderTickEventHandler
+	{
+		private final Minecraft minecraft;
+
+		public RenderTickEventHandler()
+		{
+			this.minecraft = Minecraft.getMinecraft();
+		}
+
+		@SubscribeEvent
+		public void onRenderTick(TickEvent.RenderTickEvent e)
+		{
+
+		}
 	}
 }

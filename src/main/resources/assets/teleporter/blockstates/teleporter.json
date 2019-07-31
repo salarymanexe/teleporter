@@ -1,8 +1,23 @@
 {
 	"variants": {
-		"half=top,type=regular": { "model": "teleporter:teleporter_upper" },
-		"half=top,type=ender": { "model": "teleporter:ender_teleporter_upper" },
-		"half=bottom,type=regular": { "model": "teleporter:teleporter_lower" },
-		"half=bottom,type=ender": { "model": "teleporter:ender_teleporter_lower" }
+		"facing=north,half=top,type=regular": { "model": "teleporter:teleporter_upper", "y": 0 },
+		"facing=north,half=top,type=ender": { "model": "teleporter:ender_teleporter_upper", "y": 0 },
+		"facing=north,half=bottom,type=regular": { "model": "teleporter:teleporter_lower", "y": 0 },
+		"facing=north,half=bottom,type=ender": { "model": "teleporter:ender_teleporter_lower", "y": 0 },
+
+		"facing=south,half=top,type=regular": { "model": "teleporter:teleporter_upper", "y": 180 },
+		"facing=south,half=top,type=ender": { "model": "teleporter:ender_teleporter_upper", "y": 180 },
+		"facing=south,half=bottom,type=regular": { "model": "teleporter:teleporter_lower", "y": 180 },
+		"facing=south,half=bottom,type=ender": { "model": "teleporter:ender_teleporter_lower", "y": 180 },
+
+		"facing=west,half=top,type=regular": { "model": "teleporter:teleporter_upper", "y": 270 },
+		"facing=west,half=top,type=ender": { "model": "teleporter:ender_teleporter_upper", "y": 270 },
+		"facing=west,half=bottom,type=regular": { "model": "teleporter:teleporter_lower", "y": 270 },
+		"facing=west,half=bottom,type=ender": { "model": "teleporter:ender_teleporter_lower", "y": 270 },
+
+		"facing=east,half=top,type=regular": { "model": "teleporter:teleporter_upper", "y": 90 },
+		"facing=east,half=top,type=ender": { "model": "teleporter:ender_teleporter_upper", "y": 90 },
+		"facing=east,half=bottom,type=regular": { "model": "teleporter:teleporter_lower", "y": 90 },
+		"facing=east,half=bottom,type=ender": { "model": "teleporter:ender_teleporter_lower", "y": 90 }
 	}
 }
