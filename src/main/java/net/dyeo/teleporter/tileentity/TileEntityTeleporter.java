@@ -13,13 +13,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.IWorldNameable;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class TileEntityTeleporter extends TileEntity implements ITickable
+public class TileEntityTeleporter extends TileEntity implements ITickable, IWorldNameable
 {
 	private String customName = null;
 	private boolean firstUpdate = true;
@@ -53,9 +53,16 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	public NBTTagCompound writeToNBT(NBTTagCompound compound)
 	{
 		compound = super.writeToNBT(compound);
-		if (this.hasCustomName()) compound.setString("CustomName", this.customName);
+
 		compound.setBoolean("powered", this.isPowered());
+
 		compound.setTag("Inventory", this.handler.serializeNBT());
+
+		if (this.hasCustomName())
+		{
+			compound.setString("CustomName", this.customName);
+		}
+
 		return compound;
 	}
 
@@ -63,9 +70,15 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	public void readFromNBT(NBTTagCompound compound)
 	{
 		super.readFromNBT(compound);
-		if (compound.hasKey("CustomName", NBT.TAG_STRING)) this.customName = compound.getString("CustomName");
+
 		this.setPowered(compound.getBoolean("powered"));
+
 		this.handler.deserializeNBT(compound.getCompoundTag("Inventory"));
+
+		if (compound.hasKey("CustomName", 8))
+		{
+			this.customName = compound.getString("CustomName");
+		}
 	}
 
 	public boolean isPowered()
@@ -78,12 +91,14 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 		this.isPowered = isPowered;
 	}
 
+	@Override
 	public String getName()
 	{
-		String unlocalizedName = "tile." + this.getWorld().getBlockState(this.getPos()).getValue(BlockTeleporter.TYPE).getUnlocalizedName() + ".name";
+		String unlocalizedName = "tile." + this.world.getBlockState(this.pos).getValue(BlockTeleporter.TYPE).getUnlocalizedName() + ".name";
 		return this.hasCustomName() ? this.customName : unlocalizedName;
 	}
 
+	@Override
 	public boolean hasCustomName()
 	{
 		return this.customName != null && !this.customName.isEmpty();
@@ -115,7 +130,7 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	@Override
 	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate)
 	{
-		return false;
+		return (oldState.getBlock() != newSate.getBlock()) || (oldState.getValue(BlockTeleporter.TYPE) != newSate.getValue(BlockTeleporter.TYPE));
 	}
 
 	@Override
@@ -159,5 +174,4 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 			}
 		}
 	}
-
 }
