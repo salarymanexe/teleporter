@@ -25,7 +25,7 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 	private boolean firstUpdate = true;
 	private boolean isPowered = false;
 
-	private ItemStackHandler handler = new ItemStackHandler(1)
+	public ItemStackHandler handler = new ItemStackHandler(1)
 	{
 		@Override
 		protected void onContentsChanged(int slot)

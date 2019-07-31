@@ -25,7 +25,7 @@ public class GuiTeleporter extends GuiContainer
 		this.playerInventory = playerInventory;
 		this.tileEntity = tileEntity;
 		this.xSize = 176;
-		this.ySize = 167;
+		this.ySize = 166;
 	}
 
 	@Override
@@ -40,7 +40,11 @@ public class GuiTeleporter extends GuiContainer
 	{
 		Minecraft.getMinecraft().getTextureManager().bindTexture(TELEPORTER_GUI_TEXTURE);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
+		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize+1);
+		if(this.tileEntity.handler.getStackInSlot(0).isEmpty())
+		{
+			this.drawTexturedModalRect(this.guiLeft + 75,this.guiTop + 32, 0, 167, 24,24);
+		}
 	}
 
 	@Override
