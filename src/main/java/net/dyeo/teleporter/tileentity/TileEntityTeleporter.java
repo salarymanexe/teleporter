@@ -13,13 +13,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.IWorldNameable;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class TileEntityTeleporter extends TileEntity implements ITickable, IWorldNameable
+public class TileEntityTeleporter extends TileEntity implements ITickable
 {
 	private String customName = null;
 	private boolean firstUpdate = true;
@@ -77,10 +76,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable, IWorl
 
 		if (compound.hasKey("CustomName", 8))
 		{
-			if(this.world != null)
-			{
-				scala.Console.println(this.world.isRemote ? "Client" : "Server");
-			}
 			this.customName = compound.getString("CustomName");
 		}
 	}
@@ -95,7 +90,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable, IWorl
 		this.isPowered = isPowered;
 	}
 
-	@Override
 	public String getName()
 	{
 		return this.hasCustomName()
@@ -103,7 +97,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable, IWorl
 				: "tile." + this.world.getBlockState(this.pos).getValue(BlockTeleporter.TYPE).getUnlocalizedName() + ".name";
 	}
 
-	@Override
 	public boolean hasCustomName()
 	{
 		return this.customName != null && !this.customName.isEmpty();
