@@ -201,20 +201,4 @@ public class TeleporterUtility
 		entity.rotationPitch = pitch;
 		entity.setPositionAndUpdate(x,y,z);
 	}
-
-	public class RenderTickEventHandler
-	{
-		private final Minecraft minecraft;
-
-		public RenderTickEventHandler()
-		{
-			this.minecraft = Minecraft.getMinecraft();
-		}
-
-		@SubscribeEvent
-		public void onRenderTick(TickEvent.RenderTickEvent e)
-		{
-
-		}
-	}
 }

@@ -77,6 +77,10 @@ public class TileEntityTeleporter extends TileEntity implements ITickable, IWorl
 
 		if (compound.hasKey("CustomName", 8))
 		{
+			if(this.world != null)
+			{
+				scala.Console.println(this.world.isRemote ? "Client" : "Server");
+			}
 			this.customName = compound.getString("CustomName");
 		}
 	}
@@ -94,8 +98,9 @@ public class TileEntityTeleporter extends TileEntity implements ITickable, IWorl
 	@Override
 	public String getName()
 	{
-		String unlocalizedName = "tile." + this.world.getBlockState(this.pos).getValue(BlockTeleporter.TYPE).getUnlocalizedName() + ".name";
-		return this.hasCustomName() ? this.customName : unlocalizedName;
+		return this.hasCustomName()
+				? this.customName
+				: "tile." + this.world.getBlockState(this.pos).getValue(BlockTeleporter.TYPE).getUnlocalizedName() + ".name";
 	}
 
 	@Override
@@ -112,12 +117,17 @@ public class TileEntityTeleporter extends TileEntity implements ITickable, IWorl
 	@Override
 	public ITextComponent getDisplayName()
 	{
-		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
+		return this.hasCustomName()
+				? new TextComponentString(this.getName())
+				: new TextComponentTranslation(this.getName());
 	}
 
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		if (this.world.getTileEntity(this.pos) != this) return false;
+		if (this.world.getTileEntity(this.pos) != this)
+		{
+			return false;
+		}
 		return player.getDistanceSq(this.pos.getX() + 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5) < 64.0;
 	}
 
@@ -130,7 +140,7 @@ public class TileEntityTeleporter extends TileEntity implements ITickable, IWorl
 	@Override
 	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate)
 	{
-		return (oldState.getBlock() != newSate.getBlock()) || (oldState.getValue(BlockTeleporter.TYPE) != newSate.getValue(BlockTeleporter.TYPE));
+		return oldState.getBlock() != newSate.getBlock();
 	}
 
 	@Override
