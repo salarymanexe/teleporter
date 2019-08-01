@@ -115,11 +115,8 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		if (this.world.getTileEntity(this.pos) != this)
-		{
-			return false;
-		}
-		return player.getDistanceSq(this.pos.getX() + 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5) < 64.0;
+		return this.world.getTileEntity(this.pos) == this
+				&& player.getDistanceSq(this.pos.getX() + 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5) < 64.0;
 	}
 
 	public void removeFromNetwork()
