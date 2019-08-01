@@ -5,7 +5,7 @@
 	"mcversion": "${mcversion}",
 	"version": "${version}",
 	"url": "https://minecraft.curseforge.com/projects/vanilla-inspired-teleporters",
-	"updateUrl": "",
+	"updateUrl": "https://raw.githubusercontent.com/dyeo/VanillaTeleporter/master/update.json",
 	"authorList": ["DanYeomans","bronsonf1","crazysnailboy"],
 	"credits": "Originally programmed by DanYeomans, designed by bronsonf1",
 	"logoFile": "",

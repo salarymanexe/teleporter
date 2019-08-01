@@ -1,8 +1,10 @@
 {
 	"homepage": "https://minecraft.curseforge.com/projects/vanilla-inspired-teleporters/files",
 	"promos": {
-		"1.12-latest": "1.7.0",
-		"1.12-recommended": "1.7.0",
+		"1.12.2-latest": "1.7.1",
+		"1.12.2-recommended": "1.7.1",
+		"1.12-latest": "1.6.3-beta1",
+		"1.12-recommended": "1.6.2",
 		"1.11.2-latest": "1.6.2",
 		"1.11.2-recommended": "1.6.2",
 		"1.11-latest": "1.6.2",
@@ -16,12 +18,15 @@
 		"1.7.10-latest": "1.6.2",
 		"1.7.10-recommended": "1.6.2"
 	},
-	"1.12": {
+	"1.12.2": {	
+		"1.7.1": "Fix teleporter item sometimes not displaying correctly\nMake teleporters have a facing direction which affects player yaw when teleporting\nImprove teleporter menu appearance",
 		"1.7.0": "Make all teleporters half-slabs\nMake entity teleportation work cross-dimensionally\nForce load chunks before teleporting to them\nFix teleporter UI offset\nMake teleporter custom names form a seperate network",
 		"1.6.3-beta5": "Fixed ender teleporters not working with unloaded dimensions",
 		"1.6.3-beta4": "Fixed error when joining server, fixed model registration for ender teleporters",
 		"1.6.3-beta3": "Fixed problem with sound registration",
 		"1.6.3-beta2": "Changed registrations to work with Forge 2363 and later",
+	},
+	"1.12": {
 		"1.6.3-beta1": "Changed recipe registration to work with Forge 2324 and later",
 		"1.6.2": "Initial 1.12 update"
 	},
