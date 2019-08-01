@@ -54,7 +54,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 		compound = super.writeToNBT(compound);
 
 		compound.setBoolean("powered", this.isPowered());
-
 		compound.setTag("Inventory", this.handler.serializeNBT());
 
 		if (this.hasCustomName())
@@ -71,7 +70,6 @@ public class TileEntityTeleporter extends TileEntity implements ITickable
 		super.readFromNBT(compound);
 
 		this.setPowered(compound.getBoolean("powered"));
-
 		this.handler.deserializeNBT(compound.getCompoundTag("Inventory"));
 
 		if (compound.hasKey("CustomName", 8))
