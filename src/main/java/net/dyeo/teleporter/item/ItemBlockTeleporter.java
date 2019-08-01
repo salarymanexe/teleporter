@@ -24,6 +24,6 @@ public class ItemBlockTeleporter extends ItemSlab
 	@Override
 	public String getUnlocalizedName(ItemStack stack)
 	{
-		return "tile." + BlockTeleporter.EnumType.fromMetadata(stack.getMetadata()).getUnlocalizedName();
+		return "tile." + BlockTeleporter.EnumType.fromMetadata(stack.getMetadata() & BlockTeleporter.TYPE_MASK).getUnlocalizedName();
 	}
 }
